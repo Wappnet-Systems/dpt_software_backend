@@ -77,7 +77,6 @@ class UploadFile
         } else {
             $response = Storage::disk('s3')->put(sprintf('%s/%s', $projectPath, $newFileName), file_get_contents($file), 'public');
         }
-
         return sprintf('%s/%s', $path, $newFileName);
     }
 
@@ -106,10 +105,9 @@ class UploadFile
     {
         if (!isset($path) || empty($path)) return null;
 
-        $s3_link = config('filesystems.s3.url');
+        $s3_link = config('filesystems.disks.s3.url');
 
         $projectPath = sprintf('%s/%s', $this->_projectName, $path);
-
         return sprintf('%s/%s', $s3_link, $projectPath);
     }
 
