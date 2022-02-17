@@ -9,9 +9,17 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\System\UserLoginLog;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use App\Helpers\UploadFile;
 
 class ProfileController extends Controller
 {
+    protected $upload_file;
+
+    public function __construct()
+    {
+        $this->upload_file = new UploadFile();
+    }
+
     public function logout(Request $request)
     {
         $user = $request->user();
@@ -41,7 +49,7 @@ class ProfileController extends Controller
         $user = User::find($user->id);
 
         $validator = Validator::make($request->all(), [
-            'old_password' => [ function($attribute, $value, $fail) {
+            'old_password' => [function ($attribute, $value, $fail) {
                 if (!Hash::check($value, auth()->user()->password)) {
                     $fail('The :attribute is incorrect.');
                 }
@@ -60,5 +68,88 @@ class ProfileController extends Controller
         ]);
 
         return $this->sendResponse($user, 'Password updated successfully.');
+    }
+
+    public function getUserDetails(Request $request)
+    {
+        $user = $request->user();
+
+        $user = User::select('id', 'name', 'email', 'personal_email', 'phone_number', 'profile_image', 'address', 'lat', 'long', 'city', 'state', 'country', 'zip_code')
+            ->whereId($user->id)
+            ->first();
+
+        return $this->sendResponse($user, 'Get Profile Detail.');
+    }
+
+    public function updateUserDetails(Request $request)
+    {
+        $user = $request->user();
+
+        $validator = Validator::make($request->all(), [
+            'name' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            foreach ($validator->errors()->messages() as $key => $value) {
+                return $this->sendError('Validation Error.', [$key => $value[0]]);
+            }
+        }
+
+        $user = User::whereId($user->id)->first();
+
+        if (!isset($user) || empty($user)) {
+            return $this->sendError('User not exists.');
+        }
+
+        if ($request->hasFile('profile_image')) {
+            $dirPath = str_replace(':uid:', $user->id, config('constants.users.image_path'));
+
+            $this->upload_file->deleteFileFromS3($user->profile_image);
+
+            $filePath = $this->upload_file->uploadFileInS3($request, $dirPath, 'profile_image');
+
+            if (isset($filePath) && !empty($filePath)) {
+                $user->profile_image = $filePath;
+            }
+        }
+
+        if ($request->filled('name')) {
+            $user->name = $request->name;
+        }
+
+        if ($request->filled('personal_email')) {
+            $user->personal_email = $request->personal_email;
+        }
+
+        if ($request->filled('phone_number')) {
+            $user->phone_number = $request->phone_number;
+        }
+
+        if ($request->filled('address')) {
+            $user->address = $request->address;
+            $user->lat = $request->lat;
+            $user->long = $request->long;
+        }
+
+        if ($request->filled('city')) {
+            $user->city = $request->city;
+        }
+
+        if ($request->filled('state')) {
+            $user->state = $request->state;
+        }
+
+        if ($request->filled('country')) {
+            $user->country = $request->country;
+        }
+
+        if ($request->filled('zip_code')) {
+            $user->zip_code = $request->zip_code;
+        }
+
+        $user->updated_ip = $request->ip();
+        $user->save();
+
+        return $this->sendResponse($user, 'Profile Updated Successfully.');
     }
 }

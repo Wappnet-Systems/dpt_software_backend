@@ -5,7 +5,6 @@ namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 use Database\Seeders\System\AdminUserSeeder;
 use Database\Seeders\System\EmailFormatsSeeder;
-use Database\Seeders\System\StateAndCitySeeder;
 
 class SystemDatabaseSeeder extends Seeder
 {
@@ -18,8 +17,7 @@ class SystemDatabaseSeeder extends Seeder
     {
         $this->call([
             AdminUserSeeder::class,
-            EmailFormatsSeeder::class,
-            StateAndCitySeeder::class,
+            EmailFormatsSeeder::class
         ]);
     }
 }
