@@ -74,7 +74,9 @@ class ProfileController extends Controller
     {
         $user = $request->user();
 
-        $user = User::where('id', $user->id)->select('id', 'name', 'email', 'profile_image')->first();
+        $user = User::select('id', 'name', 'email', 'personal_email', 'phone_number', 'profile_image', 'address', 'lat', 'long', 'city', 'state', 'country', 'zip_code')
+            ->whereId($user->id)
+            ->first();
 
         return $this->sendResponse($user, 'Get Profile Detail.');
     }
@@ -83,10 +85,8 @@ class ProfileController extends Controller
     {
         $user = $request->user();
 
-        $user = User::find($user->id);
-
         $validator = Validator::make($request->all(), [
-            'name' => 'required'
+            'name' => 'required',
         ]);
 
         if ($validator->fails()) {
@@ -94,7 +94,13 @@ class ProfileController extends Controller
                 return $this->sendError('Validation Error.', [$key => $value[0]]);
             }
         }
-        $updateArr = [];
+
+        $user = User::whereId($user->id)->first();
+
+        if (!isset($user) || empty($user)) {
+            return $this->sendError('User not exists.');
+        }
+
         if ($request->hasFile('profile_image')) {
             $dirPath = str_replace(':uid:', $user->id, config('constants.users.image_path'));
 
@@ -103,17 +109,46 @@ class ProfileController extends Controller
             $filePath = $this->upload_file->uploadFileInS3($request, $dirPath, 'profile_image');
 
             if (isset($filePath) && !empty($filePath)) {
-                $updateArr['profile_image'] = $filePath;
-                User::where('id', $user->id)->update($updateArr);
+                $user->profile_image = $filePath;
             }
         }
-        $updateArr = [
-            'name' => $request->name,
-            'updated_at' => date('Y-m-d H:i:s'),
-            'created_ip' => $request->ip(),
-            'updated_ip' => $request->ip()
-        ];
-        User::where('id', $user->id)->update($updateArr);
+
+        if ($request->filled('name')) {
+            $user->name = $request->name;
+        }
+
+        if ($request->filled('personal_email')) {
+            $user->personal_email = $request->personal_email;
+        }
+
+        if ($request->filled('phone_number')) {
+            $user->phone_number = $request->phone_number;
+        }
+
+        if ($request->filled('address')) {
+            $user->address = $request->address;
+            $user->lat = $request->lat;
+            $user->long = $request->long;
+        }
+
+        if ($request->filled('city')) {
+            $user->city = $request->city;
+        }
+
+        if ($request->filled('state')) {
+            $user->state = $request->state;
+        }
+
+        if ($request->filled('country')) {
+            $user->country = $request->country;
+        }
+
+        if ($request->filled('zip_code')) {
+            $user->zip_code = $request->zip_code;
+        }
+
+        $user->updated_ip = $request->ip();
+        $user->save();
 
         return $this->sendResponse($user, 'Profile Updated Successfully.');
     }

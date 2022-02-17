@@ -21,8 +21,17 @@ class CreateUsersTable extends Migration
             $table->uuid('user_uuid')->nullable();
             $table->string('name', 100);
             $table->string('email', 50)->unique();
+            $table->string('personal_email', 50)->nullable()->unique();
             $table->string('password', 255);
+            $table->string('phone_number', 15)->nullable();
             $table->string('profile_image', 255)->nullable();
+            $table->string('address', 255)->nullable();
+            $table->double('lat', 10, 8)->nullable();
+            $table->double('long', 11, 8)->nullable();
+            $table->string('city', 25)->nullable();
+            $table->string('state', 25)->nullable();
+            $table->string('country', 25)->nullable();
+            $table->string('zip_code', 10)->nullable();
             $table->tinyInteger('type')->comment('1 - Admin, 2 - Organization Admin, 3 - Project Site Admin, 4 - Engineer,  5 - Forman, 6 - Contractor, 7 - Sub Contractor');
             $table->tinyInteger('status')->default(1)->comment('1 - Active, 2 - In Active, 3 - Deleted');
             $table->foreignId('organization_id')->nullable()->constrained('organizations')->cascadeOnUpdate()->cascadeOnDelete();

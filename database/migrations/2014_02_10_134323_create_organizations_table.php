@@ -24,9 +24,10 @@ class CreateOrganizationsTable extends Migration
             $table->string('logo', 255)->nullable();
             $table->string('phone_no', 15)->nullable();
             $table->string('fax_no', 50)->nullable();
-            $table->string('address', 100)->nullable();
-            $table->foreignId('state_id')->nullable()->constrained('state_master')->nullOnDelete();
-            $table->foreignId('city_id')->nullable()->constrained('city_master')->nullOnDelete();
+            $table->string('address', 255)->nullable();
+            $table->string('city', 25)->nullable();
+            $table->string('state', 25)->nullable();
+            $table->string('country', 25)->nullable();
             $table->string('zip_code', 10)->nullable();
             $table->tinyInteger('status')->default(1)->comment('1 - Active, 2 - In Active, 3 - Deleted');
             $table->unsignedBigInteger('subscription_id')->nullable();
@@ -36,8 +37,6 @@ class CreateOrganizationsTable extends Migration
             $table->timestamps();
 
             $table->index('id', 'organizations_id_index');
-            $table->index('state_id', 'organizations_state_id_index');
-            $table->index('city_id', 'organizations_city_id_index');
             $table->index('hostname_id', 'organizations_hostname_id_index');
         });
     }
