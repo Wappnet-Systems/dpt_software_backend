@@ -6,63 +6,245 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use App\Helpers\UploadFile;
+use App\Models\System\Organization;
+use App\Models\System\User;
+use App\Notifications\Organization\ResetPassword;
 use Hyn\Tenancy\Models\Hostname;
 use Hyn\Tenancy\Models\Website;
 use Hyn\Tenancy\Contracts\Repositories\WebsiteRepository;
 
 class OrganizationController extends Controller
 {
-    protected $upload_file;
+    protected $uploadFile;
 
     public function __construct()
     {
-        $this->upload_file = new UploadFile();
+        $this->uploadFile = new UploadFile();
     }
 
     public function getOrganizations(Request $request)
     {
+        $limit = !empty($request->limit) ? $request->limit : config('constants.default_per_page_limit');
+        $orderBy = !empty($request->orderby) ? $request->orderby : config('constants.default_orderby');
+
+        $query = Organization::where('status', Organization::STATUS['Active'])
+            ->orderBy('id', $orderBy);
+
+        if ($request->exists('cursor')) {
+            $organizations = $query->cursorPaginate($limit)->toArray();
+        } else {
+            $organizations['data'] = $query->get()->toArray();
+        }
+
+        $results = [];
+        if (!empty($organizations['data'])) {
+            $results = $organizations['data'];
+        }
+
+        if ($request->exists('cursor')) {
+            return $this->sendResponse([
+                'lists' => $results,
+                'per_page' => $organizations['per_page'],
+                'next_page_url' => $organizations['next_page_url'],
+                'prev_page_url' => $organizations['prev_page_url']
+            ], 'Organization List');
+        } else {
+            return $this->sendResponse($results, 'Organization List');
+        }
+    }
+
+    public function getOrganizationDetails(Request $request)
+    {
+        $organization = Organization::select('id', 'name', 'email', 'logo', 'phone_no', 'address', 'city', 'state', 'country', 'zip_code', 'subscription_id', 'status')
+            ->whereId($request->id)
+            ->first();
+
+        if (!isset($organization) || empty($organization)) {
+            return $this->sendError('Organization does not exists.');
+        }
+
+        return $this->sendResponse($organization, 'Organization details updated successfully.');
     }
 
     public function addOrganization(Request $request)
     {
-        $user = $request->user();
-
-        if (isset($user) && !empty($user)) {
-
-            $validator = Validator::make($request->all(), [
-                'name' => 'required',
-                'email' => 'required',
-                'phone_no' => 'required',
-                'address' => 'required',
-                'city' => 'required',
-                'state' => 'required',
-                'country' => 'required',
-                'zip_code' => 'required',
-            ]);
-
-            if ($validator->fails()) {
-                foreach ($validator->errors()->messages() as $key => $value) {
-                    return $this->sendError('Validation Error.', [$key => $value[0]]);
+        try {
+            $user = $request->user();
+    
+            if (isset($user) && !empty($user)) {
+                $validator = Validator::make($request->all(), [
+                    'name' => 'required',
+                    'email' => 'required',
+                    'logo' => sprintf('mimes:%s|max:%s', config('constants.upload_image_types'), config('constants.upload_image_max_size')),
+                    'phone_no' => 'required',
+                    'org_domain' => 'required',
+                    'address' => 'required',
+                    'city' => 'required',
+                    'state' => 'required',
+                    'country' => 'required',
+                    'zip_code' => 'required',
+                ],[
+                    'logo.max' => 'The logo must not be greater than 8mb.'
+                ]);
+    
+                if ($validator->fails()) {
+                    foreach ($validator->errors()->messages() as $key => $value) {
+                        return $this->sendError('Validation Error.', [$key => $value[0]]);
+                    }
                 }
-            }
+    
+                // Create new website
+                $website = new Website;
+                $website->uuid = Organization::generateUuid($request->org_domain);
+    
+                if (!app(WebsiteRepository::class)->create($website)) {
+                    return $this->sendError('Something went wrong while creating the organization.');
+                }
+    
+                // Create new hostname
+                $hostname = new Hostname();
+                $hostname->fqdn = $request->org_domain;
+                $hostname->website_id = $website->id;
 
-            $orgDomain = $request->get('org-domain');
-            // Create new website
-            $website = new Website;
-            $website->uuid = $this->generateUuid($orgDomain);
-            if (!app(WebsiteRepository::class)->create($website)) {
-                return redirect()->back()->with('error', 'Unknown error while creating the organization.');
-            }
+                if (!$hostname->save()) {
+                    return $this->sendError('Something went wrong while creating the organization.');
+                }
+    
+                // Create new organization
+                $organization = new Organization();
+                $organization->hostname_id = $hostname->id;
+                $organization->name = $request->name;
+                $organization->email = $request->email;
+                $organization->phone_no = $request->phone_no;
+                $organization->address = $request->address;
+                $organization->city = $request->city;
+                $organization->state = $request->state;
+                $organization->country = $request->country;
+                $organization->zip_code = $request->zip_code;
+                $organization->created_ip = $request->ip();
+                $organization->updated_ip = $request->ip();
 
-        } else {
-            return $this->sendError('User not exists.');
+                if (!$organization->save()) {
+                    return $this->sendError('Something went wrong while creating the organization.');
+                }
+    
+                if ($request->hasFile('logo')) {
+                    $dirPath = str_replace(':uid:', $organization->id, config('constants.organizations.logo_path'));
+    
+                    $organization->logo = $this->uploadFile->uploadFileInS3($request, $dirPath, 'logo', "100", "100");
+                    $organization->save();
+                }
+    
+                // Create new organization admin
+                $orgUser = new User();
+                $orgUser->user_uuid = User::generateUuid();
+                $orgUser->name = $organization->name;
+                $orgUser->email = $organization->email;
+                $orgUser->phone_number = $organization->phone_no;
+                $orgUser->address = $organization->address;
+                $orgUser->city = $organization->city;
+                $orgUser->state = $organization->state;
+                $orgUser->country = $organization->country;
+                $orgUser->zip_code = $organization->zip_code;
+                $orgUser->type = User::TYPE['Company Admin'];
+                $orgUser->organization_id = $organization->id;
+                $orgUser->email_verified_at = date('Y-m-d H:i:s');
+                $orgUser->created_ip = $request->ip();
+                $orgUser->updated_ip = $request->ip();
+
+                if (!$orgUser->save()) {
+                    return $this->sendError('Something went wrong while creating the organization.');
+                }
+
+                $orgUser->notify(new ResetPassword($orgUser->user_uuid));
+
+                return $this->sendResponse($orgUser, 'Organization register successfully, also sent reset password link on organization mail.');
+            } else {
+                return $this->sendError('User not exists.');
+            }
+        } catch (\Exception $e) {
+            return $this->sendError($e->getMessage());
         }
     }
 
-    public function generateUuid(string $orgDomain): string
+    public function updateOrganization(Request $request)
     {
-        $data = '1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZabcefghijklmnopqrstuvwxyz';
-        $uuid = str_replace(".", "_", "mr_" . $orgDomain . "_" . str_shuffle($data));
-        return substr($uuid, 0, 32);
+        try {
+            $user = $request->user();
+        
+            if (isset($user) && !empty($user)) {
+                $validator = Validator::make($request->all(), [
+                    'org_id' => 'required',
+                    'name' => 'required',
+                    'logo' => sprintf('mimes:%s|max:%s', config('constants.upload_image_types'), config('constants.upload_image_max_size')),
+                ],[
+                    'logo.max' => 'The logo must not be greater than 8mb.'
+                ]);
+
+                if ($validator->fails()) {
+                    foreach ($validator->errors()->messages() as $key => $value) {
+                        return $this->sendError('Validation Error.', [$key => $value[0]]);
+                    }
+                }
+
+                $organization = Organization::whereId($request->org_id)->first();
+
+                if (!isset($organization) || empty($organization)) {
+                    return $this->sendError('Organization does not exists.');
+                }
+
+                if ($request->filled('name')) $organization->name = $request->name;
+                if ($request->filled('phone_no')) $organization->phone_no = $request->phone_no;
+                if ($request->filled('address')) $organization->address = $request->address;
+                if ($request->filled('city')) $organization->city = $request->city;
+                if ($request->filled('state')) $organization->state = $request->state;
+                if ($request->filled('country')) $organization->country = $request->country;
+                if ($request->filled('zip_code')) $organization->zip_code = $request->zip_code;
+                $organization->updated_ip = $request->ip();
+
+                if (!$organization->save()) {
+                    return $this->sendError('Something went wrong while creating the organization.');
+                }
+
+                if ($request->hasFile('logo')) {
+                    if (isset($organization->logo) && !empty($organization->logo)) {
+                        $this->uploadFile->deleteFileFromS3($organization->logo);
+                    }
+
+                    $dirPath = str_replace(':uid:', $organization->id, config('constants.organizations.logo_path'));
+
+                    $organization->logo = $this->uploadFile->uploadFileInS3($request, $dirPath, 'logo', "100", "100");
+                    $organization->save();
+                }
+
+                return $this->sendResponse($organization, 'Organization details updated successfully.');
+            } else {
+                return $this->sendError('User not exists.');
+            }
+        } catch (\Exception $e) {
+            return $this->sendError($e->getMessage());
+        }
+    }
+
+    public function changeOrganizationStatus(Request $request)
+    {
+        try {
+            $organization = Organization::whereId($request->org_id)->first();
+    
+            if (isset($organization) && !empty($organization)) {
+                $organization->status = $request->status;
+                $organization->save();
+    
+                if ($organization->status == Organization::STATUS['Deleted']) {
+                    $organization->delete();
+                }
+    
+                return $this->sendResponse($organization, 'Status changed successfully.');
+            }
+    
+            return $this->sendError('Organization does not exists.');
+        } catch (\Exception $e) {
+            return $this->sendError($e->getMessage());
+        }
     }
 }

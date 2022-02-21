@@ -35,8 +35,9 @@ Route::middleware('auth:sanctum')->group(function() {
     Route::post('change-password', [ProfileController::class, 'changePassword']);
     
     /** Register Organization Routes */
-    // Route::post('organization/get', [OrganizationController::class, 'getOrganizations']);
-    // Route::post('organization/add', [OrganizationController::class, 'addOrganization']);
-    // Route::post('organization/update', [OrganizationController::class, 'updateOrganization']);
-    // Route::post('organization/status/change', [OrganizationController::class, 'changeOrganizationStatus']);
+    Route::post('organization/get/lists', [OrganizationController::class, 'getOrganizations']);
+    Route::post('organization/get/{id}', [OrganizationController::class, 'getOrganizationDetails']);
+    Route::post('organization/add', [OrganizationController::class, 'addOrganization']);
+    Route::post('organization/update', [OrganizationController::class, 'updateOrganization']);
+    Route::post('organization/status/change', [OrganizationController::class, 'changeOrganizationStatus']);
 });

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Notifications;
+namespace App\Notifications\Organization;
 
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -46,7 +46,7 @@ class ResetPassword extends Notification implements ShouldQueue
 
         return (new MailMessage)
             ->subject('Reset Password Notification')
-            ->line('You are receiving this email because we received a password reset request for your account.')
+            ->line('Your account has been created by DPT Team, So please reset the password of your account on DPT.')
             ->action('Reset Password', $url)
             ->line('This password reset link will expire in :count minutes.', ['count' => config('auth.passwords.'.config('auth.defaults.passwords').'.expire')])
             ->line('If you did not request a password reset, no further action is required.');

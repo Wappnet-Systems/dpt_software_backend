@@ -23,7 +23,6 @@ class CreateOrganizationsTable extends Migration
             $table->string('email', 50)->unique();
             $table->string('logo', 255)->nullable();
             $table->string('phone_no', 15)->nullable();
-            $table->string('fax_no', 50)->nullable();
             $table->string('address', 255)->nullable();
             $table->string('city', 25)->nullable();
             $table->string('state', 25)->nullable();

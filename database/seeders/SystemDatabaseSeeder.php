@@ -4,7 +4,6 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use Database\Seeders\System\AdminUserSeeder;
-use Database\Seeders\System\EmailFormatsSeeder;
 
 class SystemDatabaseSeeder extends Seeder
 {
@@ -16,8 +15,7 @@ class SystemDatabaseSeeder extends Seeder
     public function run()
     {
         $this->call([
-            AdminUserSeeder::class,
-            EmailFormatsSeeder::class
+            AdminUserSeeder::class
         ]);
     }
 }

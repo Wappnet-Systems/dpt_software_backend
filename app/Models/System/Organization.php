@@ -73,4 +73,13 @@ class Organization extends Model
     {
         return $this->belongsTo(Hostname::class);
     }
+
+    public static function generateUuid($orgDomain = null)
+    {
+        $data = '1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZabcefghijklmnopqrstuvwxyz';
+
+        $uuid = str_replace(".", "_", sprintf("%s_%s", $orgDomain, str_shuffle($data)));
+        
+        return substr($uuid, 0, 32);
+    }
 }
