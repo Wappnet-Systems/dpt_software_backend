@@ -13,11 +13,11 @@ use App\Helpers\UploadFile;
 
 class ProfileController extends Controller
 {
-    protected $upload_file;
+    protected $uploadFile;
 
     public function __construct()
     {
-        $this->upload_file = new UploadFile();
+        $this->uploadFile = new UploadFile();
     }
 
     public function logout(Request $request)
@@ -87,6 +87,9 @@ class ProfileController extends Controller
 
         $validator = Validator::make($request->all(), [
             'name' => 'required',
+            'profile_image' => sprintf('mimes:%s|max:%s', config('constants.upload_image_types'), config('constants.upload_image_max_size'))
+        ],[
+            'profile_image.max' => 'The profile image must not be greater than 8mb.'
         ]);
 
         if ($validator->fails()) {
@@ -104,9 +107,9 @@ class ProfileController extends Controller
         if ($request->hasFile('profile_image')) {
             $dirPath = str_replace(':uid:', $user->id, config('constants.users.image_path'));
 
-            $this->upload_file->deleteFileFromS3($user->profile_image);
+            $this->uploadFile->deleteFileFromS3($user->profile_image);
 
-            $filePath = $this->upload_file->uploadFileInS3($request, $dirPath, 'profile_image');
+            $filePath = $this->uploadFile->uploadFileInS3($request, $dirPath, 'profile_image');
 
             if (isset($filePath) && !empty($filePath)) {
                 $user->profile_image = $filePath;

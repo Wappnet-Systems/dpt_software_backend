@@ -60,8 +60,8 @@ class User extends Authenticatable
 
     const TYPE = [
         'Admin' => 1,
-        'Organization Admin' => 2,
-        'Project Site Admin' => 3,
+        'Company Admin' => 2,
+        'Construction Site Admin' => 3,
         'Engineer' => 4,
         'Forman' => 5,
         'Contractor' => 6,
@@ -125,6 +125,15 @@ class User extends Authenticatable
     public function organization()
     {
         return $this->belongsTo(Organization::class, 'organization_id', 'id');
+    }
+
+    public static function generateUuid()
+    {
+        $data = '1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZabcefghijklmnopqrstuvwxyz';
+
+        $uuid = str_shuffle($data);
+        
+        return substr($uuid, 0, 32);
     }
 
     /**
