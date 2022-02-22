@@ -70,7 +70,7 @@ class ProfileController extends Controller
         return $this->sendResponse($user, 'Password updated successfully.');
     }
 
-    public function getUserDetails(Request $request)
+    public function getProfileDetails(Request $request)
     {
         $user = $request->user();
 
@@ -81,7 +81,7 @@ class ProfileController extends Controller
         return $this->sendResponse($user, 'Get Profile Detail.');
     }
 
-    public function updateUserDetails(Request $request)
+    public function updateProfileDetails(Request $request)
     {
         $user = $request->user();
 

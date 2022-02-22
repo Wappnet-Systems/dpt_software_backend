@@ -29,6 +29,7 @@ class CreateOrganizationsTable extends Migration
             $table->string('country', 25)->nullable();
             $table->string('zip_code', 10)->nullable();
             $table->tinyInteger('status')->default(1)->comment('1 - Active, 2 - In Active, 3 - Deleted');
+            $table->boolean('is_details_visible');
             $table->unsignedBigInteger('subscription_id')->nullable();
             $table->ipAddress('created_ip')->nullable();
             $table->ipAddress('updated_ip')->nullable();

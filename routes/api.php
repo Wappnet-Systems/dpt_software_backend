@@ -28,16 +28,22 @@ Route::post('reset-password', [ResetPasswordController::class, 'resetPassword'])
 Route::middleware('auth:sanctum')->group(function() {
     Route::post('logout', [ProfileController::class, 'logout']);
 
-    /** Users Profile Routes */
-    Route::post('get-profile-details', [ProfileController::class, 'getUserDetails']);
-    Route::post('update-profile-details', [ProfileController::class, 'updateUserDetails']);
-    Route::post('update-profile', [ProfileController::class, 'updateProfile']);
+    /** Loggedin Users Profile Routes */
+    Route::post('profile/details/get', [ProfileController::class, 'getProfileDetails']);
+    Route::post('profile/details/update', [ProfileController::class, 'updateProfileDetails']);
     Route::post('change-password', [ProfileController::class, 'changePassword']);
     
-    /** Register Organization Routes */
+    /** Organizations Management Routes */
     Route::post('organization/get/lists', [OrganizationController::class, 'getOrganizations']);
     Route::post('organization/get/{id}', [OrganizationController::class, 'getOrganizationDetails']);
     Route::post('organization/add', [OrganizationController::class, 'addOrganization']);
     Route::post('organization/update', [OrganizationController::class, 'updateOrganization']);
     Route::post('organization/status/change', [OrganizationController::class, 'changeOrganizationStatus']);
+
+    /** User Management Routes */
+    Route::post('user/get/lists', [OrganizationUserController::class, 'getUsers']);
+    Route::post('user/get/{id}', [OrganizationUserController::class, 'getUserDetails']);
+    Route::post('user/add', [OrganizationUserController::class, 'addUser']);
+    Route::post('user/update', [OrganizationUserController::class, 'updateUser']);
+    Route::post('user/status/change', [OrganizationUserController::class, 'changeUserStatus']);
 });

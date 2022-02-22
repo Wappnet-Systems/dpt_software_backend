@@ -70,10 +70,11 @@ class OrganizationController extends Controller
     {
         try {
             $user = $request->user();
-    
+
             if (isset($user) && !empty($user)) {
                 $validator = Validator::make($request->all(), [
                     'name' => 'required',
+                    'org_admin_name' => 'required',
                     'email' => 'required',
                     'logo' => sprintf('mimes:%s|max:%s', config('constants.upload_image_types'), config('constants.upload_image_max_size')),
                     'phone_no' => 'required',
@@ -83,24 +84,25 @@ class OrganizationController extends Controller
                     'state' => 'required',
                     'country' => 'required',
                     'zip_code' => 'required',
-                ],[
+                ], [
+                    'org_admin_name.required' => 'The organization admin name is require.',
                     'logo.max' => 'The logo must not be greater than 8mb.'
                 ]);
-    
+
                 if ($validator->fails()) {
                     foreach ($validator->errors()->messages() as $key => $value) {
                         return $this->sendError('Validation Error.', [$key => $value[0]]);
                     }
                 }
-    
+
                 // Create new website
                 $website = new Website;
                 $website->uuid = Organization::generateUuid($request->org_domain);
-    
+
                 if (!app(WebsiteRepository::class)->create($website)) {
                     return $this->sendError('Something went wrong while creating the organization.');
                 }
-    
+
                 // Create new hostname
                 $hostname = new Hostname();
                 $hostname->fqdn = $request->org_domain;
@@ -109,7 +111,7 @@ class OrganizationController extends Controller
                 if (!$hostname->save()) {
                     return $this->sendError('Something went wrong while creating the organization.');
                 }
-    
+
                 // Create new organization
                 $organization = new Organization();
                 $organization->hostname_id = $hostname->id;
@@ -121,24 +123,25 @@ class OrganizationController extends Controller
                 $organization->state = $request->state;
                 $organization->country = $request->country;
                 $organization->zip_code = $request->zip_code;
+                $organization->is_details_visible = $request->is_details_visible;
                 $organization->created_ip = $request->ip();
                 $organization->updated_ip = $request->ip();
 
                 if (!$organization->save()) {
                     return $this->sendError('Something went wrong while creating the organization.');
                 }
-    
+
                 if ($request->hasFile('logo')) {
                     $dirPath = str_replace(':uid:', $organization->id, config('constants.organizations.logo_path'));
-    
+
                     $organization->logo = $this->uploadFile->uploadFileInS3($request, $dirPath, 'logo', "100", "100");
                     $organization->save();
                 }
-    
+
                 // Create new organization admin
                 $orgUser = new User();
                 $orgUser->user_uuid = User::generateUuid();
-                $orgUser->name = $organization->name;
+                $orgUser->name = $request->org_admin_name;
                 $orgUser->email = $organization->email;
                 $orgUser->phone_number = $organization->phone_no;
                 $orgUser->address = $organization->address;
@@ -171,13 +174,15 @@ class OrganizationController extends Controller
     {
         try {
             $user = $request->user();
-        
+
             if (isset($user) && !empty($user)) {
                 $validator = Validator::make($request->all(), [
                     'org_id' => 'required',
                     'name' => 'required',
+                    'org_admin_name' => 'required',
                     'logo' => sprintf('mimes:%s|max:%s', config('constants.upload_image_types'), config('constants.upload_image_max_size')),
-                ],[
+                ], [
+                    'org_admin_name.required' => 'The organization admin name is require.',
                     'logo.max' => 'The logo must not be greater than 8mb.'
                 ]);
 
@@ -200,6 +205,7 @@ class OrganizationController extends Controller
                 if ($request->filled('state')) $organization->state = $request->state;
                 if ($request->filled('country')) $organization->country = $request->country;
                 if ($request->filled('zip_code')) $organization->zip_code = $request->zip_code;
+                if ($request->filled('is_details_visible')) $organization->is_details_visible = $request->is_details_visible;
                 $organization->updated_ip = $request->ip();
 
                 if (!$organization->save()) {
@@ -217,6 +223,14 @@ class OrganizationController extends Controller
                     $organization->save();
                 }
 
+                if (isset($organization) && !empty($organization)) {
+                    $user = User::whereOrganizationId($request->org_id)->whereType(User::TYPE['Company Admin'])->first();
+
+                    if ($request->filled('org_admin_name')) $user->name = $request->org_admin_name;
+
+                    $user->save();
+                }
+
                 return $this->sendResponse($organization, 'Organization details updated successfully.');
             } else {
                 return $this->sendError('User not exists.');
@@ -230,18 +244,18 @@ class OrganizationController extends Controller
     {
         try {
             $organization = Organization::whereId($request->org_id)->first();
-    
+
             if (isset($organization) && !empty($organization)) {
                 $organization->status = $request->status;
                 $organization->save();
-    
+
                 if ($organization->status == Organization::STATUS['Deleted']) {
                     $organization->delete();
                 }
-    
+
                 return $this->sendResponse($organization, 'Status changed successfully.');
             }
-    
+
             return $this->sendError('Organization does not exists.');
         } catch (\Exception $e) {
             return $this->sendError($e->getMessage());

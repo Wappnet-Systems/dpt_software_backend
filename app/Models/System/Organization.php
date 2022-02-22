@@ -16,7 +16,7 @@ class Organization extends Model
     protected $table = "organizations";
 
     protected $connection = 'mysql';
-    
+
     protected $guarded = [];
 
     protected $appends = ['status_name', 'logo_path'];
@@ -59,16 +59,6 @@ class Organization extends Model
         return null;
     }
 
-    public function stateMaster()
-    {
-        return $this->belongsTo(StateMaster::class, 'state_id', 'id');
-    }
-    
-    public function cityMaster()
-    {
-        return $this->belongsTo(CityMaster::class, 'city_id', 'id');
-    }
-
     public function hostname()
     {
         return $this->belongsTo(Hostname::class);
@@ -79,7 +69,7 @@ class Organization extends Model
         $data = '1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZabcefghijklmnopqrstuvwxyz';
 
         $uuid = str_replace(".", "_", sprintf("%s_%s", $orgDomain, str_shuffle($data)));
-        
+
         return substr($uuid, 0, 32);
     }
 }
