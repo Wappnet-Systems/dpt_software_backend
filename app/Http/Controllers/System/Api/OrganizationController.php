@@ -27,8 +27,20 @@ class OrganizationController extends Controller
         $limit = !empty($request->limit) ? $request->limit : config('constants.default_per_page_limit');
         $orderBy = !empty($request->orderby) ? $request->orderby : config('constants.default_orderby');
 
-        $query = Organization::where('status', Organization::STATUS['Active'])
+        $query = Organization::with('user')
+            ->where('status', Organization::STATUS['Active'])
             ->orderBy('id', $orderBy);
+
+        if (isset($request->search) && !empty($request->search)) {
+            $search = trim(strtolower($request->search));
+
+            $query = $query->whereRaw('LOWER(CONCAT(`name`,`email`,`phone_no`)) LIKE ?', ['%'. $search .'%']);
+
+            $query = $query->orWhereHas('user', function($query) use($search) {
+                $query->whereRaw('LOWER(`name`) LIKE ?', ['%'. $search .'%'])
+                    ->where('type', User::TYPE['Company Admin']);
+            });
+        }
 
         if ($request->exists('cursor')) {
             $organizations = $query->cursorPaginate($limit)->toArray();
@@ -67,7 +79,7 @@ class OrganizationController extends Controller
     }
 
     public function addOrganization(Request $request)
-    {
+    {   
         try {
             $user = $request->user();
 

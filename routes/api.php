@@ -6,6 +6,7 @@ use App\Http\Controllers\System\Api\ProfileController;
 use App\Http\Controllers\System\Api\ForgotPasswordController;
 use App\Http\Controllers\System\Api\ResetPasswordController;
 use App\Http\Controllers\System\Api\OrganizationController;
+use App\Http\Controllers\System\Api\OrganizationUserController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -25,14 +26,14 @@ Route::post('login', [UserController::class, 'login']);
 Route::post('forgot-password', [ForgotPasswordController::class, 'sendResetLinkEmail']);
 Route::post('reset-password', [ResetPasswordController::class, 'resetPassword']);
 
-Route::middleware('auth:sanctum')->group(function() {
+Route::middleware('auth:sanctum')->group(function () {
     Route::post('logout', [ProfileController::class, 'logout']);
 
     /** Loggedin Users Profile Routes */
     Route::post('profile/details/get', [ProfileController::class, 'getProfileDetails']);
     Route::post('profile/details/update', [ProfileController::class, 'updateProfileDetails']);
     Route::post('change-password', [ProfileController::class, 'changePassword']);
-    
+
     /** Organizations Management Routes */
     Route::post('organization/get/lists', [OrganizationController::class, 'getOrganizations']);
     Route::post('organization/get/{id}', [OrganizationController::class, 'getOrganizationDetails']);

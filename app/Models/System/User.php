@@ -152,6 +152,23 @@ class User extends Authenticatable
         return substr($uuid, 0, 32);
     }
 
+    public static function saveUserType($RequestUserType, $authUserType)
+    {
+        if (in_array($authUserType, [self::TYPE['Company Admin']])) {
+
+            return $RequestUserType = self::TYPE['Construction Site Admin'];
+        } elseif (in_array($authUserType, [self::TYPE['Admin']])) {
+
+            return $RequestUserType = self::TYPE['Company Admin'];
+        } elseif (in_array($authUserType, [self::TYPE['Construction Site Admin']])) {
+
+            if (in_array($RequestUserType, [self::TYPE['Engineer'], self::TYPE['Forman'], self::TYPE['Contractor'], self::TYPE['Sub Contractor']])) {
+                return $RequestUserType;
+            }
+        }
+        return $RequestUserType;
+    }
+
     /**
      * Send a password reset notification to the user.
      *
