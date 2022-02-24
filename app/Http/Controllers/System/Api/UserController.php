@@ -18,9 +18,9 @@ class UserController extends Controller
         if (isset($user) && !empty($user)) {
             if (!in_array($user->type, User::TYPE)) {
                 return $this->sendError('User does not exist.');
-            } /* else if ($user->type != User::TYPE['Admin'] && empty($user->is_email_verified)) {
+            } /* else if ($user->type != User::TYPE['Super Admin'] && empty($user->is_email_verified)) {
                 return $this->sendError('Please verify your email by clicking the link sent to your email address.');
-            } */ else if ($user->type != User::TYPE['Admin'] && $user->status != User::STATUS['Active']) {
+            } */ else if ($user->type != User::TYPE['Super Admin'] && $user->status != User::STATUS['Active']) {
                 return $this->sendError('This user has been inactivated by admin. Please contact to admin.');
             } else {
                 if (Auth::attempt(['email' => strtolower($request->email), 'password' => $request->password])) { 

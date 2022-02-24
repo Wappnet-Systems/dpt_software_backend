@@ -20,7 +20,7 @@ class AdminUserSeeder extends Seeder
             'name' => "DPT Super Admin",
             'email' => 'dpt@mailinator.com',
             'password' => Hash::make('Try@123'),
-            'type' => User::TYPE['Admin'],
+            'type' => User::TYPE['Super Admin'],
             'email_verified_at' => Carbon::now()
         ]);
     }

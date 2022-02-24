@@ -68,13 +68,20 @@ class User extends Authenticatable
     protected $appends = ['type_name', 'status_name', 'profile_image_path'];
 
     const TYPE = [
-        'Admin' => 1,
+        'Super Admin' => 1,
         'Company Admin' => 2,
         'Construction Site Admin' => 3,
-        'Engineer' => 4,
-        'Forman' => 5,
-        'Contractor' => 6,
-        'Sub Contractor' => 7
+        'Manager' => 4,
+        'Project Engineer' => 5,
+        'QS Department' => 6,
+        'HSE Department' => 7,
+        'Design Department' => 8,
+        'Planner Engineer' => 9,
+        'Engineer' => 10,
+        'Foreman' => 11,
+        'QA/QC' => 12,
+        'Storkeeper' => 13,
+        'Timekeeper' => 14,
     ];
 
     const STATUS = [
