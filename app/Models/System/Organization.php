@@ -16,7 +16,7 @@ class Organization extends Model
     protected $table = "organizations";
 
     protected $connection = 'mysql';
-    
+
     protected $guarded = [];
 
     protected $appends = ['status_name', 'logo_path'];
@@ -59,19 +59,15 @@ class Organization extends Model
         return null;
     }
 
-    public function stateMaster()
-    {
-        return $this->belongsTo(StateMaster::class, 'state_id', 'id');
-    }
-    
-    public function cityMaster()
-    {
-        return $this->belongsTo(CityMaster::class, 'city_id', 'id');
-    }
-
     public function hostname()
     {
         return $this->belongsTo(Hostname::class);
+    }
+
+    public function user()
+    {
+        return $this->hasOne(User::class, 'organization_id', 'id')
+            ->select('user_uuid', 'name', 'email', 'personal_email', 'password', 'phone_number', 'profile_image', 'address', 'lat', 'long', 'city', 'state', 'country', 'zip_code', 'type', 'status', 'organization_id');
     }
 
     public static function generateUuid($orgDomain = null)
@@ -79,7 +75,7 @@ class Organization extends Model
         $data = '1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZabcefghijklmnopqrstuvwxyz';
 
         $uuid = str_replace(".", "_", sprintf("%s_%s", $orgDomain, str_shuffle($data)));
-        
+
         return substr($uuid, 0, 32);
     }
 }

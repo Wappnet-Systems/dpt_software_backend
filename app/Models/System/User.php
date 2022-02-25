@@ -28,8 +28,17 @@ class User extends Authenticatable
         'user_uuid',
         'name',
         'email',
+        'personal_email',
         'password',
+        'phone_number',
         'profile_image',
+        'address',
+        'lat',
+        'long',
+        'city',
+        'state',
+        'country',
+        'zip_code',
         'type',
         'status',
         'organization_id',
@@ -59,13 +68,20 @@ class User extends Authenticatable
     protected $appends = ['type_name', 'status_name', 'profile_image_path'];
 
     const TYPE = [
-        'Admin' => 1,
+        'Super Admin' => 1,
         'Company Admin' => 2,
         'Construction Site Admin' => 3,
-        'Engineer' => 4,
-        'Forman' => 5,
-        'Contractor' => 6,
-        'Sub Contractor' => 7
+        'Manager' => 4,
+        'Project Engineer' => 5,
+        'QS Department' => 6,
+        'HSE Department' => 7,
+        'Design Department' => 8,
+        'Planner Engineer' => 9,
+        'Engineer' => 10,
+        'Foreman' => 11,
+        'QA/QC' => 12,
+        'Storkeeper' => 13,
+        'Timekeeper' => 14,
     ];
 
     const STATUS = [
@@ -134,6 +150,23 @@ class User extends Authenticatable
         $uuid = str_shuffle($data);
         
         return substr($uuid, 0, 32);
+    }
+
+    public static function saveUserType($RequestUserType, $authUserType)
+    {
+        if (in_array($authUserType, [self::TYPE['Company Admin']])) {
+
+            return $RequestUserType = self::TYPE['Construction Site Admin'];
+        } elseif (in_array($authUserType, [self::TYPE['Admin']])) {
+
+            return $RequestUserType = self::TYPE['Company Admin'];
+        } elseif (in_array($authUserType, [self::TYPE['Construction Site Admin']])) {
+
+            if (in_array($RequestUserType, [self::TYPE['Engineer'], self::TYPE['Forman'], self::TYPE['Contractor'], self::TYPE['Sub Contractor']])) {
+                return $RequestUserType;
+            }
+        }
+        return $RequestUserType;
     }
 
     /**
