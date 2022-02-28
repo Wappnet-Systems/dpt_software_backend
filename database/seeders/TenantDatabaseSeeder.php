@@ -3,7 +3,9 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use App\Models\Tenant\User;
+use Database\Seeders\Tenant\UnitTypesSeeder;
+use Database\Seeders\Tenant\MaterialTypesSeeder;
+use Database\Seeders\Tenant\ActivitySubActivityCategorySeeder;
 
 class TenantDatabaseSeeder extends Seeder
 {
@@ -14,6 +16,10 @@ class TenantDatabaseSeeder extends Seeder
      */
     public function run()
     {
-        //
+        $this->call([
+            UnitTypesSeeder::class,
+            MaterialTypesSeeder::class,
+            ActivitySubActivityCategorySeeder::class,
+        ]);
     }
 }
