@@ -93,8 +93,8 @@ Route::middleware('auth:sanctum')->group(function () {
 
     /* Sub Activity Categories Type Route */
     Route::post('sub-activity-category/get/lists', [SubActivityCategoriesController::class, 'getSubActivityCategory']);
-    Route::post('activity-category/get/{id}', [SubActivityCategoriesController::class, 'getDetails']);
-    Route::post('activity-category/add', [SubActivityCategoriesController::class, 'addSubActivityCategory']);
-    Route::post('activity-category/update', [SubActivityCategoriesController::class, 'updateSubActivityCategory']);
-    Route::post('activity-category/status/change', [SubActivityCategoriesController::class, 'changeStatus']);
+    Route::post('sub-activity-category/get/{id}', [SubActivityCategoriesController::class, 'getDetails']);
+    Route::post('sub-activity-category/add', [SubActivityCategoriesController::class, 'addSubActivityCategory']);
+    Route::post('sub-activity-category/update', [SubActivityCategoriesController::class, 'updateSubActivityCategory']);
+    Route::post('sub-activity-category/status/change', [SubActivityCategoriesController::class, 'changeStatus']);
 });

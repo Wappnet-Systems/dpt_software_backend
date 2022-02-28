@@ -11,6 +11,7 @@ use Hyn\Tenancy\Models\Website;
 use Illuminate\Support\Facades\Config;
 use App\Models\Tenant\ActivityCategory;
 use App\Models\Tenant\ActivitySubCategory;
+use App\Models\Tenant\UnitType;
 
 class SubActivityCategoriesController extends Controller
 {
@@ -104,6 +105,16 @@ class SubActivityCategoriesController extends Controller
                     return $this->sendError('Validation Error.', [$key => $value[0]]);
                 }
             }
+            $activityCategoryId = ActivityCategory::whereId($request->activity_category_id)->get();
+            
+            $UnitTypeId = UnitType::whereId($request->activity_category_id)->get();
+
+            if (empty($activityCategoryId)) {
+                return $this->sendError('Activity category id does not exist.');
+            }
+            if (empty($UnitTypeId)) {
+                return $this->sendError('Unit type does not exist.');
+            }
 
             $subActivityCategory = new ActivitySubCategory();
 
@@ -143,6 +154,17 @@ class SubActivityCategoriesController extends Controller
             
             if (!isset($subActivityCategory) || empty($subActivityCategory)) {
                 return $this->sendError('Sub activity category dose not exists.');
+            }
+
+            $activityCategoryId = ActivityCategory::whereId($request->activity_category_id)->get();
+            
+            $UnitTypeId = UnitType::whereId($request->activity_category_id)->get();
+
+            if (empty($activityCategoryId)) {
+                return $this->sendError('Activity category id does not exist.');
+            }
+            if (empty($UnitTypeId)) {
+                return $this->sendError('Unit type does not exist.');
             }
 
             if ($request->filled('name')) $subActivityCategory->name = $request->name;
