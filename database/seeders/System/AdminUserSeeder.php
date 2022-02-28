@@ -17,10 +17,10 @@ class AdminUserSeeder extends Seeder
     public function run()
     {
         $user = User::create([
+            'role_id' => User::USER_ROLE['SUPER_ADMIN'],
             'name' => "DPT Super Admin",
             'email' => 'dpt@mailinator.com',
             'password' => Hash::make('Try@123'),
-            'type' => User::TYPE['Super Admin'],
             'email_verified_at' => Carbon::now()
         ]);
     }

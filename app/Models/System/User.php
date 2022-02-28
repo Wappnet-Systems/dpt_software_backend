@@ -25,6 +25,8 @@ class User extends Authenticatable
      * @var array<int, string>
      */
     protected $fillable = [
+        'role_id',
+        'organization_id',
         'user_uuid',
         'name',
         'email',
@@ -39,9 +41,8 @@ class User extends Authenticatable
         'state',
         'country',
         'zip_code',
-        'type',
         'status',
-        'organization_id',
+        'created_by',
         'created_ip',
         'updated_ip',
     ];
@@ -65,9 +66,16 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
-    protected $appends = ['type_name', 'status_name', 'profile_image_path'];
+    protected $appends = ['status_name', 'profile_image_path'];
 
-    const TYPE = [
+    const USER_ROLE = [
+        'SUPER_ADMIN' => 1,
+        'COMPANY_ADMIN' => 2,
+        'CONSTRUCATION_SITE_ADMIN' => 3,
+        'MANAGER' => 4,
+    ];
+    
+    /* const TYPE = [
         'Super Admin' => 1,
         'Company Admin' => 2,
         'Construction Site Admin' => 3,
@@ -80,31 +88,15 @@ class User extends Authenticatable
         'Engineer' => 10,
         'Foreman' => 11,
         'QA/QC' => 12,
-        'Storkeeper' => 13,
+        'Storekeeper' => 13,
         'Timekeeper' => 14,
-    ];
+    ]; */
 
     const STATUS = [
         'Active' => 1,
         'In Active' => 2,
         'Deleted' => 3,
     ];
-
-    /**
-     * Get the user type name.
-     *
-     * @return string
-     */
-    public function getTypeNameAttribute()
-    {
-        $flipTypes = array_flip(self::TYPE);
-
-        if (isset($flipTypes[$this->type]) && !empty($flipTypes[$this->type])) {
-            return "{$flipTypes[$this->type]}";
-        }
-
-        return null;
-    }
 
     /**
      * Get the status name.
@@ -138,6 +130,11 @@ class User extends Authenticatable
         return null;
     }
 
+    public function role()
+    {
+        return $this->belongsTo(Role::class, 'role_id', 'id');
+    }
+    
     public function organization()
     {
         return $this->belongsTo(Organization::class, 'organization_id', 'id');
@@ -150,23 +147,6 @@ class User extends Authenticatable
         $uuid = str_shuffle($data);
         
         return substr($uuid, 0, 32);
-    }
-
-    public static function saveUserType($RequestUserType, $authUserType)
-    {
-        if (in_array($authUserType, [self::TYPE['Company Admin']])) {
-
-            return $RequestUserType = self::TYPE['Construction Site Admin'];
-        } elseif (in_array($authUserType, [self::TYPE['Admin']])) {
-
-            return $RequestUserType = self::TYPE['Company Admin'];
-        } elseif (in_array($authUserType, [self::TYPE['Construction Site Admin']])) {
-
-            if (in_array($RequestUserType, [self::TYPE['Engineer'], self::TYPE['Forman'], self::TYPE['Contractor'], self::TYPE['Sub Contractor']])) {
-                return $RequestUserType;
-            }
-        }
-        return $RequestUserType;
     }
 
     /**

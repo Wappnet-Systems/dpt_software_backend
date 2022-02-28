@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
+use App\Models\System\Role;
 use App\Models\System\User;
 use App\Models\System\UserLoginLog;
 
@@ -16,11 +17,11 @@ class UserController extends Controller
         $user = User::where('email', '=', strtolower($request->email))->first();
 
         if (isset($user) && !empty($user)) {
-            if (!in_array($user->type, User::TYPE)) {
+            if (!Role::whereId($user->role_id)->exists()) {
                 return $this->sendError('User does not exist.');
-            } /* else if ($user->type != User::TYPE['Super Admin'] && empty($user->is_email_verified)) {
+            } /* else if ($user->type != User::USER_ROLE['SUPER_ADMIN'] && empty($user->is_email_verified)) {
                 return $this->sendError('Please verify your email by clicking the link sent to your email address.');
-            } */ else if ($user->type != User::TYPE['Super Admin'] && $user->status != User::STATUS['Active']) {
+            } */ else if ($user->type != User::USER_ROLE['SUPER_ADMIN'] && $user->status != User::STATUS['Active']) {
                 return $this->sendError('This user has been inactivated by admin. Please contact to admin.');
             } else {
                 if (Auth::attempt(['email' => strtolower($request->email), 'password' => $request->password])) { 
