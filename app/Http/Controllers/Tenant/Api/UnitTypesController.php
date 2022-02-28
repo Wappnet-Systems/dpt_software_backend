@@ -76,11 +76,11 @@ class UnitTypesController extends Controller
     {
         $unitTypes = UnitType::select('id', 'name', 'status')->whereStatus(UnitType::STATUS['Active'])->whereId($request->id)->first();
 
-        if (!isset($unitTypes) && empty($unitTypes)) {
-            return $this->sendError('UnitType does not exists.');
+        if (!isset($unitTypes) || empty($unitTypes)) {
+            return $this->sendError('Unit type does not exists.');
         }
 
-        return $this->sendResponse($unitTypes, 'UnitType details.');
+        return $this->sendResponse($unitTypes, 'Unit type details.');
     }
 
     public function addUnitType(Request $request)
@@ -126,6 +126,11 @@ class UnitTypesController extends Controller
             }
 
             $unitTypes = UnitType::whereId($request->id)->first();
+
+            if (!isset($unitTypes) || empty($unitTypes)) {
+                return $this->sendError('Unit type does not exists.');
+            }
+
             if ($request->filled('name')) $unitTypes->name = $request->name;
             $unitTypes->updated_ip = $request->ip();
 
@@ -151,18 +156,21 @@ class UnitTypesController extends Controller
                     return $this->sendError('Validation Error.', [$key => $value[0]]);
                 }
             }
+
             $unitTypes = UnitType::whereId($request->id)->first();
 
-            if (isset($unitTypes) && !empty($unitTypes)) {
-                $unitTypes->status = $request->status;
-                $unitTypes->save();
-                if ($unitTypes->status == UnitType::STATUS['Deleted']) {
-                    $unitTypes->delete();
-                }
-
-                return $this->sendResponse($unitTypes, 'Status changed successfully.');
+            if (!isset($unitTypes) || empty($unitTypes)) {
+                return $this->sendError('Unit type does not exists.');
             }
-            return $this->sendError('Unit Type does not exists.');
+
+            $unitTypes->status = $request->status;
+            $unitTypes->save();
+            
+            if ($unitTypes->status == UnitType::STATUS['Deleted']) {
+                $unitTypes->delete();
+            }
+
+            return $this->sendResponse($unitTypes, 'Status changed successfully.');
         } catch (\Exception $e) {
             return $this->sendError($e->getMessage());
         }

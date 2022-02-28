@@ -76,7 +76,7 @@ class MaterialTypesController extends Controller
     {
         $materialType = MaterialType::whereId($request->id)->first();
 
-        if (!isset($materialType) && empty($materialType)) {
+        if (!isset($materialType) || empty($materialType)) {
             return $this->sendError('Material type does not exists.');
         }
 
@@ -106,7 +106,7 @@ class MaterialTypesController extends Controller
                 return $this->sendError('Something went wrong while creating the material type.');
             }
 
-            return $this->sendResponse($materialType, 'material type created successfully.');
+            return $this->sendResponse($materialType, 'Material type created successfully.');
         } catch (\Exception $e) {
             return $this->sendError($e->getMessage());
         }
@@ -128,6 +128,10 @@ class MaterialTypesController extends Controller
 
             $materialType = MaterialType::whereId($request->id)->first();
 
+            if (!isset($materialType) || empty($materialType)) {
+                return $this->sendError('Material type dose not exists.');
+            }
+
             if ($request->filled('name')) $materialType->name = $request->name;
             $materialType->updated_ip = $request->ip();
 
@@ -135,7 +139,7 @@ class MaterialTypesController extends Controller
                 return $this->sendError('Something went wrong while updating the material type.');
             }
 
-            return $this->sendResponse($materialType, 'material type details updated successfully.');
+            return $this->sendResponse($materialType, 'Material type details updated successfully.');
         } catch (\Exception $e) {
             return $this->sendError($e->getMessage());
         }
@@ -156,18 +160,18 @@ class MaterialTypesController extends Controller
 
             $materialType = MaterialType::whereId($request->id)->first();
 
-
-            if (isset($materialType) && !empty($materialType)) {
-                $materialType->status = $request->status;
-                $materialType->save();
-                if ($materialType->status == MaterialType::STATUS['Deleted']) {
-                    $materialType->delete();
-                }
-
-                return $this->sendResponse($materialType, 'Status changed successfully.');
+            if (!isset($materialType) || empty($materialType)) {
+                return $this->sendError('Material type dose not exists.');
             }
-            return $this->sendError('material Type does not exists.');
 
+            $materialType->status = $request->status;
+            $materialType->save();
+
+            if ($materialType->status == MaterialType::STATUS['Deleted']) {
+                $materialType->delete();
+            }
+
+            return $this->sendResponse($materialType, 'Status changed successfully.');
         } catch (\Exception $e) {
             return $this->sendError($e->getMessage());
         }

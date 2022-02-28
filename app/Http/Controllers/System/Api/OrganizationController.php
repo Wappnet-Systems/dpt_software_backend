@@ -237,7 +237,7 @@ class OrganizationController extends Controller
                 }
 
                 if (isset($organization) && !empty($organization)) {
-                    $user = User::whereOrganizationId($request->org_id)->whereType(User::USER_ROLE['COMPANY_ADMIN'])->first();
+                    $user = User::whereOrganizationId($request->org_id)->whereRoleId(User::USER_ROLE['COMPANY_ADMIN'])->first();
 
                     if ($request->filled('org_admin_name')) $user->name = $request->org_admin_name;
 

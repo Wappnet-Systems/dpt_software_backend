@@ -49,6 +49,7 @@ class ManforceTypesController extends Controller
 
             $query = $query->whereRaw('LOWER(CONCAT(`name`)) LIKE ?', ['%' . $search . '%']);
         }
+
         if ($request->exists('cursor')) {
             $manforceTypes = $query->cursorPaginate($limit)->toArray();
         } else {
@@ -76,11 +77,11 @@ class ManforceTypesController extends Controller
     {
         $manforceType = ManforceType::whereId($request->id)->first();
 
-        if (!isset($manforceType) && empty($manforceType)) {
+        if (!isset($manforceType) || empty($manforceType)) {
             return $this->sendError('manforce type does not exists.');
         }
 
-        return $this->sendResponse($manforceType, 'manforce type details.');
+        return $this->sendResponse($manforceType, 'Manforce type details.');
     }
 
     public function addManforceType(Request $request)
@@ -126,6 +127,10 @@ class ManforceTypesController extends Controller
 
             $manforceType = ManforceType::whereId($request->id)->first();
 
+            if (!isset($manforceType) || empty($manforceType)) {
+                return $this->sendError('Manforce Type does not exists.');
+            }
+
             if ($request->filled('name')) $manforceType->name = $request->name;
             $manforceType->updated_ip = $request->ip();
 
@@ -154,17 +159,18 @@ class ManforceTypesController extends Controller
 
             $manforceType = ManforceType::whereId($request->id)->first();
 
-
-            if (isset($manforceType) && !empty($manforceType)) {
-                $manforceType->status = $request->status;
-                $manforceType->save();
-                if ($manforceType->status == ManforceType::STATUS['Deleted']) {
-                    $manforceType->delete();
-                }
-
-                return $this->sendResponse($manforceType, 'Status changed successfully.');
+            if (!isset($manforceType) || empty($manforceType)) {
+                return $this->sendError('Manforce Type does not exists.');
             }
-            return $this->sendError('Manforce Type does not exists.');
+            
+            $manforceType->status = $request->status;
+            $manforceType->save();
+
+            if ($manforceType->status == ManforceType::STATUS['Deleted']) {
+                $manforceType->delete();
+            }
+
+            return $this->sendResponse($manforceType, 'Status changed successfully.');
         } catch (\Exception $e) {
             return $this->sendError($e->getMessage());
         }

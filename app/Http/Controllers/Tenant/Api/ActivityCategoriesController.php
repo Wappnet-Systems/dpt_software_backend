@@ -52,7 +52,7 @@ class ActivityCategoriesController extends Controller
 
             $query = $query->orWhereHas('activitySubCategories' , function ($query) use ($search){
                 $query->whereRaw('LOWER(CONCAT(`name`)) LIKE ?', ['%' . $search . '%'])
-                        ->whereStatus(ActivitySubCategory::STATUS['Active']);
+                    ->whereStatus(ActivitySubCategory::STATUS['Active']);
             });
         }
         
@@ -83,11 +83,11 @@ class ActivityCategoriesController extends Controller
     {
         $activityCategory = ActivityCategory::whereId($request->id)->first();
 
-        if (!isset($activityCategory) && empty($activityCategory)) {
+        if (!isset($activityCategory) || empty($activityCategory)) {
             return $this->sendError('activity Category does not exists.');
         }
 
-        return $this->sendResponse($activityCategory, 'activity Category details.');
+        return $this->sendResponse($activityCategory, 'Activity category details.');
     }
 
     public function addActivityCategory(Request $request)
@@ -113,7 +113,7 @@ class ActivityCategoriesController extends Controller
                 return $this->sendError('Something went wrong while creating the activity category.');
             }
 
-            return $this->sendResponse($activityCategory, 'activity category created successfully.');
+            return $this->sendResponse($activityCategory, 'Activity category created successfully.');
         } catch (\Exception $e) {
             return $this->sendError($e->getMessage());
         }
@@ -135,6 +135,10 @@ class ActivityCategoriesController extends Controller
 
             $activityCategory = ActivityCategory::whereId($request->id)->first();
 
+            if (!isset($activityCategory) || empty($activityCategory)) {
+                return $this->sendError('Activity category dose not exists.');
+            }
+
             if ($request->filled('name')) $activityCategory->name = $request->name;
             $activityCategory->updated_ip = $request->ip();
             
@@ -142,7 +146,7 @@ class ActivityCategoriesController extends Controller
                 return $this->sendError('Something went wrong while updating the activity category.');
             }
 
-            return $this->sendResponse($activityCategory, 'activity category details updated successfully.');
+            return $this->sendResponse($activityCategory, 'Activity category details updated successfully.');
 
         } catch (\Exception $e) {
             return $this->sendError($e->getMessage());
@@ -161,19 +165,21 @@ class ActivityCategoriesController extends Controller
                     return $this->sendError('Validation Error.', [$key => $value[0]]);
                 }
             }
+
             $activityCategory = ActivityCategory::whereId($request->id)->first();
 
-            if (isset($activityCategory) && !empty($activityCategory)) {
-                $activityCategory->status = $request->status;
-                $activityCategory->save();
-                if ($activityCategory->status == ActivityCategory::STATUS['Deleted']) {
-                    $activityCategory->delete();
-                }
-
-                return $this->sendResponse($activityCategory, 'Status changed successfully.');
+            if (!isset($activityCategory) || empty($activityCategory)) {
+                return $this->sendError('Activity category dose not exists.');
             }
-            return $this->sendError('activity category does not exists.');
+            
+            $activityCategory->status = $request->status;
+            $activityCategory->save();
 
+            if ($activityCategory->status == ActivityCategory::STATUS['Deleted']) {
+                $activityCategory->delete();
+            }
+
+            return $this->sendResponse($activityCategory, 'Status changed successfully.');
         } catch (\Exception $e) {
             return $this->sendError($e->getMessage());
         }
