@@ -38,7 +38,7 @@ class OrganizationController extends Controller
 
             $query = $query->orWhereHas('user', function($query) use($search) {
                 $query->whereRaw('LOWER(`name`) LIKE ?', ['%'. $search .'%'])
-                    ->where('type', User::TYPE['Company Admin']);
+                    ->where('role_id', User::USER_ROLE['COMPANY_ADMIN']);
             });
         }
 
@@ -79,7 +79,7 @@ class OrganizationController extends Controller
     }
 
     public function addOrganization(Request $request)
-    {   
+    {
         try {
             $user = $request->user();
 
@@ -152,17 +152,18 @@ class OrganizationController extends Controller
 
                 // Create new organization admin
                 $orgUser = new User();
+                $orgUser->role_id = User::USER_ROLE['COMPANY_ADMIN'];
+                $orgUser->organization_id = $organization->id;
                 $orgUser->user_uuid = User::generateUuid();
                 $orgUser->name = $request->org_admin_name;
-                $orgUser->email = $organization->email;
+                $orgUser->email = strtolower($organization->email);
                 $orgUser->phone_number = $organization->phone_no;
                 $orgUser->address = $organization->address;
                 $orgUser->city = $organization->city;
                 $orgUser->state = $organization->state;
                 $orgUser->country = $organization->country;
                 $orgUser->zip_code = $organization->zip_code;
-                $orgUser->type = User::TYPE['Company Admin'];
-                $orgUser->organization_id = $organization->id;
+                $orgUser->created_by = $user->id;
                 $orgUser->email_verified_at = date('Y-m-d H:i:s');
                 $orgUser->created_ip = $request->ip();
                 $orgUser->updated_ip = $request->ip();
@@ -236,7 +237,7 @@ class OrganizationController extends Controller
                 }
 
                 if (isset($organization) && !empty($organization)) {
-                    $user = User::whereOrganizationId($request->org_id)->whereType(User::TYPE['Company Admin'])->first();
+                    $user = User::whereOrganizationId($request->org_id)->whereType(User::USER_ROLE['COMPANY_ADMIN'])->first();
 
                     if ($request->filled('org_admin_name')) $user->name = $request->org_admin_name;
 
