@@ -83,8 +83,8 @@ class SubActivityCategoriesController extends Controller
     {
         $subActivityCategory = ActivitySubCategory::whereId($request->id)->select('id', 'activity_category_id', 'name', 'unit_type_id', 'status')->first();
 
-        if (!isset($subActivityCategory) && empty($subActivityCategory)) {
-            return $this->sendError('sub activity Category does not exists.');
+        if (!isset($subActivityCategory) || empty($subActivityCategory)) {
+            return $this->sendError('Sub activity Category does not exists.');
         }
 
         return $this->sendResponse($subActivityCategory, 'sub activity Category details.');
@@ -117,7 +117,7 @@ class SubActivityCategoriesController extends Controller
                 return $this->sendError('Something went wrong while creating the sub activity category.');
             }
 
-            return $this->sendResponse($subActivityCategory, 'sub activity category created successfully.');
+            return $this->sendResponse($subActivityCategory, 'Sub activity category created successfully.');
         } catch (\Exception $e) {
             return $this->sendError($e->getMessage());
         }
@@ -140,6 +140,10 @@ class SubActivityCategoriesController extends Controller
             }
 
             $subActivityCategory = ActivitySubCategory::whereId($request->id)->first();
+            
+            if (!isset($subActivityCategory) || empty($subActivityCategory)) {
+                return $this->sendError('Sub activity category dose not exists.');
+            }
 
             if ($request->filled('name')) $subActivityCategory->name = $request->name;
             if ($request->filled('activity_category_id')) $subActivityCategory->activity_category_id = $request->activity_category_id;
@@ -149,7 +153,7 @@ class SubActivityCategoriesController extends Controller
                 return $this->sendError('Something went wrong while updating the sub activity category.');
             }
 
-            return $this->sendResponse($subActivityCategory, 'sub activity category details updated successfully.');
+            return $this->sendResponse($subActivityCategory, 'Sub activity category details updated successfully.');
         } catch (\Exception $e) {
             return $this->sendError($e->getMessage());
         }
@@ -170,17 +174,18 @@ class SubActivityCategoriesController extends Controller
 
             $subActivityCategory = ActivitySubCategory::whereId($request->id)->first();
 
-            if (isset($subActivityCategory) && !empty($subActivityCategory)) {
-                $subActivityCategory->status = $request->status;
-                $subActivityCategory->save();
-                if ($subActivityCategory->status == ActivitySubCategory::STATUS['Deleted']) {
-                    $subActivityCategory->delete();
-                }
-
-                return $this->sendResponse($subActivityCategory, 'Status changed successfully.');
+            if (!isset($subActivityCategory) || empty($subActivityCategory)) {
+                return $this->sendError('Sub activity category dose not exists.');
             }
-            return $this->sendError('sub activity category does not exists.');
 
+            $subActivityCategory->status = $request->status;
+            $subActivityCategory->save();
+
+            if ($subActivityCategory->status == ActivitySubCategory::STATUS['Deleted']) {
+                $subActivityCategory->delete();
+            }
+
+            return $this->sendResponse($subActivityCategory, 'Status changed successfully.');
         } catch (\Exception $e) {
             return $this->sendError($e->getMessage());
         }
