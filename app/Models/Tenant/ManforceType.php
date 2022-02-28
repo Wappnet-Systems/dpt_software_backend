@@ -6,12 +6,12 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class ActivityCategory extends Model
+class ManforceType extends Model
 {
     use HasFactory;
     use SoftDeletes;
 
-    protected $table = "activity_categories";
+    protected $table = "manforce_types";
 
     protected $guarded = [];
 
@@ -37,10 +37,5 @@ class ActivityCategory extends Model
         }
 
         return null;
-    }
-
-    public function activitySubCategories()
-    {
-        return $this->hasMany(ActivitySubCategory::class, 'activity_category_id', 'id')->select('id','activity_category_id','name','unit_type_id','status');
     }
 }

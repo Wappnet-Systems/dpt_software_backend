@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateUnitTypesTable extends Migration
+class CreateManforceTypesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,10 +13,7 @@ class CreateUnitTypesTable extends Migration
      */
     public function up()
     {
-        Schema::create('unit_types', function (Blueprint $table) {
-            $table->charset = 'utf8';
-            $table->collation = 'utf8_general_ci';
-
+        Schema::create('manforce_types', function (Blueprint $table) {
             $table->id();
             $table->string('name', 50);
             $table->tinyInteger('status')->default(1)->comment('1 - Active, 2 - In Active, 3 - Deleted');
@@ -34,6 +31,6 @@ class CreateUnitTypesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('unit_types');
+        Schema::dropIfExists('manforce_types');
     }
 }
