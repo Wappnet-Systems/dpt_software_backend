@@ -27,8 +27,7 @@ class OrganizationUserController extends Controller
 
         $user = $request->user();
 
-        $query = User::with('organization')
-            ->where('role_id', '!=', User::USER_ROLE['SUPER_ADMIN'])
+        $query = User::where('role_id', '!=', User::USER_ROLE['SUPER_ADMIN'])
             ->orderBy('id', $orderBy);
 
         try {
@@ -39,13 +38,15 @@ class OrganizationUserController extends Controller
                     $query = $query->whereRaw('LOWER(CONCAT(`name`,`email`)) LIKE ?', ['%' . $search . '%']);
                 }
 
-                /* if (in_array($user->type, [User::TYPE['Company Admin']])) {
-                    $query = $query->whereType(User::TYPE['Construction Site Admin']);
-                } elseif (in_array($user->type, [User::TYPE['Construction Site Admin']])) {
-                    $query = $query->whereIn('type', [User::TYPE['Engineer'], User::TYPE['Forman'], User::TYPE['Contractor'], User::TYPE['Sub Contractor']]);
-                } elseif (in_array($user->type, [User::TYPE['Admin']])) {
-                    $query = $query->whereType(User::TYPE['Company Admin']);
-                } */
+                if (in_array($user->role_id, [User::USER_ROLE['SUPER_ADMIN']])) {
+                    $query = $query->whereRoleId(User::USER_ROLE['COMPANY_ADMIN']);
+                } else if (in_array($user->role_id, [User::USER_ROLE['COMPANY_ADMIN']])) {
+                    $query = $query->whereNotIn('role_id', [User::USER_ROLE['SUPER_ADMIN'], User::USER_ROLE['COMPANY_ADMIN']]);
+                } else if (in_array($user->role_id, [User::USER_ROLE['CONSTRUCATION_SITE_ADMIN']])) {
+                    $query = $query->whereNotIn('role_id', [User::USER_ROLE['SUPER_ADMIN'], User::USER_ROLE['COMPANY_ADMIN'], User::USER_ROLE['CONSTRUCATION_SITE_ADMIN']]);
+                } else if (in_array($user->role_id, [User::USER_ROLE['MANAGER']])) {
+                    $query = $query->whereNotIn('role_id', [User::USER_ROLE['SUPER_ADMIN'], User::USER_ROLE['COMPANY_ADMIN'], User::USER_ROLE['CONSTRUCATION_SITE_ADMIN'], User::USER_ROLE['MANAGER']]);
+                }
 
                 if (isset($user->organization_id) && !empty($user->organization_id)) {
                     $userOrganizationId = $user->organization_id;
