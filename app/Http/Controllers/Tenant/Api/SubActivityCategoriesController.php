@@ -44,7 +44,9 @@ class SubActivityCategoriesController extends Controller
         $limit = !empty($request->limit) ? $request->limit : config('constants.default_per_page_limit');
         $orderBy = !empty($request->orderby) ? $request->orderby : config('constants.default_orderby');
 
-        $query = ActivitySubCategory::with('activityCategory')->whereStatus(ActivitySubCategory::STATUS['Active'])->orderBy('id', $orderBy);
+        $query = ActivitySubCategory::with('activityCategory')
+            ->whereStatus(ActivitySubCategory::STATUS['Active'])
+            ->orderBy('id', $orderBy);
 
         if (isset($request->search) && !empty($request->search)) {
             $search = trim(strtolower($request->search));
@@ -82,22 +84,24 @@ class SubActivityCategoriesController extends Controller
 
     public function getDetails(Request $request)
     {
-        $subActivityCategory = ActivitySubCategory::whereId($request->id)->select('id', 'activity_category_id', 'name', 'unit_type_id', 'status')->first();
+        $subActivityCategory = ActivitySubCategory::select('id', 'activity_category_id', 'name', 'unit_type_id', 'status')
+            ->whereId($request->id)
+            ->first();
 
         if (!isset($subActivityCategory) || empty($subActivityCategory)) {
             return $this->sendError('Sub activity Category does not exists.');
         }
 
-        return $this->sendResponse($subActivityCategory, 'sub activity Category details.');
+        return $this->sendResponse($subActivityCategory, 'Sub activity category details.');
     }
 
     public function addSubActivityCategory(Request $request)
     {
         try {
             $validator = Validator::make($request->all(), [
+                'activity_category_id' => 'required|exists:activity_categories,id',
+                'unit_type_id' => 'required|exists:unit_types,id',
                 'name' => 'required',
-                'activity_category_id' => 'required',
-                'unit_type_id' => 'required',
             ]);
 
             if ($validator->fails()) {
@@ -105,19 +109,8 @@ class SubActivityCategoriesController extends Controller
                     return $this->sendError('Validation Error.', [$key => $value[0]]);
                 }
             }
-            $activityCategoryId = ActivityCategory::whereId($request->activity_category_id)->get();
-            
-            $UnitTypeId = UnitType::whereId($request->activity_category_id)->get();
-
-            if (empty($activityCategoryId)) {
-                return $this->sendError('Activity category id does not exist.');
-            }
-            if (empty($UnitTypeId)) {
-                return $this->sendError('Unit type does not exist.');
-            }
 
             $subActivityCategory = new ActivitySubCategory();
-
             $subActivityCategory->name = $request->name;
             $subActivityCategory->activity_category_id = $request->activity_category_id;
             $subActivityCategory->unit_type_id = $request->unit_type_id;
@@ -139,9 +132,9 @@ class SubActivityCategoriesController extends Controller
         try {
             $validator = Validator::make($request->all(), [
                 'id' => 'required',
+                'activity_category_id' => 'required|exists:activity_categories,id',
+                'unit_type_id' => 'required|exists:unit_types,id',
                 'name' => 'required',
-                'activity_category_id' => 'required',
-                'unit_type_id' => 'required',
             ]);
 
             if ($validator->fails()) {
@@ -154,17 +147,6 @@ class SubActivityCategoriesController extends Controller
             
             if (!isset($subActivityCategory) || empty($subActivityCategory)) {
                 return $this->sendError('Sub activity category dose not exists.');
-            }
-
-            $activityCategoryId = ActivityCategory::whereId($request->activity_category_id)->get();
-            
-            $UnitTypeId = UnitType::whereId($request->activity_category_id)->get();
-
-            if (empty($activityCategoryId)) {
-                return $this->sendError('Activity category id does not exist.');
-            }
-            if (empty($UnitTypeId)) {
-                return $this->sendError('Unit type does not exist.');
             }
 
             if ($request->filled('name')) $subActivityCategory->name = $request->name;

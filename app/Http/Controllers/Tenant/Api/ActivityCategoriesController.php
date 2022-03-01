@@ -104,7 +104,6 @@ class ActivityCategoriesController extends Controller
             }
 
             $activityCategory = new ActivityCategory();
-
             $activityCategory->name = $request->name;
             $activityCategory->created_ip = $request->ip();
             $activityCategory->updated_ip = $request->ip();
