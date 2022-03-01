@@ -42,7 +42,8 @@ class MaterialTypesController extends Controller
         $limit = !empty($request->limit) ? $request->limit : config('constants.default_per_page_limit');
         $orderBy = !empty($request->orderby) ? $request->orderby : config('constants.default_orderby');
 
-        $query = MaterialType::whereStatus(MaterialType::STATUS['Active'])->orderBy('id', $orderBy);
+        $query = MaterialType::whereStatus(MaterialType::STATUS['Active'])
+            ->orderBy('id', $orderBy);
 
         if (isset($request->search) && !empty($request->search)) {
             $search = trim(strtolower($request->search));
@@ -97,7 +98,6 @@ class MaterialTypesController extends Controller
             }
 
             $materialType = new MaterialType();
-
             $materialType->name = $request->name;
             $materialType->created_ip = $request->ip();
             $materialType->updated_ip = $request->ip();
