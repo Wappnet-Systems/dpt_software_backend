@@ -5,10 +5,11 @@ namespace App\Http\Controllers\Tenant\Api;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
-use App\Models\System\Organization;
+use Illuminate\Support\Facades\Config;
 use Hyn\Tenancy\Models\Hostname;
 use Hyn\Tenancy\Models\Website;
-use Illuminate\Support\Facades\Config;
+use App\Models\System\Organization;
+use App\Models\System\User;
 use App\Models\Tenant\ManforceType;
 
 class ManforceTypesController extends Controller
@@ -19,6 +20,10 @@ class ManforceTypesController extends Controller
             $user = $request->user();
 
             if (isset($user) && !empty($user)) {
+                if ($user->role_id == User::USER_ROLE['SUPER_ADMIN']) {
+                    return $this->sendError('You have no rights to access this module.');
+                }
+                
                 $hostnameId = Organization::whereId($user->organization_id)->value('hostname_id');
 
                 $hostname = Hostname::whereId($hostnameId)->first();
