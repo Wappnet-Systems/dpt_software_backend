@@ -50,6 +50,7 @@ class MaterialTypesController extends Controller
 
             $query = $query->whereRaw('LOWER(CONCAT(`name`)) LIKE ?', ['%' . $search . '%']);
         }
+        
         if ($request->exists('cursor')) {
             $materialTypes = $query->cursorPaginate($limit)->toArray();
         } else {
