@@ -4,14 +4,14 @@ namespace App\Http\Controllers\Tenant\Api;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\Tenant\UnitType;
 use Illuminate\Support\Facades\Validator;
 use App\Models\System\Organization;
 use Hyn\Tenancy\Models\Hostname;
 use Hyn\Tenancy\Models\Website;
 use Illuminate\Support\Facades\Config;
+use App\Models\Tenant\Machinery;
 
-class UnitTypesController extends Controller
+class MachineriesController extends Controller
 {
     public function __construct()
     {
@@ -37,12 +37,12 @@ class UnitTypesController extends Controller
         });
     }
 
-    public function getUnitTypes(Request $request)
+    public function getMachineries(Request $request)
     {
         $limit = !empty($request->limit) ? $request->limit : config('constants.default_per_page_limit');
         $orderBy = !empty($request->orderby) ? $request->orderby : config('constants.default_orderby');
 
-        $query = UnitType::whereStatus(UnitType::STATUS['Active'])
+        $query = Machinery::whereStatus(Machinery::STATUS['Active'])
             ->orderBy('id', $orderBy);
 
         if (isset($request->search) && !empty($request->search)) {
@@ -52,40 +52,43 @@ class UnitTypesController extends Controller
         }
 
         if ($request->exists('cursor')) {
-            $unitTypes = $query->cursorPaginate($limit)->toArray();
+            $machineries = $query->cursorPaginate($limit)->toArray();
         } else {
-            $unitTypes['data'] = $query->get()->toArray();
+            $machineries['data'] = $query->get()->toArray();
         }
 
         $results = [];
-        if (!empty($unitTypes['data'])) {
-            $results = $unitTypes['data'];
+        if (!empty($machineries['data'])) {
+            $results = $machineries['data'];
         }
 
         if ($request->exists('cursor')) {
             return $this->sendResponse([
                 'lists' => $results,
-                'per_page' => $unitTypes['per_page'],
-                'next_page_url' => $unitTypes['next_page_url'],
-                'prev_page_url' => $unitTypes['prev_page_url']
-            ], 'Unit Type List');
+                'per_page' => $machineries['per_page'],
+                'next_page_url' => $machineries['next_page_url'],
+                'prev_page_url' => $machineries['prev_page_url']
+            ], 'Machinery List');
         } else {
-            return $this->sendResponse($results, 'Unit Type List');
+            return $this->sendResponse($results, 'Machinery List');
         }
     }
 
     public function getDetails(Request $request)
     {
-        $unitTypes = UnitType::select('id', 'name', 'status')->whereStatus(UnitType::STATUS['Active'])->whereId($request->id)->first();
+        $machineries = Machinery::select('id', 'name', 'status')
+            ->whereStatus(Machinery::STATUS['Active'])
+            ->whereId($request->id)
+            ->first();
 
-        if (!isset($unitTypes) || empty($unitTypes)) {
-            return $this->sendError('Unit type does not exists.');
+        if (!isset($machineries) || empty($machineries)) {
+            return $this->sendError('Machinery does not exists.');
         }
 
-        return $this->sendResponse($unitTypes, 'Unit type details.');
+        return $this->sendResponse($machineries, 'Machinery details.');
     }
 
-    public function addUnitType(Request $request)
+    public function addMachineryCategory(Request $request)
     {
         try {
             $validator = Validator::make($request->all(), [
@@ -98,22 +101,22 @@ class UnitTypesController extends Controller
                 }
             }
 
-            $unitType = new UnitType();
-            $unitType->name = $request->name;
-            $unitType->created_ip = $request->ip();
-            $unitType->updated_ip = $request->ip();
+            $machineries = new Machinery();
+            $machineries->name = $request->name;
+            $machineries->created_ip = $request->ip();
+            $machineries->updated_ip = $request->ip();
 
-            if (!$unitType->save()) {
-                return $this->sendError('Something went wrong while creating the unit Type.');
+            if (!$machineries->save()) {
+                return $this->sendError('Something went wrong while creating the machineries.');
             }
 
-            return $this->sendResponse($unitType, 'unit Type created successfully.');
+            return $this->sendResponse($machineries, 'Machineries created successfully.');
         } catch (\Exception $e) {
             return $this->sendError($e->getMessage());
         }
     }
 
-    public function updateUnitType(Request $request)
+    public function updateMachineryCategory(Request $request)
     {
         try {
             $validator = Validator::make($request->all(), [
@@ -127,20 +130,20 @@ class UnitTypesController extends Controller
                 }
             }
 
-            $unitTypes = UnitType::whereId($request->id)->first();
+            $machineries = Machinery::whereId($request->id)->first();
 
-            if (!isset($unitTypes) || empty($unitTypes)) {
-                return $this->sendError('Unit type does not exists.');
+            if (!isset($machineries) || empty($machineries)) {
+                return $this->sendError('Machinery does not exists.');
             }
 
-            if ($request->filled('name')) $unitTypes->name = $request->name;
-            $unitTypes->updated_ip = $request->ip();
+            if ($request->filled('name')) $machineries->name = $request->name;
+            $machineries->updated_ip = $request->ip();
 
-            if (!$unitTypes->save()) {
-                return $this->sendError('Something went wrong while updating the unit Type.');
+            if (!$machineries->save()) {
+                return $this->sendError('Something went wrong while updating the machinery');
             }
 
-            return $this->sendResponse($unitTypes, 'unit Type details updated successfully.');
+            return $this->sendResponse($machineries, 'Machinery details updated successfully.');
         } catch (\Exception $e) {
             return $this->sendError($e->getMessage());
         }
@@ -159,20 +162,20 @@ class UnitTypesController extends Controller
                 }
             }
 
-            $unitTypes = UnitType::whereId($request->id)->first();
+            $machineries = Machinery::whereId($request->id)->first();
 
-            if (!isset($unitTypes) || empty($unitTypes)) {
-                return $this->sendError('Unit type does not exists.');
+            if (!isset($machineries) || empty($machineries)) {
+                return $this->sendError('Machinery does not exists.');
             }
 
-            $unitTypes->status = $request->status;
-            $unitTypes->save();
-            
-            if ($unitTypes->status == UnitType::STATUS['Deleted']) {
-                $unitTypes->delete();
+            $machineries->status = $request->status;
+            $machineries->save();
+
+            if ($machineries->status == Machinery::STATUS['Deleted']) {
+                $machineries->delete();
             }
 
-            return $this->sendResponse($unitTypes, 'Status changed successfully.');
+            return $this->sendResponse($machineries, 'Status changed successfully.');
         } catch (\Exception $e) {
             return $this->sendError($e->getMessage());
         }

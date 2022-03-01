@@ -13,6 +13,7 @@ use App\Http\Controllers\Tenant\Api\MaterialTypesController;
 use App\Http\Controllers\Tenant\Api\ManforceTypesController;
 use App\Http\Controllers\Tenant\Api\ActivityCategoriesController;
 use App\Http\Controllers\Tenant\Api\SubActivityCategoriesController;
+use App\Http\Controllers\Tenant\Api\MachineriesController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -83,7 +84,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('manforce-type/add', [ManforceTypesController::class, 'addManforceType']);
     Route::post('manforce-type/update', [ManforceTypesController::class, 'updateManforceType']);
     Route::post('manforce-type/status/change', [ManforceTypesController::class, 'changeStatus']);
-   
+
     /* Activity Categories Type Route */
     Route::post('activity-category/get/lists', [ActivityCategoriesController::class, 'getActivityCategory']);
     Route::post('activity-category/get/{id}', [ActivityCategoriesController::class, 'getDetails']);
@@ -97,4 +98,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('sub-activity-category/add', [SubActivityCategoriesController::class, 'addSubActivityCategory']);
     Route::post('sub-activity-category/update', [SubActivityCategoriesController::class, 'updateSubActivityCategory']);
     Route::post('sub-activity-category/status/change', [SubActivityCategoriesController::class, 'changeStatus']);
+
+    /* Machineries Route */
+    Route::post('machinery/get/lists', [MachineriesController::class, 'getMachineries']);
+    Route::post('machinery/get/{id}', [MachineriesController::class, 'getDetails']);
+    Route::post('machinery/add', [MachineriesController::class, 'addMachineryCategory']);
+    Route::post('machinery/update', [MachineriesController::class, 'updateMachineryCategory']);
+    Route::post('machinery/status/change', [MachineriesController::class, 'changeStatus']);
 });
