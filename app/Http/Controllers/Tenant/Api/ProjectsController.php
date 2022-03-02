@@ -11,9 +11,9 @@ use Hyn\Tenancy\Models\Website;
 use App\Models\System\Organization;
 use App\Models\System\User;
 use App\Models\Tenant\Project;
+use App\Models\Tenant\ProjectAssignedUser;
 use App\Helpers\AppHelper;
 use App\Helpers\UploadFile;
-use App\Models\Tenant\ProjectAssignedUser;
 
 class ProjectsController extends Controller
 {
@@ -56,10 +56,10 @@ class ProjectsController extends Controller
 
         $user = $request->user();
 
-        $query = Project::orderBy('id', $orderBy);
-
         try {
             if (isset($user) && !empty($user)) {
+                $query = Project::orderBy('id', $orderBy);
+            
                 if (!in_array($user->role_id, [User::USER_ROLE['COMPANY_ADMIN']])) {
                     return $this->sendResponse([], 'Projects List');
                 }
@@ -301,6 +301,60 @@ class ProjectsController extends Controller
         }
     }
 
+    public function assignUsersList(Request $request)
+    {
+        $limit = !empty($request->limit) ? $request->limit : config('constants.default_per_page_limit');
+        $orderBy = !empty($request->orderby) ? $request->orderby : config('constants.default_orderby');
+
+        $user = $request->user();
+
+        try {
+            if (isset($user) && !empty($user)) {
+                $assignedUserIds = ProjectAssignedUser::whereProjectId($request->project_id)->pluck('user_id');
+
+                AppHelper::setDefaultDBConnection(true);
+
+                $query = User::select('id', 'name', 'email', 'profile_image', 'status', 'role_id', 'organization_id')
+                    ->whereIn('id', $assignedUserIds)
+                    ->orderBy('id', $orderBy);
+
+                AppHelper::setDefaultDBConnection();
+
+                if (isset($request->search) && !empty($request->search)) {
+                    $search = trim(strtolower($request->search));
+
+                    $query = $query->whereRaw('LOWER(CONCAT(`name`)) LIKE ?', ['%' . $search . '%']);
+                }
+
+                if ($request->exists('cursor')) {
+                    $projects = $query->cursorPaginate($limit)->toArray();
+                } else {
+                    $projects['data'] = $query->get()->toArray();
+                }
+
+                $results = [];
+                if (!empty($projects['data'])) {
+                    $results = $projects['data'];
+                }
+
+                if ($request->exists('cursor')) {
+                    return $this->sendResponse([
+                        'lists' => $results,
+                        'per_page' => $projects['per_page'],
+                        'next_page_url' => $projects['next_page_url'],
+                        'prev_page_url' => $projects['prev_page_url']
+                    ], 'Project Assigned Users List');
+                } else {
+                    return $this->sendResponse($results, 'Project Assigned Users List');
+                }
+            } else {
+                return $this->sendError('User does not exists.');
+            }
+        } catch (\Exception $e) {
+            return $this->sendError($e->getMessage());
+        }
+    }
+
     public function assignUsers(Request $request)
     {
         try {
@@ -318,26 +372,61 @@ class ProjectsController extends Controller
                     }
                 }
 
-                /* $project = Project::whereUuid($request->uuid)->first();
+                $request->user_ids = explode(',', $request->user_ids);
 
-                if (!isset($project) || empty($project)) {
-                    return $this->sendError('Project dose not exists.');
-                } else if (!in_array($user->role_id, [User::USER_ROLE['CONSTRUCATION_SITE_ADMIN'], User::USER_ROLE['MANAGER']])) {
-                    return $this->sendError('You have no rights to update User.');
-                } else { */
+                // Assign users to project
+                foreach ($request->user_ids as $userId) {
+                    $projAssignUser = ProjectAssignedUser::whereProjectId($request->project_id)
+                        ->whereUserId($userId)
+                        ->first();
 
-                // $request->users_ids = explode(',', $request->module_ids);
+                    if (isset($projAssignUser) && !empty($projAssignUser)) {
+                        $projAssignUser->updated_ip = $request->ip();
+                        $projAssignUser->save();
+                    } else {
+                        $projAssignUser = new ProjectAssignedUser();
+                        $projAssignUser->user_id = $userId;
+                        $projAssignUser->project_id = $request->project_id;
+                        $projAssignUser->created_by = $user->id;
+                        $projAssignUser->created_ip = $request->ip();
+                        $projAssignUser->updated_ip = $request->ip();
+                        $projAssignUser->save();
+                    }
+                }
 
-                // Assign module permission to role of organization
-                /* foreach ($request->module_ids as $moduleId) {
-                    $roleHasModule = new RoleHasModule();
-                    $roleHasModule->module_id = $moduleId;
-                    $roleHasModule->role_id = $request->role_id;
-                    $roleHasModule->organization_id = $request->org_id;
-                    $roleHasModule->save();
-                } */
+                return $this->sendResponse([], 'Users assigned to project successfully.');
+            } else {
+                return $this->sendError('User not exists.');
+            }
+        } catch (\Exception $e) {
+            return $this->sendError($e->getMessage());
+        }
+    }
 
-                return $this->sendResponse([], 'Module permissions assigned successfully');
+    public function unAssignUsers(Request $request)
+    {
+        try {
+            $user = $request->user();
+
+            if (isset($user) && !empty($user)) {
+                $validator = Validator::make($request->all(), [
+                    'user_ids' => 'required',
+                    'project_id' => 'required|exists:projects,id',
+                ]);
+
+                if ($validator->fails()) {
+                    foreach ($validator->errors()->messages() as $key => $value) {
+                        return $this->sendError('Validation Error.', [$key => $value[0]]);
+                    }
+                }
+
+                $request->user_ids = explode(',', $request->user_ids);
+
+                $projAssignUser = ProjectAssignedUser::whereProjectId($request->project_id)
+                    ->whereIn('user_id', $request->user_ids)
+                    ->delete();
+
+                return $this->sendResponse([], 'Users un assigned from project successfully.');
             } else {
                 return $this->sendError('User not exists.');
             }
