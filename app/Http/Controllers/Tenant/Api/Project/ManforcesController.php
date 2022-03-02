@@ -47,9 +47,9 @@ class ManforcesController extends Controller
         $limit = !empty($request->limit) ? $request->limit : config('constants.default_per_page_limit');
         $orderBy = !empty($request->orderby) ? $request->orderby : config('constants.default_orderby');
 
-        $query = ProjectManforce::with('project')->whereStatus(ProjectManforce::STATUS['Active'])
+        $query = ProjectManforce::with('project')
+            ->whereStatus(ProjectManforce::STATUS['Active'])
             ->orderBy('id', $orderBy);
-
 
         if ($request->exists('cursor')) {
             $projectManforce = $query->cursorPaginate($limit)->toArray();
@@ -146,13 +146,14 @@ class ManforcesController extends Controller
             if ($request->filled('manforce_type_id')) $projectManforce->manforce_type_id = $request->manforce_type_id;
             if ($request->filled('total_manforce')) $projectManforce->total_manforce = $request->total_manforce;
             if ($request->filled('cost')) $projectManforce->cost = $request->cost;
+
             $projectManforce->updated_ip = $request->ip();
 
             if (!$projectManforce->save()) {
                 return $this->sendError('Something went wrong while updating the project manforce.');
             }
 
-            return $this->sendResponse($projectManforce, 'Project manforce details updated successfully.');
+            return $this->sendResponse($projectManforce, 'Project manforce updated successfully.');
         } catch (\Exception $e) {
             return $this->sendError($e->getMessage());
         }
