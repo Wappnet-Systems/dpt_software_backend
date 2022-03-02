@@ -26,6 +26,7 @@ class CreateProjectsNonWorkingDaysTable extends Migration
             $table->tinyInteger('status')->default(1)->comment('1 - Active, 2 - In Active, 3 - Deleted');
             $table->ipAddress('created_ip')->nullable();
             $table->ipAddress('updated_ip')->nullable();
+            $table->softDeletes();
             $table->timestamps();
         });
     }
