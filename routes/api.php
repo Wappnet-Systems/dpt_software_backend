@@ -16,6 +16,7 @@ use App\Http\Controllers\Tenant\Api\SubActivityCategoriesController;
 use App\Http\Controllers\Tenant\Api\MachineriesController;
 use App\Http\Controllers\Tenant\Api\ProjectsController;
 use App\Http\Controllers\Tenant\Api\Project\NonWorkingDaysController;
+use App\Http\Controllers\Tenant\Api\Project\ManforcesController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -127,4 +128,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('project/non-working-day/add', [NonWorkingDaysController::class, 'addNonWorkingDay']);
     Route::post('project/non-working-day/update', [NonWorkingDaysController::class, 'updateNonWorkingDay']);
     Route::post('project/non-working-day/status/change', [NonWorkingDaysController::class, 'changeNonWorkingDayStatus']);
+
+    /* Projects Manforces Routes */
+    Route::post('project/manforce/get/lists', [ManforcesController::class, 'getManforces']);
+    Route::post('project/manforce/get/{id}', [ManforcesController::class, 'getManforceDetails']);
+    Route::post('project/manforce/add', [ManforcesController::class, 'addManforce']);
+    Route::post('project/manforce/update', [ManforcesController::class, 'updateManforce']);
+    Route::post('project/manforce/status/change', [ManforcesController::class, 'changeManforceStatus']);
 });
