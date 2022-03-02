@@ -4,10 +4,12 @@ namespace App\Models\Tenant;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class ProjectNonWorkingDay extends Model
 {
     use HasFactory;
+    use SoftDeletes;
 
     protected $table = "projects_non_working_days";
 
