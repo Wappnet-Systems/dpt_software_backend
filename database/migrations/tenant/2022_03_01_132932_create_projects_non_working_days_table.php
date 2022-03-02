@@ -18,8 +18,7 @@ class CreateProjectsNonWorkingDaysTable extends Migration
             $table->collation = 'utf8_general_ci';
 
             $table->id();
-            // $table->foreignId('projects_id')->constrained('projects')->cascadeOnUpdate()->cascadeOnDelete();
-            $table->unsignedBigInteger('projects_id')->nullable();
+            $table->foreignId('project_id')->constrained('projects')->cascadeOnUpdate()->cascadeOnDelete();
             $table->string('name', 50);
             $table->timestamp('start_date_time');
             $table->timestamp('end_date_time')->nullable();

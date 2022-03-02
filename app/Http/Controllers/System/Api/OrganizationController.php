@@ -5,13 +5,14 @@ namespace App\Http\Controllers\System\Api;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
-use App\Helpers\UploadFile;
-use App\Models\System\Organization;
-use App\Models\System\User;
+use Hyn\Tenancy\Contracts\Repositories\WebsiteRepository;
 use App\Notifications\Organization\ResetPassword;
 use Hyn\Tenancy\Models\Hostname;
 use Hyn\Tenancy\Models\Website;
-use Hyn\Tenancy\Contracts\Repositories\WebsiteRepository;
+use App\Models\System\Organization;
+use App\Models\System\User;
+use App\Helpers\AppHelper;
+use App\Helpers\UploadFile;
 
 class OrganizationController extends Controller
 {
@@ -147,6 +148,7 @@ class OrganizationController extends Controller
                     $dirPath = str_replace(':uid:', $organization->id, config('constants.organizations.logo_path'));
 
                     $organization->logo = $this->uploadFile->uploadFileInS3($request, $dirPath, 'logo', "100", "100");
+                    
                     $organization->save();
                 }
 
@@ -154,7 +156,7 @@ class OrganizationController extends Controller
                 $orgUser = new User();
                 $orgUser->role_id = User::USER_ROLE['COMPANY_ADMIN'];
                 $orgUser->organization_id = $organization->id;
-                $orgUser->user_uuid = User::generateUuid();
+                $orgUser->user_uuid = AppHelper::generateUuid();
                 $orgUser->name = $request->org_admin_name;
                 $orgUser->email = strtolower($organization->email);
                 $orgUser->phone_number = $organization->phone_no;
@@ -260,6 +262,7 @@ class OrganizationController extends Controller
 
             if (isset($organization) && !empty($organization)) {
                 $organization->status = $request->status;
+                $organization->deleted_at = null;
                 $organization->save();
 
                 if ($organization->status == Organization::STATUS['Deleted']) {

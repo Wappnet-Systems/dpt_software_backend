@@ -81,15 +81,15 @@ class NonWorkingDaysController extends Controller
 
     public function getNonWorkingDayDetails(Request $request)
     {
-        $nonWorkingDays = ProjectNonWorkingDay::select('id', 'projects_id', 'name', 'start_date_time', 'end_date_time', 'status')
+        $nonWorkingDays = ProjectNonWorkingDay::select('id', 'project_id', 'name', 'start_date_time', 'end_date_time', 'status')
             ->whereId($request->id)
             ->first();
 
         if (!isset($nonWorkingDays) || empty($nonWorkingDays)) {
-            return $this->sendError('Non Working Days does not exists.');
+            return $this->sendError('Non working day does not exists.');
         }
 
-        return $this->sendResponse($nonWorkingDays, 'Non Working Days details.');
+        return $this->sendResponse($nonWorkingDays, 'Non working day details.');
     }
 
     public function addNonWorkingDay(Request $request)
@@ -99,7 +99,7 @@ class NonWorkingDaysController extends Controller
 
             if (isset($user) && !empty($user)) {
                 $validator = Validator::make($request->all(), [
-                    'projects_id' => 'required',
+                    'project_id' => 'required|exists:projects,id',
                     'name' => 'required',
                 ]);
 
@@ -110,7 +110,7 @@ class NonWorkingDaysController extends Controller
                 }
 
                 $nonWorkingDays = new ProjectNonWorkingDay();
-                $nonWorkingDays->projects_id = $request->projects_id;
+                $nonWorkingDays->project_id = $request->project_id;
                 $nonWorkingDays->name = $request->name;
                 $nonWorkingDays->start_date_time = date('Y-m-d H:i:s');
                 $nonWorkingDays->end_date_time = date('Y-m-d H:i:s');
@@ -119,10 +119,10 @@ class NonWorkingDaysController extends Controller
                 $nonWorkingDays->updated_ip = $request->ip();
 
                 if (!$nonWorkingDays->save()) {
-                    return $this->sendError('Something went wrong while creating the non working days.');
+                    return $this->sendError('Something went wrong while creating the non working day.');
                 }
 
-                return $this->sendResponse($nonWorkingDays, 'Non working days created successfully.');
+                return $this->sendResponse($nonWorkingDays, 'Non working day created successfully.');
             } else {
                 return $this->sendError('User not exists.');
             }
@@ -150,7 +150,7 @@ class NonWorkingDaysController extends Controller
             $nonWorkingDays = ProjectNonWorkingDay::whereId($request->id)->first();
 
             if (!isset($nonWorkingDays) || empty($nonWorkingDays)) {
-                return $this->sendError('Non Working Days does not exists.');
+                return $this->sendError('Non working day does not exists.');
             }
 
             if ($request->filled('name')) $nonWorkingDays->name = $request->name;
@@ -159,10 +159,10 @@ class NonWorkingDaysController extends Controller
             $nonWorkingDays->updated_ip = $request->ip();
 
             if (!$nonWorkingDays->save()) {
-                return $this->sendError('Something went wrong while updating the non working days.');
+                return $this->sendError('Something went wrong while updating the non working day.');
             }
 
-            return $this->sendResponse($nonWorkingDays, 'Non working days details updated successfully.');
+            return $this->sendResponse($nonWorkingDays, 'Non working day updated successfully.');
         } catch (\Exception $e) {
             return $this->sendError($e->getMessage());
         }
@@ -184,9 +184,10 @@ class NonWorkingDaysController extends Controller
             $nonWorkingDays = ProjectNonWorkingDay::whereId($request->id)->first();
 
             if (!isset($nonWorkingDays) || empty($nonWorkingDays)) {
-                return $this->sendError('Non Working Days does not exists.');
+                return $this->sendError('Non working day does not exists.');
             }
 
+            $nonWorkingDays->deleted_at = null;
             $nonWorkingDays->status = $request->status;
             $nonWorkingDays->save();
 

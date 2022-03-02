@@ -38,4 +38,13 @@ class AppHelper {
 
         return $ipAddress;
     }
+    
+    public static function generateUuid()
+    {
+        $data = '1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZabcefghijklmnopqrstuvwxyz';
+
+        $uuid = str_shuffle($data);
+        
+        return substr($uuid, 0, 32);
+    }
 }

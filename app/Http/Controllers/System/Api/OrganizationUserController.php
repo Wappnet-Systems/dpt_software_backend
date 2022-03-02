@@ -4,12 +4,13 @@ namespace App\Http\Controllers\System\Api;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Helpers\UploadFile;
-use App\Models\System\Organization;
-use App\Models\System\User;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Hash;
 use App\Notifications\Organization\ResetPassword;
+use App\Models\System\Organization;
+use App\Models\System\User;
+use App\Helpers\AppHelper;
+use App\Helpers\UploadFile;
 
 class OrganizationUserController extends Controller
 {
@@ -139,7 +140,7 @@ class OrganizationUserController extends Controller
                     $orgSubUser = new User();
                     $orgSubUser->role_id = $request->role_id;
                     $orgSubUser->organization_id = $user->organization_id;
-                    $orgSubUser->user_uuid = User::generateUuid();
+                    $orgSubUser->user_uuid = AppHelper::generateUuid();
                     $orgSubUser->name = $request->name;
                     $orgSubUser->email = strtolower($request->email);
                     $orgSubUser->personal_email = $request->personal_email;
@@ -238,9 +239,11 @@ class OrganizationUserController extends Controller
                     if ($request->filled('zip_code')) $orgUser->zip_code = $request->zip_code;
 
                     if ($request->hasFile('profile_image')) {
+                        if (isset($orgUser->profile_image) && !empty($orgUser->profile_image)) {
+                            $this->uploadFile->deleteFileFromS3($orgUser->profile_image);
+                        }
+                        
                         $dirPath = str_replace(':uid:', $user->id, config('constants.users.image_path'));
-
-                        $this->uploadFile->deleteFileFromS3($orgUser->profile_image);
 
                         $filePath = $this->uploadFile->uploadFileInS3($request, $dirPath, 'profile_image');
 
@@ -284,6 +287,7 @@ class OrganizationUserController extends Controller
                     return $this->sendError('You have no rights to update User.');
                 } else {
                     $orgUser->status = $request->status;
+                    $orgUser->deleted_at = null;
                     $orgUser->save();
 
                     if ($orgUser->status == User::STATUS['Deleted']) {

@@ -14,6 +14,7 @@ use App\Http\Controllers\Tenant\Api\ManforceTypesController;
 use App\Http\Controllers\Tenant\Api\ActivityCategoriesController;
 use App\Http\Controllers\Tenant\Api\SubActivityCategoriesController;
 use App\Http\Controllers\Tenant\Api\MachineriesController;
+use App\Http\Controllers\Tenant\Api\ProjectsController;
 use App\Http\Controllers\Tenant\Api\Project\NonWorkingDaysController;
 use Illuminate\Support\Facades\Route;
 
@@ -65,47 +66,58 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('user/update', [OrganizationUserController::class, 'updateUser']);
     Route::post('user/status/change', [OrganizationUserController::class, 'changeUserStatus']);
 
-    /* Unit Types Route */
+    /* Unit Types Routes */
     Route::post('unit-type/get/lists', [UnitTypesController::class, 'getUnitTypes']);
     Route::post('unit-type/get/{id}', [UnitTypesController::class, 'getDetails']);
     Route::post('unit-type/add', [UnitTypesController::class, 'addUnitType']);
     Route::post('unit-type/update', [UnitTypesController::class, 'updateUnitType']);
     Route::post('unit-type/status/change', [UnitTypesController::class, 'changeStatus']);
 
-    /* Material Type Route */
+    /* Material Type Routes */
     Route::post('material-type/get/lists', [MaterialTypesController::class, 'getMaterialTypes']);
     Route::post('material-type/get/{id}', [MaterialTypesController::class, 'getDetails']);
     Route::post('material-type/add', [MaterialTypesController::class, 'addMaterialType']);
     Route::post('material-type/update', [MaterialTypesController::class, 'updateMaterialType']);
     Route::post('material-type/status/change', [MaterialTypesController::class, 'changeStatus']);
 
-    /* Manforce Type Route */
+    /* Manforce Type Routes */
     Route::post('manforce-type/get/lists', [ManforceTypesController::class, 'getManforceTypes']);
     Route::post('manforce-type/get/{id}', [ManforceTypesController::class, 'getDetails']);
     Route::post('manforce-type/add', [ManforceTypesController::class, 'addManforceType']);
     Route::post('manforce-type/update', [ManforceTypesController::class, 'updateManforceType']);
     Route::post('manforce-type/status/change', [ManforceTypesController::class, 'changeStatus']);
 
-    /* Activity Categories Type Route */
+    /* Activity Categories Type Routes */
     Route::post('activity-category/get/lists', [ActivityCategoriesController::class, 'getActivityCategory']);
     Route::post('activity-category/get/{id}', [ActivityCategoriesController::class, 'getDetails']);
     Route::post('activity-category/add', [ActivityCategoriesController::class, 'addActivityCategory']);
     Route::post('activity-category/update', [ActivityCategoriesController::class, 'updateActivityCategory']);
     Route::post('activity-category/status/change', [ActivityCategoriesController::class, 'changeStatus']);
 
-    /* Sub Activity Categories Type Route */
+    /* Sub Activity Categories Type Routes */
     Route::post('sub-activity-category/get/lists', [SubActivityCategoriesController::class, 'getSubActivityCategory']);
     Route::post('sub-activity-category/get/{id}', [SubActivityCategoriesController::class, 'getDetails']);
     Route::post('sub-activity-category/add', [SubActivityCategoriesController::class, 'addSubActivityCategory']);
     Route::post('sub-activity-category/update', [SubActivityCategoriesController::class, 'updateSubActivityCategory']);
     Route::post('sub-activity-category/status/change', [SubActivityCategoriesController::class, 'changeStatus']);
 
-    /* Machineries Route */
+    /* Machineries Routes */
     Route::post('machinery/get/lists', [MachineriesController::class, 'getMachineries']);
     Route::post('machinery/get/{id}', [MachineriesController::class, 'getDetails']);
     Route::post('machinery/add', [MachineriesController::class, 'addMachineryCategory']);
     Route::post('machinery/update', [MachineriesController::class, 'updateMachineryCategory']);
     Route::post('machinery/status/change', [MachineriesController::class, 'changeStatus']);
+
+    /* Projects Routes */
+    Route::post('project/get/lists', [ProjectsController::class, 'getProjects']);
+    Route::post('project/get/{id}', [ProjectsController::class, 'getProjectDetails']);
+    Route::post('project/add', [ProjectsController::class, 'addProject']);
+    Route::post('project/update', [ProjectsController::class, 'updateProject']);
+    Route::delete('project/delete/{uuid}', [ProjectsController::class, 'deleteProject']);
+    Route::post('project/status/change', [ProjectsController::class, 'changeProjectStatus']);
+
+    /* Assign Users to Projects Routes */
+    Route::post('project/assign/users', [ProjectsController::class, 'assignUsers']);
 
     /* Projects Non Working Days Routes */
     Route::post('project/non-working-day/get/lists', [NonWorkingDaysController::class, 'getNonWorkingDays']);

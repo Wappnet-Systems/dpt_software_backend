@@ -140,15 +140,6 @@ class User extends Authenticatable
         return $this->belongsTo(Organization::class, 'organization_id', 'id');
     }
 
-    public static function generateUuid()
-    {
-        $data = '1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZabcefghijklmnopqrstuvwxyz';
-
-        $uuid = str_shuffle($data);
-        
-        return substr($uuid, 0, 32);
-    }
-
     /**
      * Send a password reset notification to the user.
      *
