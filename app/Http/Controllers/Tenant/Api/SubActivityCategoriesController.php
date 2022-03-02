@@ -186,6 +186,7 @@ class SubActivityCategoriesController extends Controller
                 return $this->sendError('Sub activity category dose not exists.');
             }
 
+            $subActivityCategory->deleted_at = null;
             $subActivityCategory->status = $request->status;
             $subActivityCategory->save();
 

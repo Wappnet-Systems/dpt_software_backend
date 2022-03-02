@@ -177,6 +177,7 @@ class ActivityCategoriesController extends Controller
                 return $this->sendError('Activity category dose not exists.');
             }
             
+            $activityCategory->deleted_at = null;
             $activityCategory->status = $request->status;
             $activityCategory->save();
 

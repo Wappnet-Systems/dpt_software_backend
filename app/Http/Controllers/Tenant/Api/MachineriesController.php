@@ -173,6 +173,7 @@ class MachineriesController extends Controller
                 return $this->sendError('Machinery does not exists.');
             }
 
+            $machineries->deleted_at = null;
             $machineries->status = $request->status;
             $machineries->save();
 

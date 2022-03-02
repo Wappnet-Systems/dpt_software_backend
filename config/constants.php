@@ -9,7 +9,10 @@ return [
         'image_path' => 'users/:uid:/profile'
     ],
     'organizations' => [
-        'logo_path' => 'organizations/:uid:/logo'
+        'logo_path' => 'organizations/:uid:/logo',
+        'projects' => [
+            'logo_path' => 'organizations/:uid:/project/:project_uuid:/logo'
+        ]
     ],
 ];
 ?>

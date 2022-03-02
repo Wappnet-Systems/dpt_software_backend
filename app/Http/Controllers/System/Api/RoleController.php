@@ -152,6 +152,7 @@ class RoleController extends Controller
                     $role->delete();
                 }
 
+                $role->deleted_at = null;
                 $role->status = $request->status;
                 $role->save();
 

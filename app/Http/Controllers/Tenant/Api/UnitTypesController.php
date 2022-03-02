@@ -170,6 +170,7 @@ class UnitTypesController extends Controller
                 return $this->sendError('Unit type does not exists.');
             }
 
+            $unitTypes->deleted_at = null;
             $unitTypes->status = $request->status;
             $unitTypes->save();
             

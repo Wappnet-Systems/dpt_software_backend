@@ -170,6 +170,7 @@ class MaterialTypesController extends Controller
                 return $this->sendError('Material type dose not exists.');
             }
 
+            $materialType->deleted_at = null;
             $materialType->status = $request->status;
             $materialType->save();
 
