@@ -18,7 +18,7 @@ class CreateProjectsGangsTable extends Migration
             $table->collation = 'utf8_general_ci';
 
             $table->id();
-            $table->foreignId('projects_id')->constrained('projects')->cascadeOnUpdate()->cascadeOnDelete();
+            $table->foreignId('project_id')->constrained('projects')->cascadeOnUpdate()->cascadeOnDelete();
             $table->string('name', 50);
             $table->tinyInteger('status')->default(1)->comment('1 - Active, 2 - In Active, 3 - Deleted');
             $table->unsignedBigInteger('created_by')->nullable();

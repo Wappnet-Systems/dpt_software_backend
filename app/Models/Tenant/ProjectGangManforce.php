@@ -16,6 +16,6 @@ class ProjectGangManforce extends Model
     public function projectGang()
     {
         return $this->hasOne(ProjectGang::class, 'id', 'gang_id')
-            ->select('id', 'projects_id', 'name', 'status');
+            ->select('id', 'project_id', 'name', 'status');
     }
 }

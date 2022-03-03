@@ -47,7 +47,7 @@ class GangsController extends Controller
         $limit = !empty($request->limit) ? $request->limit : config('constants.default_per_page_limit');
         $orderBy = !empty($request->orderby) ? $request->orderby : config('constants.default_orderby');
 
-        $query = ProjectGang::with(['project'])
+        $query = ProjectGang::whereProjectId($request->project_id ?? null)
             ->whereStatus(ProjectGang::STATUS['Active'])
             ->orderBy('id', $orderBy);
 
@@ -82,7 +82,7 @@ class GangsController extends Controller
 
     public function getGangDetails(Request $request)
     {
-        $projectGangs = ProjectGang::select('id', 'projects_id', 'name', 'status')
+        $projectGangs = ProjectGang::select('id', 'project_id', 'name', 'status')
             ->whereId($request->id)
             ->first();
 
@@ -100,7 +100,7 @@ class GangsController extends Controller
 
             if (isset($user) && !empty($user)) {
                 $validator = Validator::make($request->all(), [
-                    'projects_id' => 'required|exists:projects,id',
+                    'project_id' => 'required|exists:projects,id',
                     'name' => 'required',
                 ]);
 
@@ -111,7 +111,7 @@ class GangsController extends Controller
                 }
 
                 $projectGangs = new ProjectGang();
-                $projectGangs->projects_id = $request->projects_id;
+                $projectGangs->project_id = $request->project_id;
                 $projectGangs->name = $request->name;
                 $projectGangs->created_by = $user->id;
 

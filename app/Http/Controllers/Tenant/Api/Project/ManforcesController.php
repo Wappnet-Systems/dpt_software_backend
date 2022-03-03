@@ -47,7 +47,8 @@ class ManforcesController extends Controller
         $limit = !empty($request->limit) ? $request->limit : config('constants.default_per_page_limit');
         $orderBy = !empty($request->orderby) ? $request->orderby : config('constants.default_orderby');
 
-        $query = ProjectManforce::with('project')
+        $query = ProjectManforce::with('manforce')
+            ->whereProjectId($request->project_id ?? null)
             ->whereStatus(ProjectManforce::STATUS['Active'])
             ->orderBy('id', $orderBy);
 
@@ -77,6 +78,7 @@ class ManforcesController extends Controller
     public function getManforceDetails(Request $request)
     {
         $projectManforce = ProjectManforce::select('id', 'project_id', 'manforce_type_id', 'total_manforce', 'available_manforce', 'productivity_rate', 'cost', 'status')
+            ->with('manforce')
             ->whereId($request->id)
             ->first();
 
