@@ -8,6 +8,7 @@ use App\Http\Controllers\System\Api\ResetPasswordController;
 use App\Http\Controllers\System\Api\OrganizationController;
 use App\Http\Controllers\System\Api\OrganizationUserController;
 use App\Http\Controllers\System\Api\RoleController;
+use App\Http\Controllers\Tenant\Api\RoleController as OrganizationRoleController;
 use App\Http\Controllers\Tenant\Api\UnitTypesController;
 use App\Http\Controllers\Tenant\Api\MaterialTypesController;
 use App\Http\Controllers\Tenant\Api\ManforceTypesController;
@@ -60,8 +61,14 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('role/add', [RoleController::class, 'addRole']);
     Route::post('role/update', [RoleController::class, 'updateRole']);
     Route::post('role/status/change', [RoleController::class, 'changeRoleStatus']);
+
+    /* Assign Modules Permission to Roles Routes */
     Route::post('role/module/permissions/get', [RoleController::class, 'getRoleModulePermissions']);
     Route::post('role/module/permissions/change', [RoleController::class, 'changeRoleModulePermissions']);
+
+    /* Assign Sub Modules Permission to Roles Routes */
+    Route::post('role/sub-module/permissions/get', [OrganizationRoleController::class, 'getRoleSubModulePermissions']);
+    Route::post('role/sub-module/permissions/change', [OrganizationRoleController::class, 'changeRoleSubModulePermissions']);
 
     /** User Management Routes */
     Route::post('user/get/lists', [OrganizationUserController::class, 'getUsers']);

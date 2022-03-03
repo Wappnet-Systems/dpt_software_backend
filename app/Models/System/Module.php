@@ -4,7 +4,6 @@ namespace App\Models\System;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Support\Facades\DB;
 
 class Module extends Model
@@ -52,10 +51,12 @@ class Module extends Model
         );
     }
 
-    /**
-     * A module permission can be applied to roles.
-     */
-    public function roles(): BelongsToMany
+    public function subModule()
+    {
+        return $this->hasMany(SubModule::class, 'module_id', 'id');
+    }
+
+    public function roles()
     {
         return $this->belongsToMany(
             Role::class,

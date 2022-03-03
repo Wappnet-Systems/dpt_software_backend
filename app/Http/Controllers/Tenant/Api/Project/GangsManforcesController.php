@@ -5,13 +5,13 @@ namespace App\Http\Controllers\Tenant\Api\Project;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Facades\Config;
 use Hyn\Tenancy\Models\Hostname;
 use Hyn\Tenancy\Models\Website;
 use App\Models\System\Organization;
 use App\Models\System\User;
 use App\Models\Tenant\ProjectGang;
 use App\Models\Tenant\ProjectGangManforce;
+use App\Helpers\AppHelper;
 
 class GangsManforcesController extends Controller
 {
@@ -36,7 +36,7 @@ class GangsManforcesController extends Controller
                 $environment->tenant($website);
                 $environment->hostname($hostname);
 
-                Config::set('database.default', 'tenant');
+                AppHelper::setDefaultDBConnection();
             }
 
             return $next($request);
@@ -48,7 +48,8 @@ class GangsManforcesController extends Controller
         $limit = !empty($request->limit) ? $request->limit : config('constants.default_per_page_limit');
         $orderBy = !empty($request->orderby) ? $request->orderby : config('constants.default_orderby');
 
-        $query = ProjectGangManforce::with(['projectGang'])->orderBy('id', $orderBy);
+        $query = ProjectGangManforce::with(['projectGang'])
+            ->orderBy('id', $orderBy);
 
         if ($request->exists('cursor')) {
             $projectGangManforce = $query->cursorPaginate($limit)->toArray();

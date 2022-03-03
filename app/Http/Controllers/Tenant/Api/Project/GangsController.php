@@ -5,12 +5,12 @@ namespace App\Http\Controllers\Tenant\Api\Project;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Facades\Config;
 use Hyn\Tenancy\Models\Hostname;
 use Hyn\Tenancy\Models\Website;
 use App\Models\System\Organization;
 use App\Models\System\User;
 use App\Models\Tenant\ProjectGang;
+use App\Helpers\AppHelper;
 
 class GangsController extends Controller
 {
@@ -35,7 +35,7 @@ class GangsController extends Controller
                 $environment->tenant($website);
                 $environment->hostname($hostname);
 
-                Config::set('database.default', 'tenant');
+                AppHelper::setDefaultDBConnection();
             }
 
             return $next($request);
@@ -47,7 +47,8 @@ class GangsController extends Controller
         $limit = !empty($request->limit) ? $request->limit : config('constants.default_per_page_limit');
         $orderBy = !empty($request->orderby) ? $request->orderby : config('constants.default_orderby');
 
-        $query = ProjectGang::with(['project'])->whereStatus(ProjectGang::STATUS['Active'])
+        $query = ProjectGang::with(['project'])
+            ->whereStatus(ProjectGang::STATUS['Active'])
             ->orderBy('id', $orderBy);
 
         if (isset($request->search) && !empty($request->search)) {
@@ -147,7 +148,7 @@ class GangsController extends Controller
                 return $this->sendError('Project gang does not exists.');
             }
 
-            if($request->filled('name')) $projectGangs->name = $request->name;
+            if ($request->filled('name')) $projectGangs->name = $request->name;
 
             if (!$projectGangs->save()) {
                 return $this->sendError('Something went wrong while udating the project gang.');

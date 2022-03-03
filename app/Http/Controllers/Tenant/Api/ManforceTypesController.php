@@ -5,12 +5,12 @@ namespace App\Http\Controllers\Tenant\Api;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Facades\Config;
 use Hyn\Tenancy\Models\Hostname;
 use Hyn\Tenancy\Models\Website;
 use App\Models\System\Organization;
 use App\Models\System\User;
 use App\Models\Tenant\ManforceType;
+use App\Helpers\AppHelper;
 
 class ManforceTypesController extends Controller
 {
@@ -35,7 +35,7 @@ class ManforceTypesController extends Controller
                 $environment->tenant($website);
                 $environment->hostname($hostname);
 
-                Config::set('database.default', 'tenant');
+                AppHelper::setDefaultDBConnection();
             }
 
             return $next($request);
