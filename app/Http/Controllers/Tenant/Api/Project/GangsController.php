@@ -4,15 +4,15 @@ namespace App\Http\Controllers\Tenant\Api\Project;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\Tenant\ProjectNonWorkingDay;
 use Illuminate\Support\Facades\Validator;
 use Hyn\Tenancy\Models\Hostname;
 use Hyn\Tenancy\Models\Website;
 use App\Models\System\Organization;
 use App\Models\System\User;
+use App\Models\Tenant\ProjectGang;
 use App\Helpers\AppHelper;
 
-class NonWorkingDaysController extends Controller
+class GangsController extends Controller
 {
     public function __construct()
     {
@@ -42,12 +42,13 @@ class NonWorkingDaysController extends Controller
         });
     }
 
-    public function getNonWorkingDays(Request $request)
+    public function getGangs(Request $request)
     {
         $limit = !empty($request->limit) ? $request->limit : config('constants.default_per_page_limit');
         $orderBy = !empty($request->orderby) ? $request->orderby : config('constants.default_orderby');
 
-        $query = ProjectNonWorkingDay::whereStatus(ProjectNonWorkingDay::STATUS['Active'])
+        $query = ProjectGang::with(['project'])
+            ->whereStatus(ProjectGang::STATUS['Active'])
             ->orderBy('id', $orderBy);
 
         if (isset($request->search) && !empty($request->search)) {
@@ -57,49 +58,49 @@ class NonWorkingDaysController extends Controller
         }
 
         if ($request->exists('cursor')) {
-            $nonWorkingDays = $query->cursorPaginate($limit)->toArray();
+            $projectGangs = $query->cursorPaginate($limit)->toArray();
         } else {
-            $nonWorkingDays['data'] = $query->get()->toArray();
+            $projectGangs['data'] = $query->get()->toArray();
         }
 
         $results = [];
-        if (!empty($nonWorkingDays['data'])) {
-            $results = $nonWorkingDays['data'];
+        if (!empty($projectGangs['data'])) {
+            $results = $projectGangs['data'];
         }
 
         if ($request->exists('cursor')) {
             return $this->sendResponse([
                 'lists' => $results,
-                'per_page' => $nonWorkingDays['per_page'],
-                'next_page_url' => $nonWorkingDays['next_page_url'],
-                'prev_page_url' => $nonWorkingDays['prev_page_url']
-            ], 'Non working days List');
+                'per_page' => $projectGangs['per_page'],
+                'next_page_url' => $projectGangs['next_page_url'],
+                'prev_page_url' => $projectGangs['prev_page_url']
+            ], 'Project gangs List');
         } else {
-            return $this->sendResponse($results, 'Non working days List');
+            return $this->sendResponse($results, 'Project gangs List');
         }
     }
 
-    public function getNonWorkingDayDetails(Request $request)
+    public function getGangDetails(Request $request)
     {
-        $nonWorkingDays = ProjectNonWorkingDay::select('id', 'project_id', 'name', 'start_date_time', 'end_date_time', 'status')
+        $projectGangs = ProjectGang::select('id', 'projects_id', 'name', 'status')
             ->whereId($request->id)
             ->first();
 
-        if (!isset($nonWorkingDays) || empty($nonWorkingDays)) {
-            return $this->sendError('Non working day does not exists.');
+        if (!isset($projectGangs) || empty($projectGangs)) {
+            return $this->sendError('Project gang does not exists.');
         }
 
-        return $this->sendResponse($nonWorkingDays, 'Non working day details.');
+        return $this->sendResponse($projectGangs, 'Project gang details.');
     }
 
-    public function addNonWorkingDay(Request $request)
+    public function addGang(Request $request)
     {
         try {
             $user = $request->user();
 
             if (isset($user) && !empty($user)) {
                 $validator = Validator::make($request->all(), [
-                    'project_id' => 'required|exists:projects,id',
+                    'projects_id' => 'required|exists:projects,id',
                     'name' => 'required',
                 ]);
 
@@ -109,20 +110,16 @@ class NonWorkingDaysController extends Controller
                     }
                 }
 
-                $nonWorkingDays = new ProjectNonWorkingDay();
-                $nonWorkingDays->project_id = $request->project_id;
-                $nonWorkingDays->name = $request->name;
-                $nonWorkingDays->start_date_time = date('Y-m-d H:i:s');
-                $nonWorkingDays->end_date_time = date('Y-m-d H:i:s');
-                $nonWorkingDays->created_by = $user->id;
-                $nonWorkingDays->created_ip = $request->ip();
-                $nonWorkingDays->updated_ip = $request->ip();
+                $projectGangs = new ProjectGang();
+                $projectGangs->projects_id = $request->projects_id;
+                $projectGangs->name = $request->name;
+                $projectGangs->created_by = $user->id;
 
-                if (!$nonWorkingDays->save()) {
-                    return $this->sendError('Something went wrong while creating the non working day.');
+                if (!$projectGangs->save()) {
+                    return $this->sendError('Something went wrong while creating the project gang.');
                 }
 
-                return $this->sendResponse($nonWorkingDays, 'Non working day created successfully.');
+                return $this->sendResponse($projectGangs, 'Project gang created successfully.');
             } else {
                 return $this->sendError('User not exists.');
             }
@@ -131,14 +128,12 @@ class NonWorkingDaysController extends Controller
         }
     }
 
-    public function updateNonWorkingDay(Request $request)
+    public function updateGang(Request $request)
     {
         try {
             $validator = Validator::make($request->all(), [
                 'id' => 'required',
                 'name' => 'required',
-                'start_date_time' => 'required',
-                'end_date_time' => 'required',
             ]);
 
             if ($validator->fails()) {
@@ -147,28 +142,25 @@ class NonWorkingDaysController extends Controller
                 }
             }
 
-            $nonWorkingDays = ProjectNonWorkingDay::whereId($request->id)->first();
+            $projectGangs = ProjectGang::whereId($request->id)->first();
 
-            if (!isset($nonWorkingDays) || empty($nonWorkingDays)) {
-                return $this->sendError('Non working day does not exists.');
+            if (!isset($projectGangs) || empty($projectGangs)) {
+                return $this->sendError('Project gang does not exists.');
             }
 
-            if ($request->filled('name')) $nonWorkingDays->name = $request->name;
-            if ($request->filled('start_date_time')) $nonWorkingDays->start_date_time = date('Y-m-d H:i:s', strtotime($request->start_date_time));
-            if ($request->filled('end_date_time')) $nonWorkingDays->end_date_time = date('Y-m-d H:i:s', strtotime($request->end_date_time));
-            $nonWorkingDays->updated_ip = $request->ip();
+            if ($request->filled('name')) $projectGangs->name = $request->name;
 
-            if (!$nonWorkingDays->save()) {
-                return $this->sendError('Something went wrong while updating the non working day.');
+            if (!$projectGangs->save()) {
+                return $this->sendError('Something went wrong while udating the project gang.');
             }
 
-            return $this->sendResponse($nonWorkingDays, 'Non working day updated successfully.');
+            return $this->sendResponse($projectGangs, 'Project gang updated successfully.');
         } catch (\Exception $e) {
             return $this->sendError($e->getMessage());
         }
     }
 
-    public function changeNonWorkingDayStatus(Request $request)
+    public function changeGangStatus(Request $request)
     {
         try {
             $validator = Validator::make($request->all(), [
@@ -181,21 +173,21 @@ class NonWorkingDaysController extends Controller
                 }
             }
 
-            $nonWorkingDays = ProjectNonWorkingDay::whereId($request->id)->first();
+            $projectGangs = ProjectGang::whereId($request->id)->first();
 
-            if (!isset($nonWorkingDays) || empty($nonWorkingDays)) {
-                return $this->sendError('Non working day does not exists.');
+            if (!isset($projectGangs) || empty($projectGangs)) {
+                return $this->sendError('Project gang does not exists.');
             }
 
-            $nonWorkingDays->deleted_at = null;
-            $nonWorkingDays->status = $request->status;
-            $nonWorkingDays->save();
+            $projectGangs->deleted_at = null;
+            $projectGangs->status = $request->status;
+            $projectGangs->save();
 
-            if ($nonWorkingDays->status == ProjectNonWorkingDay::STATUS['Deleted']) {
-                $nonWorkingDays->delete();
+            if ($projectGangs->status == ProjectGang::STATUS['Deleted']) {
+               $projectGangs->delete();
             }
 
-            return $this->sendResponse($nonWorkingDays, 'Status changed successfully.');
+            return $this->sendResponse($projectGangs,'Status changed successfully.');
         } catch (\Exception $e) {
             return $this->sendError($e->getMessage());
         }

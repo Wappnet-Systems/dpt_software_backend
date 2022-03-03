@@ -9,6 +9,8 @@ use App\Models\System\User;
 use App\Models\System\Role;
 use App\Models\System\Module;
 use App\Models\System\RoleHasModule;
+use App\Models\System\SubModule;
+use App\Models\Tenant\RoleHasSubModule;
 
 class RoleController extends Controller
 {
