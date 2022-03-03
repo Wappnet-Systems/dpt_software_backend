@@ -17,6 +17,9 @@ use App\Http\Controllers\Tenant\Api\MachineriesController;
 use App\Http\Controllers\Tenant\Api\ProjectsController;
 use App\Http\Controllers\Tenant\Api\Project\NonWorkingDaysController;
 use App\Http\Controllers\Tenant\Api\Project\ManforcesController;
+use App\Http\Controllers\Tenant\Api\Project\GangsController;
+use App\Http\Controllers\Tenant\Api\Project\GangsManforcesController;
+use App\Http\Controllers\Tenant\Api\Project\MaterialController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -135,4 +138,25 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('project/manforce/add', [ManforcesController::class, 'addManforce']);
     Route::post('project/manforce/update', [ManforcesController::class, 'updateManforce']);
     Route::post('project/manforce/status/change', [ManforcesController::class, 'changeManforceStatus']);
+
+    /* Projects Gangs Routes */
+    Route::post('project/gang/get/lists', [GangsController::class, 'getGangs']);
+    Route::post('project/gang/get/{id}', [GangsController::class, 'getGangDetails']);
+    Route::post('project/gang/add', [GangsController::class, 'addGang']);
+    Route::post('project/gang/update', [GangsController::class, 'updateGang']);
+    Route::post('project/gang/status/change', [GangsController::class, 'changeGangStatus']);
+
+    /* Projects Gangs Manforces Routes */
+    Route::post('project/gang/manforce/get/lists', [GangsManforcesController::class, 'getGangsManforces']);
+    Route::post('project/gang/manforce/get/{id}', [GangsManforcesController::class, 'getGangManforceDetails']);
+    Route::post('project/gang/manforce/add', [GangsManforcesController::class, 'addGangManforce']);
+    Route::post('project/gang/manforce/update', [GangsManforcesController::class, 'updateGangManforce']);
+    Route::delete('project/gang/manforce/delete/{id}', [GangsManforcesController::class, 'deleteGangManforce']);
+
+    /* Project Materials Routes */
+    /* Route::post('project/material/get/lists', [MaterialController::class, 'getMaterials']);
+    Route::post('project/material/get/{id}', [MaterialController::class, 'getMaterialsDetails']);
+    Route::post('project/material/add', [MaterialController::class, 'addMaterial']);
+    Route::post('project/material/update', [MaterialController::class, 'updateMaterial']);
+    Route::delete('project/material/delete/{id}', [MaterialController::class, 'deleteMaterial']); */
 });
