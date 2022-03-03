@@ -48,7 +48,7 @@ class GangsManforcesController extends Controller
         $limit = !empty($request->limit) ? $request->limit : config('constants.default_per_page_limit');
         $orderBy = !empty($request->orderby) ? $request->orderby : config('constants.default_orderby');
 
-        $query = ProjectGangManforce::with(['projectGang'])
+        $query = ProjectGangManforce::with('projectGang', 'manforce')
             ->whereGangId($request->gang_id ?? '')
             ->orderBy('id', $orderBy);
 
@@ -78,7 +78,7 @@ class GangsManforcesController extends Controller
     public function getGangManforceDetails(Request $request)
     {
         $projectGangManforce = ProjectGangManforce::select('id', 'gang_id', 'manforce_type_id', 'total_manforce')
-            ->with('projectGang')
+            ->with('projectGang', 'manforce')
             ->whereId($request->id)
             ->first();
 
