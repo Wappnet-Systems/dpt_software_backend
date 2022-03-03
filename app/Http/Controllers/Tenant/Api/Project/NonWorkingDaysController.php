@@ -47,7 +47,8 @@ class NonWorkingDaysController extends Controller
         $limit = !empty($request->limit) ? $request->limit : config('constants.default_per_page_limit');
         $orderBy = !empty($request->orderby) ? $request->orderby : config('constants.default_orderby');
 
-        $query = ProjectNonWorkingDay::whereStatus(ProjectNonWorkingDay::STATUS['Active'])
+        $query = ProjectNonWorkingDay::whereProjectId($request->project_id ?? null)
+            ->whereStatus(ProjectNonWorkingDay::STATUS['Active'])
             ->orderBy('id', $orderBy);
 
         if (isset($request->search) && !empty($request->search)) {

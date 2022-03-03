@@ -49,6 +49,7 @@ class GangsManforcesController extends Controller
         $orderBy = !empty($request->orderby) ? $request->orderby : config('constants.default_orderby');
 
         $query = ProjectGangManforce::with(['projectGang'])
+            ->whereGangId($request->gang_id ?? '')
             ->orderBy('id', $orderBy);
 
         if ($request->exists('cursor')) {
@@ -77,6 +78,7 @@ class GangsManforcesController extends Controller
     public function getGangManforceDetails(Request $request)
     {
         $projectGangManforce = ProjectGangManforce::select('id', 'gang_id', 'manforce_type_id', 'total_manforce')
+            ->with('projectGang')
             ->whereId($request->id)
             ->first();
 

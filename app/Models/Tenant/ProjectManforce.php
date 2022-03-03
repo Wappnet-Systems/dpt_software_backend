@@ -41,7 +41,13 @@ class ProjectManforce extends Model
 
     public function project()
     {
-        return $this->belongsTo(Project::class,'project_id','id')
+        return $this->belongsTo(Project::class, 'project_id', 'id')
             ->select('id', 'name', 'logo', 'address', 'lat', 'long', 'city', 'state', 'country', 'zip_code', 'start_date', 'end_date', 'cost', 'status');
+    }
+
+    public function manforce()
+    {
+        return $this->belongsTo(ManforceType::class, 'manforce_type_id', 'id')
+            ->select('id', 'name', 'status');
     }
 }
