@@ -11,7 +11,7 @@ class ProjectManforce extends Model
     use HasFactory;
     use SoftDeletes;
 
-    protected $table = "project_manforces";
+    protected $table = "projects_manforces";
 
     protected $guarded = [];
 
