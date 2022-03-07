@@ -85,7 +85,7 @@ class MaterialController extends Controller
 
     public function getMaterialsDetails(Request $request)
     {
-        $projectMaterial = ProjectMaterial::with('unitType', 'materialType')
+        $projectMaterial = ProjectMaterial::with('project', 'unitType', 'materialType')
             ->select('id', 'project_id', 'unit_type_id', 'quantity', 'cost', 'status')
             ->whereId($request->id)
             ->first();
@@ -144,7 +144,7 @@ class MaterialController extends Controller
                     $projectInventory->save();
                 } else {
                     $projectInventory = new ProjectInventory();
-                    $projectInventory->projects_id = $projectMaterial->projects_id;
+                    $projectInventory->project_id = $projectMaterial->project_id;
                     $projectInventory->material_type_id = $projectMaterial->material_type_id;
                     $projectInventory->unit_type_id = $projectMaterial->unit_type_id;
                     $projectInventory->total_quantity = $projectMaterial->quantity;
@@ -215,7 +215,7 @@ class MaterialController extends Controller
                     $projectInventoryExists->save();
                 } else {
                     $projectInventory = new ProjectInventory();
-                    $projectInventory->projects_id = $projectMaterial->projects_id;
+                    $projectInventory->project_id = $projectMaterial->project_id;
                     $projectInventory->material_type_id = $projectMaterial->material_type_id;
                     $projectInventory->unit_type_id = $projectMaterial->unit_type_id;
                     $projectInventory->total_quantity = $projectMaterial->quantity;
