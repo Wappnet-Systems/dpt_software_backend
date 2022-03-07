@@ -47,6 +47,7 @@ class MaterialImport implements ToModel, WithHeadingRow
 
         $projectMaterial = new ProjectMaterial();
         $projectMaterial->projects_id = $projectId['project_id'];
+        $projectMaterial->material_type_id = !empty($MaterialTypeExists) ? $MaterialTypeExists->id : $materialType->id;
         $projectMaterial->unit_type_id = !empty($unitTypeExists) ? $unitTypeExists->id : $unitType->id;
         $projectMaterial->quantity = $row['quantity'];
         $projectMaterial->cost = $row['cost'];
@@ -57,7 +58,7 @@ class MaterialImport implements ToModel, WithHeadingRow
         if ($projectMaterial->save()) {
 
             $projectInventoryExists = ProjectInventory::whereProjectsId($projectMaterial->projects_id)
-                ->whereProjectMaterialId($projectMaterial->id)
+                ->whereMaterialTypeId($projectMaterial->material_type_id)
                 ->whereUnitTypeId($projectMaterial->unit_type_id)
                 ->first();
 
@@ -70,7 +71,7 @@ class MaterialImport implements ToModel, WithHeadingRow
             } else {
                 $projectInventory = new ProjectInventory();
                 $projectInventory->projects_id = $projectMaterial->projects_id;
-                $projectInventory->project_material_id = $projectMaterial->id;
+                $projectInventory->material_type_id = $projectMaterial->material_type_id;
                 $projectInventory->unit_type_id = $projectMaterial->unit_type_id;
                 $projectInventory->total_quantity = $projectMaterial->quantity;
                 $projectInventory->average_cost = $projectMaterial->cost;

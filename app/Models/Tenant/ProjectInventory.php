@@ -49,4 +49,20 @@ class ProjectInventory extends Model
 
         return $averageCost;
     }
+
+    public function project()
+    {
+        return $this->belongsTo(Project::class, 'projects_id', 'id')
+            ->select('id', 'name', 'logo', 'address', 'lat', 'long', 'city', 'state', 'country', 'zip_code', 'start_date', 'end_date', 'cost', 'status');
+    }
+
+    public function materials()
+    {
+        return $this->belongsTo(ProjectMaterial::class, 'project_material_id', 'id')->select('id', 'projects_id', 'unit_type_id', 'quantity', 'cost', 'status');
+    }
+
+    public function unitType()
+    {
+        return $this->belongsTo(UnitType::class, 'unit_type_id', 'id')->select('id', 'name', 'status');
+    }
 }

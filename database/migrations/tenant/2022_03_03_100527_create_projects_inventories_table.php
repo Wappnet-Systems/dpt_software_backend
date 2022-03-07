@@ -19,7 +19,7 @@ class CreateProjectsInventoriesTable extends Migration
 
             $table->id();
             $table->foreignId('projects_id')->constrained('projects')->cascadeOnUpdate()->cascadeOnDelete();
-            $table->foreignId('project_material_id')->constrained('projects_materials')->cascadeOnUpdate()->cascadeOnDelete();
+            $table->foreignId('material_type_id')->constrained('material_types')->cascadeOnUpdate()->cascadeOnDelete();
             $table->foreignId('unit_type_id')->constrained('unit_types')->cascadeOnUpdate()->cascadeOnDelete();
             $table->double('total_quantity', 8, 2);
             $table->double('average_cost', 10, 2);

@@ -21,6 +21,7 @@ use App\Http\Controllers\Tenant\Api\Project\ManforcesController;
 use App\Http\Controllers\Tenant\Api\Project\GangsController;
 use App\Http\Controllers\Tenant\Api\Project\GangsManforcesController;
 use App\Http\Controllers\Tenant\Api\Project\MaterialController;
+use App\Http\Controllers\Tenant\Api\Project\InventoryStocksController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -169,4 +170,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('project/material/upload/format/file', [MaterialController::class, 'uploadMaterialFormatFile']);
     Route::post('project/material/export/format/file', [MaterialController::class, 'exportMaterialFormatFile']);
     Route::post('project/material/import', [MaterialController::class, 'importMaterial']);
+
+    /* Projects Inventories Stocks Routes */
+    Route::post('project/inventory/stock/get/lists', [InventoryStocksController::class, 'getInventoryStocks']);
 });

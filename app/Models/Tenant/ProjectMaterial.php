@@ -43,6 +43,10 @@ class ProjectMaterial extends Model
             ->select('id', 'name', 'logo', 'address', 'lat', 'long', 'city', 'state', 'country', 'zip_code', 'start_date', 'end_date', 'cost', 'status');
     }
 
+    public function materialType()
+    {
+        return $this->belongsTo(MaterialType::class, 'unit_type_id', 'id')->select('id', 'name', 'status');
+    }
     public function unitType()
     {
         return $this->belongsTo(UnitType::class, 'unit_type_id', 'id')->select('id', 'name', 'status');
