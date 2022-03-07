@@ -173,4 +173,15 @@ Route::middleware('auth:sanctum')->group(function () {
 
     /* Projects Inventories Stocks Routes */
     Route::post('project/inventory/stock/get/lists', [InventoryStocksController::class, 'getInventoryStocks']);
+
+    /* Projects Activity Management Routes */
+    Route::post('project/activity/get/lists', [ActivitiesController::class, 'getActivities']);
+    Route::post('project/activity/get/{id}', [ActivitiesController::class, 'getActivityDetails']);
+    Route::post('project/activity/add', [ActivitiesController::class, 'addActivity']);
+    Route::post('project/activity/update', [ActivitiesController::class, 'updateActivity']);
+    Route::post('project/activity/status/change', [ActivitiesController::class, 'changeActivityStatus']);
+    Route::delete('project/activity/delete/{id}', [ActivitiesController::class, 'deleteActivity']);
+
+    /* Assign Material to Project Activity Route */
+    Route::post('project/activity/get/lists', [ActivitiesController::class, 'getActivities']);
 });

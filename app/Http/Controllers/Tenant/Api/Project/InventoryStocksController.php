@@ -46,7 +46,9 @@ class InventoryStocksController extends Controller
         $limit = !empty($request->limit) ? $request->limit : config('constants.default_per_page_limit');
         $orderBy = !empty($request->orderby) ? $request->orderby : config('constants.default_orderby');
 
-        $query = ProjectInventory::with('project','materials','unitType')->whereStatus(ProjectInventory::STATUS['Active'])
+        $query = ProjectInventory::with('project', 'materials', 'unitType')
+            ->whereProjectId($request->project_id ?? '')
+            ->whereStatus(ProjectInventory::STATUS['Active'])
             ->orderby('id', $orderBy);
 
         if ($request->exists('cursor')) {
@@ -68,7 +70,7 @@ class InventoryStocksController extends Controller
                 'prev_page_url' => $projectInventory['prev_page_url']
             ], 'Project material List.');
         } else {
-            return $this->sendResponse($results, 'Project material List.');
+            return $this->sendResponse($results, 'Project inventory material List.');
         }
     }
 }

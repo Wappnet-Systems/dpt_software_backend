@@ -18,7 +18,7 @@ class CreateProjectsMaterialsTable extends Migration
             $table->collation = 'utf8_general_ci';
 
             $table->id();
-            $table->foreignId('projects_id')->constrained('projects')->cascadeOnUpdate()->cascadeOnDelete();
+            $table->foreignId('project_id')->constrained('projects')->cascadeOnUpdate()->cascadeOnDelete();
             $table->foreignId('material_type_id')->constrained('material_types')->cascadeOnUpdate()->cascadeOnDelete();
             $table->foreignId('unit_type_id')->constrained('unit_types')->cascadeOnUpdate()->cascadeOnDelete();
             $table->double('quantity', 8, 2);

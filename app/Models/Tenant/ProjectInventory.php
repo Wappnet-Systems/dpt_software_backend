@@ -37,14 +37,16 @@ class ProjectInventory extends Model
         return null;
     }
 
-    /* average_cost calculation */
-
-    public static function averageCost($materialCost, $materialQty, $projectInventoryQty, $projectInventoryAvgCost)
+    /* Calculation of average_cost  */
+    public static function calcAverageCost($materialCost = 0, $materialQty = 0, $projectInventoryQty = 0, $projectInventoryAvgCost = 0)
     {
-        $totalMaterialCost =  $materialCost * $materialQty;
-        $totalInventoryCost =  $projectInventoryQty * $projectInventoryAvgCost;
         $totalQty = $projectInventoryQty + $materialQty;
+        
+        $totalInventoryCost = $projectInventoryQty * $projectInventoryAvgCost;
+        $totalMaterialCost = $materialCost * $materialQty;
+        
         $totalCost = $totalMaterialCost + $totalInventoryCost;
+
         $averageCost = round($totalCost / $totalQty, 2);
 
         return $averageCost;
@@ -52,13 +54,13 @@ class ProjectInventory extends Model
 
     public function project()
     {
-        return $this->belongsTo(Project::class, 'projects_id', 'id')
+        return $this->belongsTo(Project::class, 'project_id', 'id')
             ->select('id', 'name', 'logo', 'address', 'lat', 'long', 'city', 'state', 'country', 'zip_code', 'start_date', 'end_date', 'cost', 'status');
     }
 
     public function materials()
     {
-        return $this->belongsTo(ProjectMaterial::class, 'project_material_id', 'id')->select('id', 'projects_id', 'unit_type_id', 'quantity', 'cost', 'status');
+        return $this->belongsTo(ProjectMaterial::class, 'project_material_id', 'id')->select('id', 'project_id', 'unit_type_id', 'quantity', 'cost', 'status');
     }
 
     public function unitType()

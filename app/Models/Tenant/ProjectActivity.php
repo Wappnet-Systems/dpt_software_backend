@@ -4,21 +4,24 @@ namespace App\Models\Tenant;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
-class ProjectMaterial extends Model
+class ProjectActivity extends Model
 {
     use HasFactory;
+    use SoftDeletes;
 
-    protected $table = "projects_materials";
+    protected $table = "projects_activities";
 
     protected $guarded = [];
 
     protected $appends = ['status_name'];
 
     const STATUS = [
-        'Active' => 1,
-        'In Active' => 2,
-        'Deleted' => 3,
+        'Pending' => 1,
+        'Start' => 2,
+        'Hold' => 3,
+        'Completed' => 4,
     ];
 
     /**
@@ -39,17 +42,13 @@ class ProjectMaterial extends Model
 
     public function project()
     {
-        return $this->belongsTo(Project::class, 'project_id', 'id')
+        return $this->belongsTo(Project::class, 'projects_id', 'id')
             ->select('id', 'name', 'logo', 'address', 'lat', 'long', 'city', 'state', 'country', 'zip_code', 'start_date', 'end_date', 'cost', 'status');
     }
 
-    public function materialType()
+    public function activitySubCategory()
     {
-        return $this->belongsTo(MaterialType::class, 'unit_type_id', 'id')->select('id', 'name', 'status');
-    }
-    
-    public function unitType()
-    {
-        return $this->belongsTo(UnitType::class, 'unit_type_id', 'id')->select('id', 'name', 'status');
+        return $this->belongsTo(ActivitySubCategory::class, 'activity_sub_category_id', 'id')
+            ->select('id', 'activity_category_id', 'unit_type_id', 'name', 'status');
     }
 }

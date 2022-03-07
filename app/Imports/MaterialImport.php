@@ -27,8 +27,7 @@ class MaterialImport implements ToModel, WithHeadingRow
 
         $projectId = request()->all();
 
-        $unitTypeExists = UnitType::whereName($row['unit_type_name'])
-            ->first();
+        $unitTypeExists = UnitType::whereName($row['unit_type_name'])->first();
 
         if (!isset($unitTypeExists) || empty($unitTypeExists)) {
             $unitType = new UnitType();
@@ -36,8 +35,7 @@ class MaterialImport implements ToModel, WithHeadingRow
             $unitType->save();
         }
 
-        $MaterialTypeExists = MaterialType::whereName($row['material_name'])
-            ->first();
+        $MaterialTypeExists = MaterialType::whereName($row['material_name'])->first();
 
         if (!isset($MaterialTypeExists) || empty($MaterialTypeExists)) {
             $materialType = new MaterialType();
@@ -46,7 +44,7 @@ class MaterialImport implements ToModel, WithHeadingRow
         }
 
         $projectMaterial = new ProjectMaterial();
-        $projectMaterial->projects_id = $projectId['project_id'];
+        $projectMaterial->project_id = $projectId['project_id'];
         $projectMaterial->material_type_id = !empty($MaterialTypeExists) ? $MaterialTypeExists->id : $materialType->id;
         $projectMaterial->unit_type_id = !empty($unitTypeExists) ? $unitTypeExists->id : $unitType->id;
         $projectMaterial->quantity = $row['quantity'];
@@ -56,8 +54,7 @@ class MaterialImport implements ToModel, WithHeadingRow
         $projectMaterial->updated_ip = Request::ip();
 
         if ($projectMaterial->save()) {
-
-            $projectInventoryExists = ProjectInventory::whereProjectsId($projectMaterial->projects_id)
+            $projectInventoryExists = ProjectInventory::whereProjectId($projectMaterial->project_id)
                 ->whereMaterialTypeId($projectMaterial->material_type_id)
                 ->whereUnitTypeId($projectMaterial->unit_type_id)
                 ->first();
@@ -70,7 +67,7 @@ class MaterialImport implements ToModel, WithHeadingRow
                 $projectInventoryExists->save();
             } else {
                 $projectInventory = new ProjectInventory();
-                $projectInventory->projects_id = $projectMaterial->projects_id;
+                $projectInventory->project_id = $projectMaterial->project_id;
                 $projectInventory->material_type_id = $projectMaterial->material_type_id;
                 $projectInventory->unit_type_id = $projectMaterial->unit_type_id;
                 $projectInventory->total_quantity = $projectMaterial->quantity;
