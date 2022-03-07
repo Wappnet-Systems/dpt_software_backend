@@ -14,5 +14,11 @@ return [
             'logo_path' => 'organizations/:uid:/project/:project_uuid:/logo'
         ]
     ],
+    'format_files' => [
+        'material_file' => [
+            'path' => 'format-file',
+            'name' => 'materials.csv'
+        ]
+    ]
 ];
 ?>

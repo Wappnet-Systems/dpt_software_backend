@@ -58,7 +58,7 @@ class UploadFile
     }
 
     // S3 Bucket uplaod
-    public function uploadFileInS3($request = null, $path = null, $fileName = null, $height = null, $width = null)
+    public function uploadFileInS3($request = null, $path = null, $fileName = null, $height = null, $width = null, $isUpdateFileName = true)
     {
         if (!$request->hasFile($fileName)) return null;
         
@@ -68,7 +68,11 @@ class UploadFile
 
         $extension = $file->getClientOriginalExtension();
 
-        $newFileName = sprintf('%d%d.%s', time(), rand(10000, 99999), $extension);
+        $newFileName = sprintf('%s.%s', $fileName, $extension);
+
+        if ($isUpdateFileName) {
+            $newFileName = sprintf('%d%d.%s', time(), rand(10000, 99999), $extension);
+        }
 
         if (!empty($height) && !empty($width)) {
             $resize = Image::make($file)->resize($height, $width)->encode($extension);
@@ -77,6 +81,7 @@ class UploadFile
         } else {
             $response = Storage::disk('s3')->put(sprintf('%s/%s', $projectPath, $newFileName), file_get_contents($file), 'public');
         }
+
         return sprintf('%s/%s', $path, $newFileName);
     }
 

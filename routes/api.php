@@ -161,9 +161,12 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('project/gang/manforce/delete/{id}', [GangsManforcesController::class, 'deleteGangManforce']);
 
     /* Project Materials Routes */
-    /* Route::post('project/material/get/lists', [MaterialController::class, 'getMaterials']);
+    Route::post('project/material/get/lists', [MaterialController::class, 'getMaterials']);
     Route::post('project/material/get/{id}', [MaterialController::class, 'getMaterialsDetails']);
     Route::post('project/material/add', [MaterialController::class, 'addMaterial']);
     Route::post('project/material/update', [MaterialController::class, 'updateMaterial']);
-    Route::delete('project/material/delete/{id}', [MaterialController::class, 'deleteMaterial']); */
+    Route::delete('project/material/delete/{id}', [MaterialController::class, 'deleteMaterial']);
+    Route::post('project/material/upload/format/file', [MaterialController::class, 'uploadMaterialFormatFile']);
+    Route::post('project/material/export/format/file', [MaterialController::class, 'exportMaterialFormatFile']);
+    Route::post('project/material/import', [MaterialController::class, 'importMaterial']);
 });
