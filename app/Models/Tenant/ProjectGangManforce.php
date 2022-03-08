@@ -18,4 +18,10 @@ class ProjectGangManforce extends Model
         return $this->hasOne(ProjectGang::class, 'id', 'gang_id')
             ->select('id', 'project_id', 'name', 'status');
     }
+    
+    public function manforce()
+    {
+        return $this->belongsTo(ManforceType::class, 'manforce_type_id', 'id')
+            ->select('id', 'name', 'status');
+    }
 }

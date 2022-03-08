@@ -15,12 +15,14 @@ use App\Http\Controllers\Tenant\Api\ManforceTypesController;
 use App\Http\Controllers\Tenant\Api\ActivityCategoriesController;
 use App\Http\Controllers\Tenant\Api\SubActivityCategoriesController;
 use App\Http\Controllers\Tenant\Api\MachineriesController;
+use App\Http\Controllers\Tenant\Api\Project\ActivitiesController;
 use App\Http\Controllers\Tenant\Api\ProjectsController;
 use App\Http\Controllers\Tenant\Api\Project\NonWorkingDaysController;
 use App\Http\Controllers\Tenant\Api\Project\ManforcesController;
 use App\Http\Controllers\Tenant\Api\Project\GangsController;
 use App\Http\Controllers\Tenant\Api\Project\GangsManforcesController;
 use App\Http\Controllers\Tenant\Api\Project\MaterialController;
+use App\Http\Controllers\Tenant\Api\Project\InventoryStocksController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -161,9 +163,29 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('project/gang/manforce/delete/{id}', [GangsManforcesController::class, 'deleteGangManforce']);
 
     /* Project Materials Routes */
-    /* Route::post('project/material/get/lists', [MaterialController::class, 'getMaterials']);
+    Route::post('project/material/get/lists', [MaterialController::class, 'getMaterials']);
     Route::post('project/material/get/{id}', [MaterialController::class, 'getMaterialsDetails']);
     Route::post('project/material/add', [MaterialController::class, 'addMaterial']);
     Route::post('project/material/update', [MaterialController::class, 'updateMaterial']);
-    Route::delete('project/material/delete/{id}', [MaterialController::class, 'deleteMaterial']); */
+    Route::delete('project/material/delete/{id}', [MaterialController::class, 'deleteMaterial']);
+    Route::post('project/material/upload/format/file', [MaterialController::class, 'uploadMaterialFormatFile']);
+    Route::post('project/material/export/format/file', [MaterialController::class, 'exportMaterialFormatFile']);
+    Route::post('project/material/import', [MaterialController::class, 'importMaterial']);
+
+    /* Projects Inventories Stocks Routes */
+    Route::post('project/inventory/stock/get/lists', [InventoryStocksController::class, 'getInventoryStocks']);
+
+    /* Projects Inventories Minimum Quantity Update Routes */
+    Route::post('project/inventory/minimum-quantity/update', [InventoryStocksController::class, 'updateMinimunQuntity']);
+
+    /* Projects Activity Management Routes */
+    Route::post('project/activity/get/lists', [ActivitiesController::class, 'getActivities']);
+    Route::post('project/activity/get/{id}', [ActivitiesController::class, 'getActivityDetails']);
+    Route::post('project/activity/add', [ActivitiesController::class, 'addActivity']);
+    Route::post('project/activity/update', [ActivitiesController::class, 'updateActivity']);
+    Route::post('project/activity/status/change', [ActivitiesController::class, 'changeActivityStatus']);
+    Route::delete('project/activity/delete/{id}', [ActivitiesController::class, 'deleteActivity']);
+
+    /* Assign Material to Project Activity Route */
+    Route::post('project/activity/get/lists', [ActivitiesController::class, 'getActivities']);
 });

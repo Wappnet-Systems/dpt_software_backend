@@ -37,9 +37,4 @@ class ForgotPasswordController extends Controller
             return $this->sendError('We can not find a user with that email address.');
         }
     }
-
-    public function showResetForm(Request $request)
-    {
-        echo '<pre>'; print_r($request->token); echo '</pre>'; die;
-    }
 }

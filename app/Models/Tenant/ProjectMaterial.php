@@ -4,14 +4,12 @@ namespace App\Models\Tenant;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
 
-class ProjectManforce extends Model
+class ProjectMaterial extends Model
 {
     use HasFactory;
-    use SoftDeletes;
 
-    protected $table = "projects_manforces";
+    protected $table = "projects_materials";
 
     protected $guarded = [];
 
@@ -45,9 +43,15 @@ class ProjectManforce extends Model
             ->select('id', 'name', 'logo', 'address', 'lat', 'long', 'city', 'state', 'country', 'zip_code', 'start_date', 'end_date', 'cost', 'status');
     }
 
-    public function manforce()
+    public function materialType()
     {
-        return $this->belongsTo(ManforceType::class, 'manforce_type_id', 'id')
+        return $this->belongsTo(MaterialType::class, 'material_type_id', 'id')
+            ->select('id', 'name', 'status');
+    }
+
+    public function unitType()
+    {
+        return $this->belongsTo(UnitType::class, 'unit_type_id', 'id')
             ->select('id', 'name', 'status');
     }
 }
