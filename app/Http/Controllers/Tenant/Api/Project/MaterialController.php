@@ -137,9 +137,9 @@ class MaterialController extends Controller
                     ->first();
 
                 if (isset($projectInventory) && !empty($projectInventory)) {
+                    $projectInventory->average_cost = ProjectInventory::calcAverageCost($projectInventory->total_quantity, $projectInventory->average_cost, $projectMaterial->quantity, $projectMaterial->cost);
                     $projectInventory->total_quantity = $projectInventory->total_quantity + $projectMaterial->quantity;
                     $projectInventory->remaining_quantity = $projectInventory->remaining_quantity + $projectMaterial->quantity;
-                    $projectInventory->average_cost = ProjectInventory::calcAverageCost($projectMaterial->cost, $projectMaterial->quantity, $projectInventory->total_quantity, $projectInventory->average_cost);
                     $projectInventory->updated_ip = $request->ip();
                     $projectInventory->save();
                 } else {
@@ -188,19 +188,20 @@ class MaterialController extends Controller
 
                 $projectMaterial = ProjectMaterial::whereId($request->id)->first();
 
-                $projectInventoryExists = ProjectInventory::whereProjectId($projectMaterial->project_id)
+                if (!isset($projectMaterial) || empty($projectMaterial)) {
+                    return $this->sendError('Project material does not exist.');
+                }
+
+                $projectInventory = ProjectInventory::whereProjectId($projectMaterial->project_id)
                     ->whereMaterialTypeId($projectMaterial->material_type_id)
                     ->whereUnitTypeId($projectMaterial->unit_type_id)
                     ->first();
 
-                if (isset($projectInventoryExists) && !empty($projectInventoryExists)) {
-                    $projectInventoryExists->total_quantity = $projectInventoryExists->total_quantity - $projectMaterial->quantity;
-                    $projectInventoryExists->average_cost = ProjectInventory::calcAverageCost($projectMaterial->cost, $projectMaterial->quantity, $projectInventoryExists->total_quantity, $projectInventoryExists->average_cost);
-                    $projectInventoryExists->save();
-                }
-
-                if (!isset($projectMaterial) || empty($projectMaterial)) {
-                    return $this->sendError('Project material does not exist.');
+                if (isset($projectInventory) && !empty($projectInventory)) {
+                    $projectInventory->average_cost = ProjectInventory::reCalcAverageCost($projectInventory->total_quantity, $projectInventory->average_cost, $projectMaterial->quantity, $projectMaterial->cost);
+                    $projectInventory->total_quantity = $projectInventory->total_quantity - $projectMaterial->quantity;
+                    $projectInventory->remaining_quantity = $projectInventory->remaining_quantity - $projectMaterial->quantity;
+                    $projectInventory->save();
                 }
 
                 if ($request->filled('unit_type_id')) $projectMaterial->unit_type_id = $request->unit_type_id;
@@ -210,15 +211,15 @@ class MaterialController extends Controller
                 $projectMaterial->updated_ip = $request->ip();
 
                 if (!$projectMaterial->save()) {
-                    return $this->sendError('Something went wrong while udating the project material.');
+                    return $this->sendError('Something went wrong while updating the project material.');
                 }
 
-                if (isset($projectInventoryExists) && !empty($projectInventoryExists)) {
-                    $projectInventoryExists->total_quantity = $projectInventoryExists->total_quantity + $projectMaterial->quantity;
-                    $projectInventoryExists->remaining_quantity = $projectInventoryExists->remaining_quantity + $projectMaterial->quantity;
-                    $projectInventoryExists->average_cost = ProjectInventory::calcAverageCost($projectMaterial->cost, $projectMaterial->quantity, $projectInventoryExists->total_quantity, $projectInventoryExists->average_cost);
-                    $projectInventoryExists->updated_ip = $request->ip();
-                    $projectInventoryExists->save();
+                if (isset($projectInventory) && !empty($projectInventory)) {
+                    $projectInventory->average_cost = ProjectInventory::calcAverageCost($projectInventory->total_quantity, $projectInventory->average_cost, $projectMaterial->quantity, $projectMaterial->cost);
+                    $projectInventory->total_quantity = $projectInventory->total_quantity + $projectMaterial->quantity;
+                    $projectInventory->remaining_quantity = $projectInventory->remaining_quantity + $projectMaterial->quantity;
+                    $projectInventory->updated_ip = $request->ip();
+                    $projectInventory->save();
                 } else {
                     $projectInventory = new ProjectInventory();
                     $projectInventory->project_id = $projectMaterial->project_id;
@@ -257,18 +258,18 @@ class MaterialController extends Controller
                 ->first();
 
             if (isset($projectInventory) && !empty($projectInventory)) {
+                $projectInventory->average_cost = ProjectInventory::reCalcAverageCost($projectInventory->total_quantity, $projectInventory->average_cost, $projectMaterial->quantity, $projectMaterial->cost);
                 $projectInventory->total_quantity = $projectInventory->total_quantity - $projectMaterial->quantity;
-                $projectInventory->average_cost = ProjectInventory::calcAverageCost($projectMaterial->cost, $projectMaterial->quantity, $projectInventory->total_quantity, $projectInventory->average_cost);
                 $projectInventory->remaining_quantity = 0;
                 $projectInventory->updated_ip = $request->ip();
                 $projectInventory->save();
 
                 if ($projectInventory->total_quantity == 0) {
-                    // $projectInventory->delete();
+                    $projectInventory->delete();
                 }
             }
 
-            // $projectMaterial->delete();
+            $projectMaterial->delete();
 
             return $this->sendResponse([], 'Project material deleted successfully.');
         } catch (\Exception $e) {

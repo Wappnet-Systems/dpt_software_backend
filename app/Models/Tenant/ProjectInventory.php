@@ -38,21 +38,40 @@ class ProjectInventory extends Model
     }
 
     /* Calculation of average_cost  */
-    public static function calcAverageCost($materialCost = 0, $materialQty = 0, $projectInventoryQty = 0, $projectInventoryAvgCost = 0)
+    public static function calcAverageCost($projectInventoryQty = 0, $projectInventoryAvgCost = 0, $materialQty = 0, $materialCost = 0)
     {
-        $totalQty = $projectInventoryQty + $materialQty;
-        
         $totalInventoryCost = $projectInventoryQty * $projectInventoryAvgCost;
-        $totalMaterialCost = $materialCost * $materialQty;
 
-        $totalCost = $totalMaterialCost + $totalInventoryCost;
+        $totalMaterialCost = $materialQty * $materialCost;
 
+        $totalCost = $totalInventoryCost + $totalMaterialCost;
+        
+        $totalQty = $projectInventoryQty + $materialQty;
+
+        $averageCost = 0;
         if ($totalQty > 0) {
-            $averageCost = round($totalCost / $totalQty, 2);
-        } else {
-            $averageCost = 0;
+            $averageCost = round($totalCost / $totalQty);
         }
+        
+        return $averageCost;
+    }
 
+    /* Re Calculation of average_cost  */
+    public static function reCalcAverageCost($projectInventoryQty = 0, $projectInventoryAvgCost = 0, $materialQty = 0, $materialCost = 0)
+    {
+        $totalInventoryCost = $projectInventoryQty * $projectInventoryAvgCost;
+
+        $totalMaterialCost = $materialQty * $materialCost;
+
+        $totalCost = $totalInventoryCost - $totalMaterialCost;
+
+        $totalQty = $projectInventoryQty - $materialQty;
+
+        $averageCost = 0;
+        if ($totalQty > 0) {
+            $averageCost = round($totalCost / $totalQty);
+        }
+        
         return $averageCost;
     }
 

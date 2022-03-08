@@ -27,17 +27,17 @@ class MaterialImport implements ToModel, WithHeadingRow
 
         $projectId = request()->all();
 
-        $unitTypeExists = UnitType::whereName($row['unit_type_name'])->first();
+        $unitType = UnitType::whereName($row['unit_type_name'] ?? '')->first();
         
-        if (!isset($unitTypeExists) || empty($unitTypeExists)) {
+        if (!isset($unitType) || empty($unitType)) {
             $unitType = new UnitType();
             $unitType->name = $row['unit_type_name'];
             $unitType->save();
         }
 
-        $MaterialTypeExists = MaterialType::whereName($row['material_name'])->first();
+        $materialType = MaterialType::whereName($row['material_name'] ?? '')->first();
 
-        if (!isset($MaterialTypeExists) || empty($MaterialTypeExists)) {
+        if (!isset($materialType) || empty($materialType)) {
             $materialType = new MaterialType();
             $materialType->name = $row['material_name'];
             $materialType->save();
@@ -45,8 +45,8 @@ class MaterialImport implements ToModel, WithHeadingRow
 
         $projectMaterial = new ProjectMaterial();
         $projectMaterial->project_id = $projectId['project_id'];
-        $projectMaterial->material_type_id = !empty($MaterialTypeExists) ? $MaterialTypeExists->id : $materialType->id;
-        $projectMaterial->unit_type_id = !empty($unitTypeExists) ? $unitTypeExists->id : $unitType->id;
+        $projectMaterial->material_type_id = !empty($materialType) ? $materialType->id : $materialType->id;
+        $projectMaterial->unit_type_id = !empty($unitType) ? $unitType->id : $unitType->id;
         $projectMaterial->quantity = $row['quantity'];
         $projectMaterial->cost = $row['cost'];
         $projectMaterial->created_by = Auth::user()->id;
@@ -54,17 +54,17 @@ class MaterialImport implements ToModel, WithHeadingRow
         $projectMaterial->updated_ip = Request::ip();
 
         if ($projectMaterial->save()) {
-            $projectInventoryExists = ProjectInventory::whereProjectId($projectMaterial->project_id)
+            $projectInventory = ProjectInventory::whereProjectId($projectMaterial->project_id)
                 ->whereMaterialTypeId($projectMaterial->material_type_id)
                 ->whereUnitTypeId($projectMaterial->unit_type_id)
                 ->first();
 
-            if (isset($projectInventoryExists) && !empty($projectInventoryExists)) {
-                $projectInventoryExists->total_quantity = $projectInventoryExists->total_quantity + $projectMaterial->quantity;
-                $projectInventoryExists->remaining_quantity = $projectInventoryExists->remaining_quantity + $projectMaterial->quantity;
-                $projectInventoryExists->average_cost = ProjectInventory::averageCost($projectMaterial->cost, $projectMaterial->quantity, $projectInventoryExists->total_quantity, $projectInventoryExists->average_cost);
-                $projectInventoryExists->updated_ip = Request::ip();
-                $projectInventoryExists->save();
+            if (isset($projectInventory) && !empty($projectInventory)) {
+                $projectInventory->average_cost = ProjectInventory::calcAverageCost($projectInventory->total_quantity, $projectInventory->average_cost, $projectMaterial->quantity, $projectMaterial->cost);
+                $projectInventory->total_quantity = $projectInventory->total_quantity + $projectMaterial->quantity;
+                $projectInventory->remaining_quantity = $projectInventory->remaining_quantity + $projectMaterial->quantity;
+                $projectInventory->updated_ip = Request::ip();
+                $projectInventory->save();
             } else {
                 $projectInventory = new ProjectInventory();
                 $projectInventory->project_id = $projectMaterial->project_id;
