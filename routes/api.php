@@ -174,6 +174,9 @@ Route::middleware('auth:sanctum')->group(function () {
     /* Projects Inventories Stocks Routes */
     Route::post('project/inventory/stock/get/lists', [InventoryStocksController::class, 'getInventoryStocks']);
 
+    /* Projects Inventories Minimum Quantity Update Routes */
+    Route::post('project/inventory/minimum-quantity/update', [InventoryStocksController::class, 'updateMinimunQuntity']);
+
     /* Projects Activity Management Routes */
     Route::post('project/activity/get/lists', [ActivitiesController::class, 'getActivities']);
     Route::post('project/activity/get/{id}', [ActivitiesController::class, 'getActivityDetails']);

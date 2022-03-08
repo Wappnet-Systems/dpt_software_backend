@@ -3,12 +3,14 @@
 namespace App\Http\Controllers\Tenant\Api\Project;
 
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
 use Hyn\Tenancy\Models\Hostname;
 use Hyn\Tenancy\Models\Website;
 use App\Models\System\Organization;
 use App\Models\System\User;
 use App\Models\Tenant\ProjectInventory;
+use App\Models\Tenant\ProjectRaisingMaterialRequest;
 use App\Helpers\AppHelper;
 
 class InventoryStocksController extends Controller
@@ -72,5 +74,33 @@ class InventoryStocksController extends Controller
         } else {
             return $this->sendResponse($results, 'Project inventory material List.');
         }
+    }
+
+    public function updateMinimunQuntity(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'project_inventory_id' => 'required',
+            'minimum_quantity' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            foreach ($validator->errors()->messages() as $key => $value) {
+                return $this->sendError('Validation Error.', [$key => $value[0]]);
+            }
+        }
+
+        $projectInventory = ProjectInventory::whereId($request->project_inventory_id)->first();
+
+        if (!isset($projectInventory) && empty($projectInventory)) {
+            return $this->sendError('Project inventory does not exist.');
+        }
+
+        if ($request->filled('minimum_quantity')) $projectInventory->minimum_quantity = $request->minimum_quantity;
+
+        if (!$projectInventory->save()) {
+            return $this->sendError('Something went wrong while updating the project inventory');
+        }
+
+        return $this->sendResponse($projectInventory, 'Project inventory updated successfully.');
     }
 }
