@@ -44,10 +44,14 @@ class ProjectInventory extends Model
         
         $totalInventoryCost = $projectInventoryQty * $projectInventoryAvgCost;
         $totalMaterialCost = $materialCost * $materialQty;
-        
+
         $totalCost = $totalMaterialCost + $totalInventoryCost;
 
-        $averageCost = round($totalCost / $totalQty, 2);
+        if ($totalQty > 0) {
+            $averageCost = round($totalCost / $totalQty, 2);
+        } else {
+            $averageCost = 0;
+        }
 
         return $averageCost;
     }
@@ -60,11 +64,13 @@ class ProjectInventory extends Model
 
     public function materials()
     {
-        return $this->belongsTo(ProjectMaterial::class, 'project_material_id', 'id')->select('id', 'project_id', 'unit_type_id', 'quantity', 'cost', 'status');
+        return $this->belongsTo(ProjectMaterial::class, 'project_material_id', 'id')
+            ->select('id', 'project_id', 'unit_type_id', 'quantity', 'cost', 'status');
     }
 
     public function unitType()
     {
-        return $this->belongsTo(UnitType::class, 'unit_type_id', 'id')->select('id', 'name', 'status');
+        return $this->belongsTo(UnitType::class, 'unit_type_id', 'id')
+            ->select('id', 'name', 'status');
     }
 }

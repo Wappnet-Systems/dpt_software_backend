@@ -188,6 +188,17 @@ class MaterialController extends Controller
 
                 $projectMaterial = ProjectMaterial::whereId($request->id)->first();
 
+                $projectInventoryExists = ProjectInventory::whereProjectId($projectMaterial->project_id)
+                    ->whereMaterialTypeId($projectMaterial->material_type_id)
+                    ->whereUnitTypeId($projectMaterial->unit_type_id)
+                    ->first();
+
+                if (isset($projectInventoryExists) && !empty($projectInventoryExists)) {
+                    $projectInventoryExists->total_quantity = $projectInventoryExists->total_quantity - $projectMaterial->quantity;
+                    $projectInventoryExists->average_cost = ProjectInventory::calcAverageCost($projectMaterial->cost, $projectMaterial->quantity, $projectInventoryExists->total_quantity, $projectInventoryExists->average_cost);
+                    $projectInventoryExists->save();
+                }
+
                 if (!isset($projectMaterial) || empty($projectMaterial)) {
                     return $this->sendError('Project material does not exist.');
                 }
@@ -202,15 +213,10 @@ class MaterialController extends Controller
                     return $this->sendError('Something went wrong while udating the project material.');
                 }
 
-                $projectInventoryExists = ProjectInventory::whereProjectId($projectMaterial->project_id)
-                    ->whereMaterialTypeId($projectMaterial->material_type_id)
-                    ->whereUnitTypeId($projectMaterial->unit_type_id)
-                    ->first();
-
                 if (isset($projectInventoryExists) && !empty($projectInventoryExists)) {
-                    $projectInventoryExists->total_quantity = $projectInventoryExists->total_quantity + $request->quantity;
-                    $projectInventoryExists->remaining_quantity = $projectInventoryExists->remaining_quantity + $request->quantity;
-                    $projectInventoryExists->average_cost = ProjectInventory::calcAverageCost($request->cost, $request->quantity, $projectInventoryExists->total_quantity, $projectInventoryExists->average_cost);
+                    $projectInventoryExists->total_quantity = $projectInventoryExists->total_quantity + $projectMaterial->quantity;
+                    $projectInventoryExists->remaining_quantity = $projectInventoryExists->remaining_quantity + $projectMaterial->quantity;
+                    $projectInventoryExists->average_cost = ProjectInventory::calcAverageCost($projectMaterial->cost, $projectMaterial->quantity, $projectInventoryExists->total_quantity, $projectInventoryExists->average_cost);
                     $projectInventoryExists->updated_ip = $request->ip();
                     $projectInventoryExists->save();
                 } else {
@@ -252,11 +258,17 @@ class MaterialController extends Controller
 
             if (isset($projectInventory) && !empty($projectInventory)) {
                 $projectInventory->total_quantity = $projectInventory->total_quantity - $projectMaterial->quantity;
+                $projectInventory->average_cost = ProjectInventory::calcAverageCost($projectMaterial->cost, $projectMaterial->quantity, $projectInventory->total_quantity, $projectInventory->average_cost);
+                $projectInventory->remaining_quantity = 0;
                 $projectInventory->updated_ip = $request->ip();
                 $projectInventory->save();
+
+                if ($projectInventory->total_quantity == 0) {
+                    // $projectInventory->delete();
+                }
             }
 
-            $projectMaterial->delete();
+            // $projectMaterial->delete();
 
             return $this->sendResponse([], 'Project material deleted successfully.');
         } catch (\Exception $e) {
@@ -321,7 +333,7 @@ class MaterialController extends Controller
 
                 if ($request->hasFile('upload_materials')) {
                     Excel::import(new MaterialImport, $request->file('upload_materials'));
-                    
+
                     return $this->sendResponse('Project Material import successfully.');
                 }
             } else {

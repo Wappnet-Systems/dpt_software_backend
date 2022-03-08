@@ -28,7 +28,7 @@ class MaterialImport implements ToModel, WithHeadingRow
         $projectId = request()->all();
 
         $unitTypeExists = UnitType::whereName($row['unit_type_name'])->first();
-
+        
         if (!isset($unitTypeExists) || empty($unitTypeExists)) {
             $unitType = new UnitType();
             $unitType->name = $row['unit_type_name'];
