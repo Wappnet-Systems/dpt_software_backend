@@ -23,6 +23,7 @@ use App\Http\Controllers\Tenant\Api\Project\GangsController;
 use App\Http\Controllers\Tenant\Api\Project\GangsManforcesController;
 use App\Http\Controllers\Tenant\Api\Project\MaterialController;
 use App\Http\Controllers\Tenant\Api\Project\InventoryStocksController;
+use App\Http\Controllers\Tenant\Api\Project\IFCDrwaingsController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -196,4 +197,12 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('project/raising/material/request/update', [InventoryStocksController::class, 'updateMaterialRaisingRequest']);
     Route::delete('project/raising/material/request/delete', [InventoryStocksController::class, 'deleteMaterialRaisingRequest']);
     Route::post('project/raising/material/request/status/change', [InventoryStocksController::class, 'changeMaterialRaisingRequestStatus']);
+
+    /* Project IFC Drawings Route */
+    Route::post('project/ifc/drawing/get/lists', [IFCDrwaingsController::class, 'getIFCDrwaings']);
+    Route::post('project/ifc/drawing/get/{id}', [IFCDrwaingsController::class, 'getIFCDrwaingDetails']);
+    Route::post('project/ifc/drawing/add', [IFCDrwaingsController::class, 'addIFCDrwaing']);
+    Route::post('project/ifc/drawing/update', [IFCDrwaingsController::class, 'updateIFCDrwaing']);
+    Route::post('project/ifc/drawing/delete', [IFCDrwaingsController::class, 'deleteIFCDrwaing']);
+    Route::post('project/ifc/drawing/status/change', [IFCDrwaingsController::class, 'changeIFCDrwaingStatus']);
 });
