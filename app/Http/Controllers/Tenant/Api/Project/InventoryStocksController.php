@@ -103,4 +103,111 @@ class InventoryStocksController extends Controller
 
         return $this->sendResponse($projectInventory, 'Project inventory updated successfully.');
     }
+
+    /* Projects Raising Material Request */
+
+    public function getMaterialRaisingRequests(Request $request)
+    {
+        # code...
+    }
+
+    public function getMaterialRaisingRequestDetails(Request $request)
+    {
+        # code...
+    }
+
+    public function addMaterialRaisingRequest(Request $request)
+    {
+        try {
+            $user = $request->user();
+
+            if (isset($user) && !empty($user)) {
+                $validator = Validator::make($request->all(), [
+                    'from_project_id' => 'required|exists:projects,id',
+                    'to_project_id' => 'required|exists:projects,id',
+                    'material_type_id' => 'required|exists:material_types,id',
+                    'unit_type_id' => 'required|exists:unit_types,id',
+                    'quantity' => 'required',
+                    'cost' => 'required',
+                ]);
+
+                if ($validator->fails()) {
+                    foreach ($validator->errors()->messages() as $key => $value) {
+                        return $this->sendError('Validation Error.', [$key => $value[0]]);
+                    }
+                }
+
+                $projectInventory = ProjectInventory::whereProjectId($request->from_project_id)
+                    ->whereMaterialTypeId($request->material_type_id)->whereUnitTypeId($request->unit_type_id)
+                    ->first();
+                $totalQuantity = $projectInventory->total_quantity - $projectInventory->minimum_quantity;
+
+                
+                if ($request->quantity > $totalQuantity) {
+                    return $this->sendError('Request quantity is not available.');
+                }
+
+                $projectRaisingMaterialRequest = new ProjectRaisingMaterialRequest();
+                $projectRaisingMaterialRequest->from_project_id = $request->from_project_id;
+                $projectRaisingMaterialRequest->to_project_id = $request->to_project_id;
+                $projectRaisingMaterialRequest->material_type_id = $request->material_type_id;
+                $projectRaisingMaterialRequest->unit_type_id = $request->unit_type_id;
+                $projectRaisingMaterialRequest->request_no = rand(000000,999999);
+                $projectRaisingMaterialRequest->quantity = $request->quantity;
+                $projectRaisingMaterialRequest->cost = $request->cost;
+                $projectRaisingMaterialRequest->created_by = $user->id;
+                $projectRaisingMaterialRequest->created_ip = $request->ip();
+                $projectRaisingMaterialRequest->updated_ip = $request->ip();
+
+                if (!$projectRaisingMaterialRequest->save()) {
+                    return $this->sendError('Something went wrong while creating the project raising material request.');
+                }
+
+                return $this->sendResponse($projectRaisingMaterialRequest, 'Project raising material request created successfully.');
+            } else {
+                return $this->sendError('User not exists.');
+            }
+        } catch (\Exception $e) {
+            return $this->sendError($e->getMessage());
+        }
+    }
+
+    public function updateMaterialRaisingRequest(Request $request)
+    {
+        # code...
+    }
+
+    public function deleteMaterialRaisingRequest(Request $request)
+    {
+        # code...
+    }
+
+    public function changeMaterialRaisingRequestStatus(Request $request)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                'id' => 'required',
+            ]);
+
+            if ($validator->fails()) {
+                foreach ($validator->errors()->messages() as $key => $value) {
+                    return $this->sendError('Validation Error.', [$key => $value[0]]);
+                }
+            }
+
+            $projectRaisingMaterialRequest = ProjectRaisingMaterialRequest::whereId($request->id)
+                ->first();
+
+            if (!isset($projectRaisingMaterialRequest) || empty($projectRaisingMaterialRequest)) {
+                return $this->sendError('Project raising material request does not exists.');
+            }
+
+            $projectRaisingMaterialRequest->status = $request->status;
+            $projectRaisingMaterialRequest->save();
+
+            return $this->sendResponse($projectRaisingMaterialRequest, 'Status changed successfully.');
+        } catch (\Exception $e) {
+            return $this->sendError($e->getMessage());
+        }
+    }
 }

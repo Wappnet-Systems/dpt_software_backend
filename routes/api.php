@@ -188,4 +188,12 @@ Route::middleware('auth:sanctum')->group(function () {
 
     /* Assign Material to Project Activity Route */
     Route::post('project/activity/get/lists', [ActivitiesController::class, 'getActivities']);
+
+    /* Projects Raising Material Request Routes */
+    Route::post('project/raising/material/request/get/lists', [InventoryStocksController::class, 'getMaterialRaisingRequests']);
+    Route::post('project/raising/material/request/get/{id}', [InventoryStocksController::class, 'getMaterialRaisingRequestDetails']);
+    Route::post('project/raising/material/request/add', [InventoryStocksController::class, 'addMaterialRaisingRequest']);
+    Route::post('project/raising/material/request/update', [InventoryStocksController::class, 'updateMaterialRaisingRequest']);
+    Route::delete('project/raising/material/request/delete', [InventoryStocksController::class, 'deleteMaterialRaisingRequest']);
+    Route::post('project/raising/material/request/status/change', [InventoryStocksController::class, 'changeMaterialRaisingRequestStatus']);
 });
