@@ -85,9 +85,9 @@ class IFCDrwaingsController extends Controller
                 'per_page' => $projectIFCDrawing['per_page'],
                 'next_page_url' => $projectIFCDrawing['next_page_url'],
                 'prev_page_url' => $projectIFCDrawing['prev_page_url']
-            ], 'Project ifc Drawing List');
+            ], 'Project IFC drawing list');
         } else {
-            return $this->sendResponse($results, 'Project ifc Drawing List');
+            return $this->sendResponse($results, 'Project IFC drawing list');
         }
     }
 
@@ -99,10 +99,10 @@ class IFCDrwaingsController extends Controller
             ->first();
 
         if (!isset($projectIFCDrawing) || empty($projectIFCDrawing)) {
-            return $this->sendError('Project ifc drawing does not exist.');
+            return $this->sendError('Project IFC drawing does not exist.');
         }
 
-        return $this->sendResponse($projectIFCDrawing, 'Project ifc drawing details.');
+        return $this->sendResponse($projectIFCDrawing, 'Project IFC drawing details.');
     }
 
     public function addIFCDrwaing(Request $request)
@@ -141,7 +141,7 @@ class IFCDrwaingsController extends Controller
 
                     $IFCDrawing->path = $this->uploadFile->uploadFileInS3($request, $dirPath, 'path');
 
-                    if ($request->file('path')->getClientOriginalExtension() == 'pdf') {
+                    if ($request->file('path')->getClientOriginalExtension() === 'pdf') {
                         $IFCDrawing->type = ProjectIFCDrwaing::TYPE['PDF'];
                     } else {
                         $IFCDrawing->type = ProjectIFCDrwaing::TYPE['Image'];
@@ -149,10 +149,10 @@ class IFCDrwaingsController extends Controller
                 }
 
                 if (!$IFCDrawing->save()) {
-                    return $this->sendError('Something went wrong while creating the project ifc drawing');
+                    return $this->sendError('Something went wrong while creating the project IFC drawing');
                 }
 
-                return $this->sendResponse($IFCDrawing, 'Project ifc drawing created successfully.');
+                return $this->sendResponse($IFCDrawing, 'Project IFC drawing created successfully.');
             } else {
                 return $this->sendError('User not exists.');
             }
@@ -224,49 +224,12 @@ class IFCDrwaingsController extends Controller
         }
     }
 
-    public function deleteIFCDrwaing(Request $request)
-    {
-        try {
-            $validator = Validator::make($request->all(), [
-                'id' => 'required',
-            ]);
-
-            if ($validator->fails()) {
-                foreach ($validator->errors()->messages() as $key => $value) {
-                    return $this->sendError('Validation Error.', [$key => $value[0]]);
-                }
-            }
-
-            $projectIFCDrawing = ProjectIFCDrwaing::whereId($request->id)
-                ->first();
-
-            if (!isset($projectIFCDrawing) || empty($projectIFCDrawing)) {
-                return $this->sendError('Project ifc drawing does not exist.');
-            }
-
-            if (ProjectActivity::whereIn('status', [ProjectActivity::STATUS['Start'], ProjectActivity::STATUS['Hold'], ProjectActivity::STATUS['Pending']])
-                ->whereProjectDrowingId($request->id)
-                ->exists()) {
-                return $this->sendError('Project ifc drawing assign to project activities.');
-            }
-
-            if (isset($projectIFCDrawing->path) && !empty($projectIFCDrawing->path)) {
-                $this->uploadFile->deleteFileFromS3($projectIFCDrawing->path);
-            }
-
-            $projectIFCDrawing->delete();
-
-            return $this->sendResponse([], 'Project ifc drawing deleted successfully.');
-        } catch (\Exception $e) {
-            return $this->sendError($e->getMessage());
-        }
-    }
-
     public function changeIFCDrwaingStatus(Request $request)
     {
         try {
             $validator = Validator::make($request->all(), [
                 'id' => 'required',
+                'status' => 'required'
             ]);
 
             if ($validator->fails()) {
@@ -275,23 +238,34 @@ class IFCDrwaingsController extends Controller
                 }
             }
 
-            $projectIFCDrawing = ProjectIFCDrwaing::whereId($request->id)
-                ->first();
+            if (!in_array($request->status, ProjectIFCDrwaing::STATUS)) {
+                return $this->sendError('Invalid status requested.');
+            }
+
+            $projectIFCDrawing = ProjectIFCDrwaing::whereId($request->id)->first();
 
             if (!isset($projectIFCDrawing) || empty($projectIFCDrawing)) {
                 return $this->sendError('Project ifc drawing does not exist.');
             }
 
-            $projectIFCDrawing->deleted_at = null;
-            $projectIFCDrawing->status = $request->status;
-            $projectIFCDrawing->save();
+            if ($request->status == ProjectIFCDrwaing::STATUS['Deleted']) {
+                $isAssigned = ProjectActivity::whereIn('status', [ProjectActivity::STATUS['Start'], ProjectActivity::STATUS['Hold'], ProjectActivity::STATUS['Pending']])
+                    ->whereProjectDrowingId($request->id)
+                    ->exists();
 
-            if ($projectIFCDrawing->status == ProjectIFCDrwaing::STATUS['Deleted']) {
+                if ($isAssigned) {
+                    return $this->sendError('Project ifc drawing assign to project activities.');
+                }
+
                 if (isset($projectIFCDrawing->path) && !empty($projectIFCDrawing->path)) {
                     $this->uploadFile->deleteFileFromS3($projectIFCDrawing->path);
                 }
 
                 $projectIFCDrawing->delete();
+            } else {
+                $projectIFCDrawing->deleted_at = null;
+                $projectIFCDrawing->status = $request->status;
+                $projectIFCDrawing->save();
             }
 
             return $this->sendResponse($projectIFCDrawing, 'Status changed successfully.');

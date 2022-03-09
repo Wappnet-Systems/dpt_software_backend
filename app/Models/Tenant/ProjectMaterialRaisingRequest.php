@@ -4,14 +4,12 @@ namespace App\Models\Tenant;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
 
-class ProjectActivity extends Model
+class ProjectMaterialRaisingRequest extends Model
 {
     use HasFactory;
-    use SoftDeletes;
 
-    protected $table = "projects_activities";
+    protected $table = "projects_materials_raising_requests";
 
     protected $guarded = [];
 
@@ -19,9 +17,8 @@ class ProjectActivity extends Model
 
     const STATUS = [
         'Pending' => 1,
-        'Start' => 2,
-        'Hold' => 3,
-        'Completed' => 4,
+        'Approved' => 2,
+        'Rejected' => 3,
     ];
 
     /**
@@ -42,19 +39,19 @@ class ProjectActivity extends Model
 
     public function project()
     {
-        return $this->belongsTo(Project::class, 'projects_id', 'id')
+        return $this->belongsTo(Project::class, 'project_id', 'id')
             ->select('id', 'name', 'logo', 'address', 'lat', 'long', 'city', 'state', 'country', 'zip_code', 'start_date', 'end_date', 'cost', 'status');
     }
 
-    public function activitySubCategory()
+    public function materialType()
     {
-        return $this->belongsTo(ActivitySubCategory::class, 'activity_sub_category_id', 'id')
-            ->select('id', 'activity_category_id', 'unit_type_id', 'name', 'status');
+        return $this->belongsTo(MaterialType::class, 'material_type_id', 'id')
+            ->select('id', 'name', 'status');
     }
-    
-    public function ifcDrawing()
+
+    public function unitType()
     {
-        return $this->belongsTo(ProjectIFCDrwaing::class, 'project_drowing_id', 'id')
-            ->select('id', 'project_id', 'name', 'path', 'location', 'area', 'type', 'status', 'created_by');
+        return $this->belongsTo(UnitType::class, 'unit_type_id', 'id')
+            ->select('id', 'name', 'status');
     }
 }

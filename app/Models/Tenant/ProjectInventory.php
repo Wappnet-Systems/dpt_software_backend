@@ -81,10 +81,10 @@ class ProjectInventory extends Model
             ->select('id', 'name', 'logo', 'address', 'lat', 'long', 'city', 'state', 'country', 'zip_code', 'start_date', 'end_date', 'cost', 'status');
     }
 
-    public function materials()
+    public function materialType()
     {
-        return $this->belongsTo(ProjectMaterial::class, 'project_material_id', 'id')
-            ->select('id', 'project_id', 'unit_type_id', 'quantity', 'cost', 'status');
+        return $this->belongsTo(MaterialType::class, 'material_type_id', 'id')
+            ->select('id', 'name', 'status');
     }
 
     public function unitType()

@@ -22,9 +22,9 @@ class CreateProjectsIfcDrawingsTable extends Migration
             $table->string('name');
             $table->string('path');
             $table->string('location', 50);
-            $table->double('area', 8, 2);
+            $table->double('area');
             $table->tinyInteger('type')->comment('1 - Image, 2 - PDF');
-            $table->tinyInteger('status')->default(1)->comment('1 - Pending, 2 - Approved, 3 - Rejected');
+            $table->tinyInteger('status')->default(1)->comment('1 - Active, 2 - In Active, 3 - Deleted');
             $table->unsignedBigInteger('created_by')->nullable();
             $table->ipAddress('created_ip')->nullable();
             $table->ipAddress('updated_ip')->nullable();
