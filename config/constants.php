@@ -11,7 +11,11 @@ return [
     'organizations' => [
         'logo_path' => 'organizations/:uid:/logo',
         'projects' => [
-            'logo_path' => 'organizations/:uid:/project/:project_uuid:/logo'
+            'logo_path' => 'organizations/:uid:/project/:project_uuid:/logo',
+            'ifc_drawings' => [
+                'file_path' => 'organizations/:uid:/project/:project_uuid:/ifc-drawing',
+                'upload_image_max_size' => '10000' // 10 mb
+            ]
         ]
     ],
     'format_files' => [
@@ -21,4 +25,3 @@ return [
         ]
     ]
 ];
-?>

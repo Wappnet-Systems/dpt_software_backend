@@ -15,14 +15,17 @@ use App\Http\Controllers\Tenant\Api\ManforceTypesController;
 use App\Http\Controllers\Tenant\Api\ActivityCategoriesController;
 use App\Http\Controllers\Tenant\Api\SubActivityCategoriesController;
 use App\Http\Controllers\Tenant\Api\MachineriesController;
-use App\Http\Controllers\Tenant\Api\Project\ActivitiesController;
 use App\Http\Controllers\Tenant\Api\ProjectsController;
+use App\Http\Controllers\Tenant\Api\Project\ActivitiesController;
 use App\Http\Controllers\Tenant\Api\Project\NonWorkingDaysController;
 use App\Http\Controllers\Tenant\Api\Project\ManforcesController;
 use App\Http\Controllers\Tenant\Api\Project\GangsController;
 use App\Http\Controllers\Tenant\Api\Project\GangsManforcesController;
 use App\Http\Controllers\Tenant\Api\Project\MaterialController;
 use App\Http\Controllers\Tenant\Api\Project\InventoryStocksController;
+use App\Http\Controllers\Tenant\Api\Project\IFCDrwaingsController;
+use App\Http\Controllers\Tenant\Api\Project\MaterialRaisingRequestsController;
+use App\Http\Controllers\Tenant\Api\Project\MaterialTransferRequestsController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -188,4 +191,27 @@ Route::middleware('auth:sanctum')->group(function () {
 
     /* Assign Material to Project Activity Route */
     Route::post('project/activity/get/lists', [ActivitiesController::class, 'getActivities']);
+
+    /* Projects Raising Material Request Routes */
+    Route::post('project/material/transfer/request/get/lists', [MaterialTransferRequestsController::class, 'getMaterialTransferRequests']);
+    Route::post('project/material/transfer/request/get/{id}', [MaterialTransferRequestsController::class, 'getMaterialTransferRequestDetails']);
+    Route::post('project/material/transfer/request/add', [MaterialTransferRequestsController::class, 'addMaterialTransferRequest']);
+    Route::post('project/material/transfer/request/update', [MaterialTransferRequestsController::class, 'updateMaterialTransferRequest']);
+    Route::delete('project/material/transfer/request/delete/{id}', [MaterialTransferRequestsController::class, 'deleteMaterialTransferRequest']);
+    Route::post('project/material/transfer/request/status/change', [MaterialTransferRequestsController::class, 'changeMaterialTransferRequestStatus']);
+
+    /* Projects Material Raising Request Routes */
+    Route::post('project/material/raising/request/get/lists', [MaterialRaisingRequestsController::class, 'getMaterialRaisingRequests']);
+    Route::post('project/material/raising/request/get/{id}', [MaterialRaisingRequestsController::class, 'getMaterialRaisingRequestDetails']);
+    Route::post('project/material/raising/request/add', [MaterialRaisingRequestsController::class, 'addMaterialRaisingRequest']);
+    Route::post('project/material/raising/request/update', [MaterialRaisingRequestsController::class, 'updateMaterialRaisingRequest']);
+    Route::post('project/material/raising/request/status/change', [MaterialRaisingRequestsController::class, 'changeMaterialRaisingRequestStatus']);
+
+    /* Project IFC Drawings Route */
+    Route::post('project/ifc/drawing/get/lists', [IFCDrwaingsController::class, 'getIFCDrwaings']);
+    Route::post('project/ifc/drawing/get/{id}', [IFCDrwaingsController::class, 'getIFCDrwaingDetails']);
+    Route::post('project/ifc/drawing/add', [IFCDrwaingsController::class, 'addIFCDrwaing']);
+    Route::post('project/ifc/drawing/update', [IFCDrwaingsController::class, 'updateIFCDrwaing']);
+    Route::post('project/ifc/drawing/delete', [IFCDrwaingsController::class, 'deleteIFCDrwaing']);
+    Route::post('project/ifc/drawing/status/change', [IFCDrwaingsController::class, 'changeIFCDrwaingStatus']);
 });

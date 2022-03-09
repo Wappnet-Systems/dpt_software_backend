@@ -48,7 +48,7 @@ class InventoryStocksController extends Controller
         $limit = !empty($request->limit) ? $request->limit : config('constants.default_per_page_limit');
         $orderBy = !empty($request->orderby) ? $request->orderby : config('constants.default_orderby');
 
-        $query = ProjectInventory::with('project', 'materials', 'unitType')
+        $query = ProjectInventory::with('project', 'materialType', 'unitType')
             ->whereProjectId($request->project_id ?? '')
             ->whereStatus(ProjectInventory::STATUS['Active'])
             ->orderby('id', $orderBy);

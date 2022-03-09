@@ -47,7 +47,7 @@ class ActivitiesController extends Controller
         $limit = !empty($request->limit) ? $request->limit : config('constants.default_per_page_limit');
         $orderBy = !empty($request->orderby) ? $request->orderby : config('constants.default_orderby');
 
-        $query = ProjectActivity::with('activitySubCategory')
+        $query = ProjectActivity::with('activitySubCategory', 'ifcDrawing')
             ->whereProjectId($request->project_id ?? '')
             ->orderBy('id', $orderBy);
 
@@ -82,7 +82,7 @@ class ActivitiesController extends Controller
 
     public function getActivityDetails(Request $request)
     {
-        $organization = ProjectActivity::with('activitySubCategory')
+        $organization = ProjectActivity::with('activitySubCategory', 'ifcDrawing')
             ->whereId($request->id)
             ->first();
 
@@ -102,11 +102,14 @@ class ActivitiesController extends Controller
                 $validator = Validator::make($request->all(), [
                     'project_id' => 'required|exists:projects,id',
                     'activity_sub_category_id' => 'required|exists:activity_sub_categories,id',
+                    'project_drowing_id' => 'required|exists:projects_ifc_drawings,id',
                     'name' => 'required',
                     'scaffold_number' => 'required',
                     'start_date' => 'required',
                     'end_date' => 'required',
                     'location' => 'required',
+                    'level' => 'required',
+                    'actual_area' => 'required',
                     'cost' => 'required',
                 ]);
 
@@ -125,9 +128,11 @@ class ActivitiesController extends Controller
                 $proActivity->scaffold_number = empty($request->scaffold_number) ? $request->scaffold_number : null;
                 $proActivity->start_date = !empty($request->start_date) ? date('Y-m-d h:i:s', strtotime($request->start_date)) : NULL;
                 $proActivity->end_date = !empty($request->end_date) ? date('Y-m-d h:i:s', strtotime($request->end_date)) : NULL;
+                $proActivity->actual_start_date = !empty($request->start_date) ? date('Y-m-d h:i:s', strtotime($request->start_date)) : NULL;
+                $proActivity->actual_end_date = !empty($request->end_date) ? date('Y-m-d h:i:s', strtotime($request->end_date)) : NULL;
                 $proActivity->location = $request->location;
                 $proActivity->level = !empty($request->level) ? $request->level : null;
-                $proActivity->area = !empty($request->area) ? $request->area : null;
+                $proActivity->actual_area = !empty($request->actual_area) ? $request->actual_area : null;
                 $proActivity->cost = !empty($request->cost) ? $request->cost : null;
                 $proActivity->created_by = $user->id;
                 $proActivity->created_ip = $request->ip();
@@ -154,13 +159,14 @@ class ActivitiesController extends Controller
             if (isset($user) && !empty($user)) {
                 $validator = Validator::make($request->all(), [
                     'id' => 'required',
-                    'activity_sub_category_id' => 'required|exists:activity_sub_categories,id',
-                    'name' => 'required',
+                    'activity_sub_category_id' => 'exists:activity_sub_categories,id',
+                    'project_drowing_id' => 'exists:projects_ifc_drawings,id',
+                    /* 'name' => 'required',
                     'scaffold_number' => 'required',
                     'start_date' => 'required',
                     'end_date' => 'required',
                     'location' => 'required',
-                    'cost' => 'required',
+                    'cost' => 'required', */
                 ]);
 
                 if ($validator->fails()) {
@@ -181,9 +187,11 @@ class ActivitiesController extends Controller
                 if ($request->filled('scaffold_number')) $proActivity->scaffold_number = $request->scaffold_number;
                 if ($request->filled('start_date')) $proActivity->start_date = !empty($request->start_date) ? date('Y-m-d h:i:s', strtotime($request->start_date)) : NULL;
                 if ($request->filled('end_date')) $proActivity->end_date = !empty($request->end_date) ? date('Y-m-d h:i:s', strtotime($request->end_date)) : NULL;
+                if ($request->filled('actual_start_date')) $proActivity->actual_start_date = !empty($request->start_date) ? date('Y-m-d h:i:s', strtotime($request->start_date)) : NULL;
+                if ($request->filled('actual_end_date')) $proActivity->actual_end_date = !empty($request->end_date) ? date('Y-m-d h:i:s', strtotime($request->end_date)) : NULL;
                 if ($request->filled('location')) $proActivity->location = $request->location;
                 if ($request->filled('level')) $proActivity->level = $request->level;
-                if ($request->filled('area')) $proActivity->area = $request->area;
+                if ($request->filled('actual_area')) $proActivity->actual_area = $request->actual_area;
                 if ($request->filled('cost')) $proActivity->cost = $request->cost;
                 $proActivity->updated_ip = $request->ip();
 
