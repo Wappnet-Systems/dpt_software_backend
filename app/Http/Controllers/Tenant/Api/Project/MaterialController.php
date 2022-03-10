@@ -86,7 +86,6 @@ class MaterialController extends Controller
     public function getMaterialsDetails(Request $request)
     {
         $projectMaterial = ProjectMaterial::with('project', 'unitType', 'materialType')
-            ->select('id', 'project_id', 'unit_type_id', 'quantity', 'cost', 'status')
             ->whereId($request->id)
             ->first();
 

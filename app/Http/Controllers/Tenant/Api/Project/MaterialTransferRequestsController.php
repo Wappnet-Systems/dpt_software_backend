@@ -199,7 +199,6 @@ class MaterialTransferRequestsController extends Controller
                     return $this->sendError('Request quantity is not available.');
                 }
 
-                $transferReq = new ProjectMaterialTransferRequest();
                 $transferReq->from_project_id = $request->from_project_id;
                 $transferReq->to_project_id = $request->to_project_id;
                 $transferReq->material_type_id = $request->material_type_id;
