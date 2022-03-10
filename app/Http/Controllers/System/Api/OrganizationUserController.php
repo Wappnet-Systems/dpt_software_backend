@@ -137,8 +137,10 @@ class OrganizationUserController extends Controller
                         return $this->sendError('Email already register. Please try again.');
                     }
     
-                    if (!Organization::whereId($user->organization_id)->whereStatus(Organization::STATUS['Active'])->exists()) {
-                        return $this->sendError('Organization are not exists. Please try again.');
+                    if ($user->role_id != User::USER_ROLE['SUPER_ADMIN']) {
+                        if (!Organization::whereId($user->organization_id)->whereStatus(Organization::STATUS['Active'])->exists()) {
+                            return $this->sendError('Organization are not exists. Please try again.');
+                        }
                     }
     
                     $orgSubUser = new User();
@@ -211,7 +213,7 @@ class OrganizationUserController extends Controller
                     return $this->sendError('You have no rights to update User.');
                 } else if ($user->role_id == User::USER_ROLE['MANAGER'] && in_array($orgUser->role_id, [User::USER_ROLE['SUPER_ADMIN'], User::USER_ROLE['COMPANY_ADMIN'], User::USER_ROLE['CONSTRUCATION_SITE_ADMIN']])) {
                     return $this->sendError('You have no rights to update User.');
-                } else if ($user->organization_id != $orgUser->organization_id) {
+                } else if ($user->role_id != User::USER_ROLE['SUPER_ADMIN'] && $user->organization_id != $orgUser->organization_id) {
                     return $this->sendError('You have no rights to update User.');
                 } else {
                     $validator = Validator::make($request->all(), [
