@@ -187,7 +187,7 @@ class IFCDrwaingsController extends Controller
                     ->first();
 
                 if (!isset($projectIFCDrawing) || empty($projectIFCDrawing)) {
-                    return $this->sendError('Project ifc drawing does not exist.');
+                    return $this->sendError('Project IFC drawing does not exist.');
                 }
 
                 if ($request->filled('name')) $projectIFCDrawing->name = $request->name;
@@ -212,10 +212,10 @@ class IFCDrwaingsController extends Controller
                 $projectIFCDrawing->updated_ip = $request->ip();
 
                 if (!$projectIFCDrawing->save()) {
-                    return $this->sendError('Something went wrong while updating the project ifc drawing');
+                    return $this->sendError('Something went wrong while updating the project IFC drawing');
                 }
 
-                return $this->sendResponse($projectIFCDrawing, 'Project ifc drawing updated successfully.');
+                return $this->sendResponse($projectIFCDrawing, 'Project IFC drawing updated successfully.');
             } else {
                 return $this->sendError('User not exists.');
             }
@@ -245,7 +245,7 @@ class IFCDrwaingsController extends Controller
             $projectIFCDrawing = ProjectIFCDrwaing::whereId($request->id)->first();
 
             if (!isset($projectIFCDrawing) || empty($projectIFCDrawing)) {
-                return $this->sendError('Project ifc drawing does not exist.');
+                return $this->sendError('Project IFC drawing does not exist.');
             }
 
             if ($request->status == ProjectIFCDrwaing::STATUS['Deleted']) {
@@ -254,7 +254,7 @@ class IFCDrwaingsController extends Controller
                     ->exists();
 
                 if ($isAssigned) {
-                    return $this->sendError('Project ifc drawing assign to project activities.');
+                    return $this->sendError('Project IFC drawing assign to project activities.');
                 }
 
                 if (isset($projectIFCDrawing->path) && !empty($projectIFCDrawing->path)) {

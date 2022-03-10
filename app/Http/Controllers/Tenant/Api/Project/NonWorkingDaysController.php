@@ -102,6 +102,8 @@ class NonWorkingDaysController extends Controller
                 $validator = Validator::make($request->all(), [
                     'project_id' => 'required|exists:projects,id',
                     'name' => 'required',
+                    'start_date_time' => 'required|date_format:Y-m-d H:i:s',
+                    'end_date_time' => 'required|date_format:Y-m-d H:i:s',
                 ]);
 
                 if ($validator->fails()) {
@@ -113,8 +115,8 @@ class NonWorkingDaysController extends Controller
                 $nonWorkingDays = new ProjectNonWorkingDay();
                 $nonWorkingDays->project_id = $request->project_id;
                 $nonWorkingDays->name = $request->name;
-                $nonWorkingDays->start_date_time = date('Y-m-d H:i:s');
-                $nonWorkingDays->end_date_time = date('Y-m-d H:i:s');
+                $nonWorkingDays->start_date_time = date('Y-m-d H:i:s', strtotime($request->start_date_time));
+                $nonWorkingDays->end_date_time = date('Y-m-d H:i:s', strtotime($request->end_date_time));
                 $nonWorkingDays->created_by = $user->id;
                 $nonWorkingDays->created_ip = $request->ip();
                 $nonWorkingDays->updated_ip = $request->ip();
@@ -138,8 +140,8 @@ class NonWorkingDaysController extends Controller
             $validator = Validator::make($request->all(), [
                 'id' => 'required',
                 'name' => 'required',
-                'start_date_time' => 'required',
-                'end_date_time' => 'required',
+                'start_date_time' => 'date_format:Y-m-d H:i:s',
+                'end_date_time' => 'date_format:Y-m-d H:i:s',
             ]);
 
             if ($validator->fails()) {
