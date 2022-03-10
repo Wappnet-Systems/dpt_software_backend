@@ -23,10 +23,10 @@ class CreateProjectsActivitiesTable extends Migration
             $table->foreignId('project_drowing_id')->constrained('projects_ifc_drawings')->cascadeOnUpdate()->cascadeOnDelete();
             $table->string('name', 50);
             $table->bigInteger('scaffold_number')->nullable();
-            $table->timestamp('start_date');
-            $table->timestamp('end_date');
-            $table->timestamp('actual_start_date');
-            $table->timestamp('actual_end_date');
+            $table->timestamp('start_date')->nullable();
+            $table->timestamp('end_date')->nullable();
+            $table->timestamp('actual_start_date')->nullable();
+            $table->timestamp('actual_end_date')->nullable();
             $table->string('location', 50);
             $table->string('level', 30);
             $table->double('actual_area', 50);
