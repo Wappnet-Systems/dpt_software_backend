@@ -105,11 +105,15 @@ class OrganizationUserController extends Controller
             $user = $request->user();
 
             if (isset($user) && !empty($user)) {
-                if (!in_array($user->role_id, [User::USER_ROLE['COMPANY_ADMIN'], User::USER_ROLE['CONSTRUCATION_SITE_ADMIN'], User::USER_ROLE['MANAGER']])) {
+                if (!in_array($user->role_id, [User::USER_ROLE['SUPER_ADMIN'], User::USER_ROLE['COMPANY_ADMIN'], User::USER_ROLE['CONSTRUCATION_SITE_ADMIN'], User::USER_ROLE['MANAGER']])) {
                     return $this->sendError('You have no rights to add User.');
-                } else if ($user->role_id == User::USER_ROLE['CONSTRUCATION_SITE_ADMIN'] && $request->role_id == User::USER_ROLE['COMPANY_ADMIN']) {
+                } else if ($user->role_id == User::USER_ROLE['SUPER_ADMIN'] && !in_array($request->role_id, [User::USER_ROLE['COMPANY_ADMIN']])) {
                     return $this->sendError('You have no rights to add User.');
-                } else if ($user->role_id == User::USER_ROLE['MANAGER'] && ($request->role_id == User::USER_ROLE['COMPANY_ADMIN'] || $request->role_id == User::USER_ROLE['CONSTRUCATION_SITE_ADMIN'])) {
+                } else if ($user->role_id == User::USER_ROLE['COMPANY_ADMIN'] && !in_array($request->role_id, [User::USER_ROLE['CONSTRUCATION_SITE_ADMIN']])) {
+                    return $this->sendError('You have no rights to add User.');
+                } else if ($user->role_id == User::USER_ROLE['CONSTRUCATION_SITE_ADMIN'] && !in_array($request->role_id, [User::USER_ROLE['MANAGER']])) {
+                    return $this->sendError('You have no rights to add User.');
+                } else if ($user->role_id == User::USER_ROLE['MANAGER'] && in_array($request->role_id, [User::USER_ROLE['SUPER_ADMIN'], User::USER_ROLE['COMPANY_ADMIN'], User::USER_ROLE['CONSTRUCATION_SITE_ADMIN']])) {
                     return $this->sendError('You have no rights to add User.');
                 } else {
                     $validator = Validator::make($request->all(), [
@@ -197,11 +201,15 @@ class OrganizationUserController extends Controller
 
                 if (!isset($orgUser) || empty($orgUser)) {
                     return $this->sendError('User dose not exists.');
-                } else if (!in_array($user->role_id, [User::USER_ROLE['COMPANY_ADMIN'], User::USER_ROLE['CONSTRUCATION_SITE_ADMIN'], User::USER_ROLE['MANAGER']])) {
+                } else if (!in_array($user->role_id, [User::USER_ROLE['SUPER_ADMIN'], User::USER_ROLE['COMPANY_ADMIN'], User::USER_ROLE['CONSTRUCATION_SITE_ADMIN'], User::USER_ROLE['MANAGER']])) {
                     return $this->sendError('You have no rights to update User.');
-                } else if ($user->role_id == User::USER_ROLE['CONSTRUCATION_SITE_ADMIN'] && $orgUser->role_id == User::USER_ROLE['COMPANY_ADMIN']) {
+                } else if ($user->role_id == User::USER_ROLE['SUPER_ADMIN'] && !in_array($orgUser->role_id, [User::USER_ROLE['COMPANY_ADMIN']])) {
                     return $this->sendError('You have no rights to update User.');
-                } else if ($user->role_id == User::USER_ROLE['MANAGER'] && ($orgUser->role_id == User::USER_ROLE['COMPANY_ADMIN'] || $orgUser->role_id == User::USER_ROLE['CONSTRUCATION_SITE_ADMIN'])) {
+                } else if ($user->role_id == User::USER_ROLE['COMPANY_ADMIN'] && !in_array($orgUser->role_id, [User::USER_ROLE['CONSTRUCATION_SITE_ADMIN']])) {
+                    return $this->sendError('You have no rights to update User.');
+                } else if ($user->role_id == User::USER_ROLE['CONSTRUCATION_SITE_ADMIN'] && !in_array($orgUser->role_id, [User::USER_ROLE['MANAGER']])) {
+                    return $this->sendError('You have no rights to update User.');
+                } else if ($user->role_id == User::USER_ROLE['MANAGER'] && in_array($orgUser->role_id, [User::USER_ROLE['SUPER_ADMIN'], User::USER_ROLE['COMPANY_ADMIN'], User::USER_ROLE['CONSTRUCATION_SITE_ADMIN']])) {
                     return $this->sendError('You have no rights to update User.');
                 } else if ($user->organization_id != $orgUser->organization_id) {
                     return $this->sendError('You have no rights to update User.');
