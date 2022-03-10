@@ -199,7 +199,7 @@ class IFCDrwaingsController extends Controller
                         $this->uploadFile->deleteFileFromS3($projectIFCDrawing->path);
                     }
 
-                    $dirPath = str_replace([':uid:', ':project_uuid:'], [$user->organization_id, $request->project_id], config('constants.organizations.projects.ifc_drawings.file_path'));
+                    $dirPath = str_replace([':uid:', ':project_uuid:'], [$user->organization_id, $projectIFCDrawing->project_id], config('constants.organizations.projects.ifc_drawings.file_path'));
 
                     $projectIFCDrawing->path = $this->uploadFile->uploadFileInS3($request, $dirPath, 'path');
 
