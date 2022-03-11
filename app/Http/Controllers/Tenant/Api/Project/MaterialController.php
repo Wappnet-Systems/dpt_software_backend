@@ -136,7 +136,7 @@ class MaterialController extends Controller
                     ->first();
 
                 if (isset($projectInventory) && !empty($projectInventory)) {
-                    $projectInventory->average_cost = ProjectInventory::calcAverageCost($projectInventory->total_quantity, $projectInventory->average_cost, $projectMaterial->quantity, $projectMaterial->cost);
+                    $projectInventory->average_cost = ProjectInventory::calcAverageCost($projectInventory->remaining_quantity, $projectInventory->average_cost, $projectMaterial->quantity, $projectMaterial->cost);
                     $projectInventory->total_quantity = $projectInventory->total_quantity + $projectMaterial->quantity;
                     $projectInventory->remaining_quantity = $projectInventory->remaining_quantity + $projectMaterial->quantity;
                     $projectInventory->updated_ip = $request->ip();
@@ -197,7 +197,7 @@ class MaterialController extends Controller
                     ->first();
 
                 if (isset($projectInventory) && !empty($projectInventory)) {
-                    $projectInventory->average_cost = ProjectInventory::reCalcAverageCost($projectInventory->total_quantity, $projectInventory->average_cost, $projectMaterial->quantity, $projectMaterial->cost);
+                    $projectInventory->average_cost = ProjectInventory::reCalcAverageCost($projectInventory->remaining_quantity, $projectInventory->average_cost, $projectMaterial->quantity, $projectMaterial->cost);
                     $projectInventory->total_quantity = $projectInventory->total_quantity - $projectMaterial->quantity;
                     $projectInventory->remaining_quantity = $projectInventory->remaining_quantity - $projectMaterial->quantity;
                     $projectInventory->save();
@@ -214,7 +214,7 @@ class MaterialController extends Controller
                 }
 
                 if (isset($projectInventory) && !empty($projectInventory)) {
-                    $projectInventory->average_cost = ProjectInventory::calcAverageCost($projectInventory->total_quantity, $projectInventory->average_cost, $projectMaterial->quantity, $projectMaterial->cost);
+                    $projectInventory->average_cost = ProjectInventory::calcAverageCost($projectInventory->remaining_quantity, $projectInventory->average_cost, $projectMaterial->quantity, $projectMaterial->cost);
                     $projectInventory->total_quantity = $projectInventory->total_quantity + $projectMaterial->quantity;
                     $projectInventory->remaining_quantity = $projectInventory->remaining_quantity + $projectMaterial->quantity;
                     $projectInventory->updated_ip = $request->ip();
@@ -257,15 +257,15 @@ class MaterialController extends Controller
                 ->first();
 
             if (isset($projectInventory) && !empty($projectInventory)) {
-                $projectInventory->average_cost = ProjectInventory::reCalcAverageCost($projectInventory->total_quantity, $projectInventory->average_cost, $projectMaterial->quantity, $projectMaterial->cost);
+                $projectInventory->average_cost = ProjectInventory::reCalcAverageCost($projectInventory->remaining_quantity, $projectInventory->average_cost, $projectMaterial->quantity, $projectMaterial->cost);
                 $projectInventory->total_quantity = $projectInventory->total_quantity - $projectMaterial->quantity;
                 $projectInventory->remaining_quantity = 0;
                 $projectInventory->updated_ip = $request->ip();
                 $projectInventory->save();
 
-                if ($projectInventory->total_quantity == 0) {
+                /* if ($projectInventory->total_quantity == 0) {
                     $projectInventory->delete();
-                }
+                } */
             }
 
             $projectMaterial->delete();

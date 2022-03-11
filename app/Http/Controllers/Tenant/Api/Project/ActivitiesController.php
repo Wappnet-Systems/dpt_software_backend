@@ -58,22 +58,22 @@ class ActivitiesController extends Controller
         }
 
         if ($request->exists('cursor')) {
-            $organizations = $query->cursorPaginate($limit)->toArray();
+            $proActivities = $query->cursorPaginate($limit)->toArray();
         } else {
-            $organizations['data'] = $query->get()->toArray();
+            $proActivities['data'] = $query->get()->toArray();
         }
 
         $results = [];
-        if (!empty($organizations['data'])) {
-            $results = $organizations['data'];
+        if (!empty($proActivities['data'])) {
+            $results = $proActivities['data'];
         }
 
         if ($request->exists('cursor')) {
             return $this->sendResponse([
                 'lists' => $results,
-                'per_page' => $organizations['per_page'],
-                'next_page_url' => $organizations['next_page_url'],
-                'prev_page_url' => $organizations['prev_page_url']
+                'per_page' => $proActivities['per_page'],
+                'next_page_url' => $proActivities['next_page_url'],
+                'prev_page_url' => $proActivities['prev_page_url']
             ], 'Activities List');
         } else {
             return $this->sendResponse($results, 'Activities List');
@@ -82,15 +82,15 @@ class ActivitiesController extends Controller
 
     public function getActivityDetails(Request $request)
     {
-        $organization = ProjectActivity::with('activitySubCategory', 'ifcDrawing')
+        $proActivity = ProjectActivity::with('activitySubCategory', 'ifcDrawing')
             ->whereId($request->id)
             ->first();
 
-        if (!isset($organization) || empty($organization)) {
+        if (!isset($proActivity) || empty($proActivity)) {
             return $this->sendError('Activity does not exists.');
         }
 
-        return $this->sendResponse($organization, 'Activity details updated successfully.');
+        return $this->sendResponse($proActivity, 'Activity details updated successfully.');
     }
 
     public function addActivity(Request $request)
