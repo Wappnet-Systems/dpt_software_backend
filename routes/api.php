@@ -24,6 +24,7 @@ use App\Http\Controllers\Tenant\Api\Project\GangsManforcesController;
 use App\Http\Controllers\Tenant\Api\Project\MaterialController;
 use App\Http\Controllers\Tenant\Api\Project\InventoryStocksController;
 use App\Http\Controllers\Tenant\Api\Project\IFCDrwaingsController;
+use App\Http\Controllers\Tenant\Api\Project\MaterialAllocationController;
 use App\Http\Controllers\Tenant\Api\Project\MaterialRaisingRequestsController;
 use App\Http\Controllers\Tenant\Api\Project\MaterialTransferRequestsController;
 use Illuminate\Support\Facades\Route;
@@ -206,6 +207,13 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('project/material/raising/request/add', [MaterialRaisingRequestsController::class, 'addMaterialRaisingRequest']);
     Route::post('project/material/raising/request/update', [MaterialRaisingRequestsController::class, 'updateMaterialRaisingRequest']);
     Route::post('project/material/raising/request/status/change', [MaterialRaisingRequestsController::class, 'changeMaterialRaisingRequestStatus']);
+
+    /* Allocate Material to Project Activities Routes */
+    Route::post('project/allocate/material/get/lists', [MaterialAllocationController::class, 'getAllocateMaterials']);
+    Route::post('project/allocate/material/get/{id}', [MaterialAllocationController::class, 'getAllocateMaterialDetails']);
+    Route::post('project/allocate/material/add', [MaterialAllocationController::class, 'addAllocateMaterial']);
+    Route::post('project/allocate/material/update', [MaterialAllocationController::class, 'updateAllocateMaterial']);
+    Route::delete('project/allocate/material/delete/{id}', [MaterialAllocationController::class, 'deleteAllocateMaterial']);
 
     /* Project IFC Drawings Route */
     Route::post('project/ifc/drawing/get/lists', [IFCDrwaingsController::class, 'getIFCDrwaings']);

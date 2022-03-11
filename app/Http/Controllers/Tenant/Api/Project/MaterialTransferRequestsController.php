@@ -59,39 +59,39 @@ class MaterialTransferRequestsController extends Controller
         }
 
         if ($request->exists('cursor')) {
-            $projectMaterial = $query->cursorPaginate($limit)->toArray();
+            $transferReqs = $query->cursorPaginate($limit)->toArray();
         } else {
-            $projectMaterial['data'] = $query->get()->toArray();
+            $transferReqs['data'] = $query->get()->toArray();
         }
 
         $results = [];
-        if (!empty($projectMaterial['data'])) {
-            $results = $projectMaterial['data'];
+        if (!empty($transferReqs['data'])) {
+            $results = $transferReqs['data'];
         }
 
         if ($request->exists('cursor')) {
             return $this->sendResponse([
                 'lists' => $results,
-                'per_page' => $projectMaterial['per_page'],
-                'next_page_url' => $projectMaterial['next_page_url'],
-                'prev_page_url' => $projectMaterial['prev_page_url']
+                'per_page' => $transferReqs['per_page'],
+                'next_page_url' => $transferReqs['next_page_url'],
+                'prev_page_url' => $transferReqs['prev_page_url']
             ], 'Raising material request list.');
         } else {
-            return $this->sendResponse($results, 'Material raising request list.');
+            return $this->sendResponse($results, 'Material transfer request list.');
         }
     }
 
     public function getMaterialTransferRequestDetails(Request $request)
     {
-        $raisingRequest = ProjectMaterialTransferRequest::with('fromProject', 'toProject', 'unitType', 'materialType')
+        $transferReq = ProjectMaterialTransferRequest::with('fromProject', 'toProject', 'unitType', 'materialType')
             ->whereId($request->id)
             ->first();
 
-        if (!isset($raisingRequest) || empty($raisingRequest)) {
-            return $this->sendError('Material raising request does not exist.');
+        if (!isset($transferReq) || empty($transferReq)) {
+            return $this->sendError('Material transfer request does not exist.');
         }
 
-        return $this->sendResponse($raisingRequest, 'Material raising request details.');
+        return $this->sendResponse($transferReq, 'Material transfer request details.');
     }
 
     public function addMaterialTransferRequest(Request $request)
