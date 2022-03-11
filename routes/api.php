@@ -16,6 +16,7 @@ use App\Http\Controllers\Tenant\Api\ActivityCategoriesController;
 use App\Http\Controllers\Tenant\Api\SubActivityCategoriesController;
 use App\Http\Controllers\Tenant\Api\MachineriesController;
 use App\Http\Controllers\Tenant\Api\ProjectsController;
+use App\Http\Controllers\Tenant\Api\TimeSlotsController;
 use App\Http\Controllers\Tenant\Api\Project\ActivitiesController;
 use App\Http\Controllers\Tenant\Api\Project\NonWorkingDaysController;
 use App\Http\Controllers\Tenant\Api\Project\ManforcesController;
@@ -27,6 +28,7 @@ use App\Http\Controllers\Tenant\Api\Project\IFCDrwaingsController;
 use App\Http\Controllers\Tenant\Api\Project\MaterialAllocationController;
 use App\Http\Controllers\Tenant\Api\Project\MaterialRaisingRequestsController;
 use App\Http\Controllers\Tenant\Api\Project\MaterialTransferRequestsController;
+use App\Http\Controllers\Tenant\Api\Project\MachineryAllocationController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -222,4 +224,12 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('project/ifc/drawing/update', [IFCDrwaingsController::class, 'updateIFCDrwaing']);
     Route::post('project/ifc/drawing/delete', [IFCDrwaingsController::class, 'deleteIFCDrwaing']);
     Route::post('project/ifc/drawing/status/change', [IFCDrwaingsController::class, 'changeIFCDrwaingStatus']);
+
+    /* Time Slots Routes */
+    Route::post('time-slot/get/lists', [TimeSlotsController::class, 'getTimeSlots']);
+
+    /* Allocate Machinerie to Project Activities Routes */
+    Route::post('project/allocate/machinery/get/lists', [MachineryAllocationController::class, 'getAllocateMachineries']);
+    Route::post('project/allocate/machinery', [MachineryAllocationController::class, 'allocateMachinery']);
+    Route::post('project/un-allocate/machinery', [MachineryAllocationController::class, 'unAllocateMachinery']);
 });
