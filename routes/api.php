@@ -231,5 +231,5 @@ Route::middleware('auth:sanctum')->group(function () {
     /* Allocate Machinerie to Project Activities Routes */
     Route::post('project/allocate/machinery/get/lists', [MachineryAllocationController::class, 'getAllocateMachineries']);
     Route::post('project/allocate/machinery', [MachineryAllocationController::class, 'allocateMachinery']);
-    Route::post('project/un-allocate/machinery', [MachineryAllocationController::class, 'unAllocateMachinery']);
+    Route::post('project/allocate/machinery/delete', [MachineryAllocationController::class, 'deleteAllocateMachinery']);
 });

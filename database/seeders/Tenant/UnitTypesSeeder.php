@@ -17,11 +17,9 @@ class UnitTypesSeeder extends Seeder
         $unitTypeArray = ['m2', 'm3', 'kg', 'lmorno', 'lm'];
         
         foreach ($unitTypeArray as $value) {
-
             $unitType = new UnitType();
             $unitType->name = $value;
             $unitType->save();
-            
         }
     }
 }

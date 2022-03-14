@@ -21,13 +21,13 @@ class CreateProjectsActivitiesAllocateMachineriesTable extends Migration
             $table->unsignedBigInteger('project_activity_id');
             $table->foreignId('machinery_id')->constrained('machineries')->cascadeOnUpdate()->cascadeOnDelete();
             $table->date('date');
-            $table->string('time_slots', 50);
+            $table->string('time_slots', 300);
             $table->unsignedBigInteger('assign_by');
             $table->ipAddress('created_ip')->nullable();
             $table->ipAddress('updated_ip')->nullable();
             $table->timestamps();
             
-            $table->foreign('project_activity_id', 'pro_activity_allocate_machinery_project_activity_id_foreign')->references('id')->on('activity_categories');
+            $table->foreign('project_activity_id', 'pro_activity_allocate_machinery_project_activity_id_foreign')->references('id')->on('projects_activities')->onUpdate('cascade')->onDelete('cascade');
         });
     }
 

@@ -13,9 +13,9 @@ class ProjectActivityAllocateMachinery extends Model
 
     protected $guarded = [];
 
-    public function activityCategory()
+    public function projectActivity()
     {
-        return $this->belongsTo(ActivityCategory::class, 'project_activity_id', 'id')->select('id', 'name', 'status');
+        return $this->belongsTo(ProjectActivity::class, 'project_activity_id', 'id');
     }
 
     public function machineries()
