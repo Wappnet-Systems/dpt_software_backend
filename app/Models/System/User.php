@@ -148,6 +148,8 @@ class User extends Authenticatable
      */
     public function sendPasswordResetNotification($token)
     {
+        $token = base64_encode($token . ":" . $this->email);
+
         $this->notify(new ResetPassword($token));
     }
 }
