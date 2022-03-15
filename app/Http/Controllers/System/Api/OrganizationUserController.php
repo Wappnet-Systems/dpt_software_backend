@@ -126,23 +126,23 @@ class OrganizationUserController extends Controller
                     ], [
                         'profile_image.max' => 'The profile image must not be greater than 8mb.',
                     ]);
-    
+
                     if ($validator->fails()) {
                         foreach ($validator->errors()->messages() as $key => $value) {
                             return $this->sendError('Validation Error.', [$key => $value[0]]);
                         }
                     }
-    
+
                     if (User::where('email', strtolower($request->email))->whereStatus(User::STATUS['Active'])->exists()) {
                         return $this->sendError('Email already register. Please try again.');
                     }
-    
+
                     if ($user->role_id != User::USER_ROLE['SUPER_ADMIN']) {
                         if (!Organization::whereId($user->organization_id)->whereStatus(Organization::STATUS['Active'])->exists()) {
                             return $this->sendError('Organization are not exists. Please try again.');
                         }
                     }
-    
+
                     $orgSubUser = new User();
                     $orgSubUser->role_id = $request->role_id;
                     $orgSubUser->organization_id = $user->organization_id;
@@ -163,23 +163,23 @@ class OrganizationUserController extends Controller
                     $orgSubUser->created_by = $user->id;
                     $orgSubUser->created_ip = $request->ip();
                     $orgSubUser->updated_ip = $request->ip();
-    
+
                     if ($request->hasFile('profile_image')) {
                         $dirPath = str_replace(':uid:', $user->id, config('constants.users.image_path'));
-    
+
                         $filePath = $this->uploadFile->uploadFileInS3($request, $dirPath, 'profile_image');
-    
+
                         if (isset($filePath) && !empty($filePath)) {
                             $orgSubUser->profile_image = $filePath;
                         }
                     }
-    
+
                     if (!$orgSubUser->save()) {
                         return $this->sendError('Something went wrong while creating the user.');
                     }
-    
+
                     $orgSubUser->notify(new ResetPassword($orgSubUser->user_uuid));
-    
+
                     return $this->sendResponse($orgSubUser, 'User saved successfully, also sent reset password link on organization mail.');
                 }
             } else {
@@ -231,7 +231,7 @@ class OrganizationUserController extends Controller
                             return $this->sendError('Validation Error.', [$key => $value[0]]);
                         }
                     }
-                    
+
                     if ($request->filled('name')) $orgUser->name = $request->name;
                     if ($request->filled('email')) $orgUser->email = strtolower($request->email);
                     if ($request->filled('personal_email')) $orgUser->personal_email = $request->personal_email;
@@ -252,7 +252,7 @@ class OrganizationUserController extends Controller
                         if (isset($orgUser->profile_image) && !empty($orgUser->profile_image)) {
                             $this->uploadFile->deleteFileFromS3($orgUser->profile_image);
                         }
-                        
+
                         $dirPath = str_replace(':uid:', $user->id, config('constants.users.image_path'));
 
                         $filePath = $this->uploadFile->uploadFileInS3($request, $dirPath, 'profile_image');
@@ -287,13 +287,17 @@ class OrganizationUserController extends Controller
 
                 if (!isset($orgUser) || empty($orgUser)) {
                     return $this->sendError('User dose not exists.');
-                } else if (!in_array($user->role_id, [User::USER_ROLE['COMPANY_ADMIN'], User::USER_ROLE['CONSTRUCATION_SITE_ADMIN'], User::USER_ROLE['MANAGER']])) {
+                } else if (!in_array($user->role_id, [User::USER_ROLE['SUPER_ADMIN'], User::USER_ROLE['COMPANY_ADMIN'], User::USER_ROLE['CONSTRUCATION_SITE_ADMIN'], User::USER_ROLE['MANAGER']])) {
                     return $this->sendError('You have no rights to update User.');
-                } else if ($user->role_id == User::USER_ROLE['CONSTRUCATION_SITE_ADMIN'] && $orgUser->role_id == User::USER_ROLE['COMPANY_ADMIN']) {
+                } else if ($user->role_id == User::USER_ROLE['SUPER_ADMIN'] && !in_array($orgUser->role_id, [User::USER_ROLE['COMPANY_ADMIN']])) {
                     return $this->sendError('You have no rights to update User.');
-                } else if ($user->role_id == User::USER_ROLE['MANAGER'] && ($orgUser->role_id == User::USER_ROLE['COMPANY_ADMIN'] || $orgUser->role_id == User::USER_ROLE['CONSTRUCATION_SITE_ADMIN'])) {
+                } else if ($user->role_id == User::USER_ROLE['COMPANY_ADMIN'] && !in_array($orgUser->role_id, [User::USER_ROLE['CONSTRUCATION_SITE_ADMIN']])) {
                     return $this->sendError('You have no rights to update User.');
-                } else if ($user->organization_id != $orgUser->organization_id) {
+                } else if ($user->role_id == User::USER_ROLE['CONSTRUCATION_SITE_ADMIN'] && !in_array($orgUser->role_id, [User::USER_ROLE['MANAGER']])) {
+                    return $this->sendError('You have no rights to update User.');
+                } else if ($user->role_id == User::USER_ROLE['MANAGER'] && in_array($orgUser->role_id, [User::USER_ROLE['SUPER_ADMIN'], User::USER_ROLE['COMPANY_ADMIN'], User::USER_ROLE['CONSTRUCATION_SITE_ADMIN']])) {
+                    return $this->sendError('You have no rights to update User.');
+                } else if ($user->role_id != User::USER_ROLE['SUPER_ADMIN'] && $user->organization_id != $orgUser->organization_id) {
                     return $this->sendError('You have no rights to update User.');
                 } else {
                     $orgUser->status = $request->status;
