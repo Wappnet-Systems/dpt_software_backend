@@ -33,8 +33,14 @@ class ForgotPasswordController extends Controller
 
         if ($status == Password::RESET_LINK_SENT) {
             return $this->sendResponse([], 'We have emailed your password reset link!');
-        } else {
+        } else if ($status == Password::INVALID_USER) {
             return $this->sendError('We can not find a user with that email address.');
+        } else if ($status == Password::INVALID_TOKEN) {
+            return $this->sendError('Invalid Token.');
+        } else if ($status == Password::RESET_THROTTLED) {
+            return $this->sendError('You have requested password reset recently, please check your email or you can request after 60 seconds.');
         }
+
+        return $this->sendError('Something want wrong.');
     }
 }

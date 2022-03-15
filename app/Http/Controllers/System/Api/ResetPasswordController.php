@@ -13,13 +13,11 @@ class ResetPasswordController extends Controller
     public function resetPassword(Request $request)
     {
         $validation = [
-            'email' => 'required',
             'password' => 'required',
             'token' => 'required',
         ];
 
         $rules = [
-            'email.required' => 'Enter the email.',
             'password.required' => 'Enter the password.',
             'token.required' => 'Please send the token.',
         ];
@@ -31,6 +29,18 @@ class ResetPasswordController extends Controller
                 return $this->sendError('Validation Error.', [$key => $value[0]]);
             }
         }
+
+        $tokens = explode(':', base64_decode($request->token));
+
+        // Check if token are available
+        if (!isset($tokens[0]) || !isset($tokens[1])) {
+            return $this->sendError('Validation Error.', ['token' => 'Invalid token']);
+        }
+
+        $request->merge([
+            'token' => $tokens[0],
+            'email' => $tokens[1]
+        ]);
 
         $status = Password::reset(
             $request->only('email', 'password', 'token'),
