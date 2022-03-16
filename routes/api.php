@@ -57,11 +57,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('change-password', [ProfileController::class, 'changePassword']);
 
     /** Organizations Management Routes */
-    Route::post('organization/get/lists', [OrganizationController::class, 'getOrganizations']);
-    Route::post('organization/get/{id}', [OrganizationController::class, 'getOrganizationDetails']);
+    Route::get('organization/get/lists', [OrganizationController::class, 'getOrganizations']);
+    Route::get('organization/get/{id}', [OrganizationController::class, 'getOrganizationDetails']);
     Route::post('organization/add', [OrganizationController::class, 'addOrganization']);
-    Route::post('organization/update', [OrganizationController::class, 'updateOrganization']);
-    Route::post('organization/status/change', [OrganizationController::class, 'changeOrganizationStatus']);
+    Route::put('organization/update/{orgId}', [OrganizationController::class, 'updateOrganization']);
+    Route::patch('organization/status/change/{orgId}', [OrganizationController::class, 'changeOrganizationStatus']);
 
     /** Organizations Management Routes */
     Route::post('role/get/lists', [RoleController::class, 'getRoles']);

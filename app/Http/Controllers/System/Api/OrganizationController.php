@@ -185,14 +185,13 @@ class OrganizationController extends Controller
         }
     }
 
-    public function updateOrganization(Request $request)
+    public function updateOrganization(Request $request, $orgId = null)
     {
         try {
             $user = $request->user();
 
             if (isset($user) && !empty($user)) {
                 $validator = Validator::make($request->all(), [
-                    'org_id' => 'required',
                     'name' => 'required',
                     'org_admin_name' => 'required',
                     'logo' => sprintf('mimes:%s|max:%s', config('constants.upload_image_types'), config('constants.upload_image_max_size')),
@@ -207,7 +206,7 @@ class OrganizationController extends Controller
                     }
                 }
 
-                $organization = Organization::whereId($request->org_id)->first();
+                $organization = Organization::whereId($request->orgId)->first();
 
                 if (!isset($organization) || empty($organization)) {
                     return $this->sendError('Organization does not exists.');
@@ -239,7 +238,7 @@ class OrganizationController extends Controller
                 }
 
                 if (isset($organization) && !empty($organization)) {
-                    $user = User::whereOrganizationId($request->org_id)->whereRoleId(User::USER_ROLE['COMPANY_ADMIN'])->first();
+                    $user = User::whereOrganizationId($request->orgId)->whereRoleId(User::USER_ROLE['COMPANY_ADMIN'])->first();
 
                     if ($request->filled('org_admin_name')) $user->name = $request->org_admin_name;
 
@@ -255,10 +254,10 @@ class OrganizationController extends Controller
         }
     }
 
-    public function changeOrganizationStatus(Request $request)
+    public function changeOrganizationStatus(Request $request, $orgId = null)
     {
         try {
-            $organization = Organization::whereId($request->org_id)->first();
+            $organization = Organization::whereId($request->orgId)->first();
 
             if (isset($organization) && !empty($organization)) {
                 $organization->status = $request->status;
