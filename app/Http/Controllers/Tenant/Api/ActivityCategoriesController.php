@@ -24,7 +24,7 @@ class ActivityCategoriesController extends Controller
                 if ($user->role_id == User::USER_ROLE['SUPER_ADMIN']) {
                     return $this->sendError('You have no rights to access this module.');
                 }
-                
+
                 $hostnameId = Organization::whereId($user->organization_id)->value('hostname_id');
 
                 $hostname = Hostname::whereId($hostnameId)->first();
@@ -55,12 +55,12 @@ class ActivityCategoriesController extends Controller
 
             $query = $query->whereRaw('LOWER(CONCAT(`name`)) LIKE ?', ['%' . $search . '%']);
 
-            $query = $query->orWhereHas('activitySubCategories' , function ($query) use ($search){
+            $query = $query->orWhereHas('activitySubCategories', function ($query) use ($search) {
                 $query->whereRaw('LOWER(CONCAT(`name`)) LIKE ?', ['%' . $search . '%'])
                     ->whereStatus(ActivitySubCategory::STATUS['Active']);
             });
         }
-        
+
         if ($request->exists('cursor')) {
             $activityCategory = $query->cursorPaginate($limit)->toArray();
         } else {
@@ -123,16 +123,15 @@ class ActivityCategoriesController extends Controller
         }
     }
 
-    public function updateActivityCategory(Request $request)
+    public function updateActivityCategory(Request $request, $id = null)
     {
         try {
             $validator = Validator::make($request->all(), [
-                'id' => 'required',
                 'name' => 'required',
             ]);
 
             if ($validator->fails()) {
-                
+
                 foreach ($validator->errors()->messages() as $key => $value) {
                     return $this->sendError('Validation Error.', [$key => $value[0]]);
                 }
@@ -146,37 +145,26 @@ class ActivityCategoriesController extends Controller
 
             if ($request->filled('name')) $activityCategory->name = $request->name;
             $activityCategory->updated_ip = $request->ip();
-            
+
             if (!$activityCategory->save()) {
                 return $this->sendError('Something went wrong while updating the activity category.');
             }
 
             return $this->sendResponse($activityCategory, 'Activity category details updated successfully.');
-
         } catch (\Exception $e) {
             return $this->sendError($e->getMessage());
         }
     }
 
-    public function changeStatus(Request $request)
+    public function changeStatus(Request $request, $id = null)
     {
         try {
-            $validator = Validator::make($request->all(), [
-                'id' => 'required',
-            ]);
-
-            if ($validator->fails()) {
-                foreach ($validator->errors()->messages() as $key => $value) {
-                    return $this->sendError('Validation Error.', [$key => $value[0]]);
-                }
-            }
-
             $activityCategory = ActivityCategory::whereId($request->id)->first();
 
             if (!isset($activityCategory) || empty($activityCategory)) {
                 return $this->sendError('Activity category dose not exists.');
             }
-            
+
             $activityCategory->deleted_at = null;
             $activityCategory->status = $request->status;
             $activityCategory->save();

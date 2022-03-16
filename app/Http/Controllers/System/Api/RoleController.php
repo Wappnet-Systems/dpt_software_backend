@@ -26,7 +26,7 @@ class RoleController extends Controller
         if (isset($request->search) && !empty($request->search)) {
             $search = trim(strtolower($request->search));
 
-            $query = $query->whereRaw('LOWER(CONCAT(`name`)) LIKE ?', ['%'. $search .'%']);
+            $query = $query->whereRaw('LOWER(CONCAT(`name`)) LIKE ?', ['%' . $search . '%']);
         }
 
         if ($request->exists('cursor')) {
@@ -46,7 +46,7 @@ class RoleController extends Controller
                 'per_page' => $roles['per_page'],
                 'next_page_url' => $roles['next_page_url'],
                 'prev_page_url' => $roles['prev_page_url']
-            ], 'Organization List');
+            ], 'Roles List');
         } else {
             return $this->sendResponse($results, 'Roles List');
         }
@@ -99,7 +99,7 @@ class RoleController extends Controller
         }
     }
 
-    public function updateRole(Request $request)
+    public function updateRole(Request $request, $id = null)
     {
         try {
             $user = $request->user();
@@ -138,7 +138,7 @@ class RoleController extends Controller
         }
     }
 
-    public function changeRoleStatus(Request $request)
+    public function changeRoleStatus(Request $request, $id = null)
     {
         try {
             $role = Role::whereId($request->id)
@@ -150,7 +150,7 @@ class RoleController extends Controller
                     if (User::whereRoleId($request->id)->exists()) {
                         return $this->sendError('You can not delete this role because this role has been assigned to many user.');
                     }
-                    
+
                     $role->delete();
                 }
 
@@ -167,13 +167,13 @@ class RoleController extends Controller
         }
     }
 
-    public function getRoleModulePermissions(Request $request)
+    public function getRoleModulePermissions(Request $request, $orgId = null)
     {
         $limit = !empty($request->limit) ? $request->limit : config('constants.default_per_page_limit');
         $orderBy = !empty($request->orderby) ? $request->orderby : config('constants.default_orderby');
 
         $query = Module::orderBy('id', $orderBy)
-            ->isAssigned($request->org_id);
+            ->isAssigned($request->orgId);
 
         if ($request->exists('cursor')) {
             $roles = $query->cursorPaginate($limit)->toArray();
@@ -192,7 +192,7 @@ class RoleController extends Controller
                 'per_page' => $roles['per_page'],
                 'next_page_url' => $roles['next_page_url'],
                 'prev_page_url' => $roles['prev_page_url']
-            ], 'Organization List');
+            ], 'Roles List');
         } else {
             return $this->sendResponse($results, 'Roles List');
         }
@@ -233,7 +233,7 @@ class RoleController extends Controller
                     $roleHasModule->save();
                 }
 
-                return $this->sendResponse([], 'Module permissions assigned successfully');
+                return $this->sendResponse([], 'Module permissions assigned successfully.');
             } else {
                 return $this->sendError('User not exists.');
             }

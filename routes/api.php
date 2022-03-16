@@ -52,8 +52,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('logout', [ProfileController::class, 'logout']);
 
     /** Loggedin Users Profile Routes */
-    Route::post('profile/details/get', [ProfileController::class, 'getProfileDetails']);
-    Route::post('profile/details/update', [ProfileController::class, 'updateProfileDetails']);
+    Route::get('profile/details/get', [ProfileController::class, 'getProfileDetails']);
+    Route::put('profile/details/update', [ProfileController::class, 'updateProfileDetails']);
     Route::post('change-password', [ProfileController::class, 'changePassword']);
 
     /** Organizations Management Routes */
@@ -64,68 +64,68 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::patch('organization/status/change/{orgId}', [OrganizationController::class, 'changeOrganizationStatus']);
 
     /** Organizations Management Routes */
-    Route::post('role/get/lists', [RoleController::class, 'getRoles']);
-    Route::post('role/get/{id}', [RoleController::class, 'getRoleDetails']);
+    Route::get('role/get/lists', [RoleController::class, 'getRoles']);
+    Route::get('role/get/{id}', [RoleController::class, 'getRoleDetails']);
     Route::post('role/add', [RoleController::class, 'addRole']);
-    Route::post('role/update', [RoleController::class, 'updateRole']);
-    Route::post('role/status/change', [RoleController::class, 'changeRoleStatus']);
+    Route::put('role/update/{id}', [RoleController::class, 'updateRole']);
+    Route::patch('role/status/change/{id}', [RoleController::class, 'changeRoleStatus']);
 
     /* Assign Modules Permission to Roles Routes */
-    Route::post('role/module/permissions/get', [RoleController::class, 'getRoleModulePermissions']);
+    Route::get('role/module/permissions/get/{orgId}', [RoleController::class, 'getRoleModulePermissions']);
     Route::post('role/module/permissions/change', [RoleController::class, 'changeRoleModulePermissions']);
 
     /* Assign Sub Modules Permission to Roles Routes */
-    Route::post('role/sub-module/permissions/get', [OrganizationRoleController::class, 'getRoleSubModulePermissions']);
+    Route::get('role/sub-module/permissions/get/{roleId}', [OrganizationRoleController::class, 'getRoleSubModulePermissions']);
     Route::post('role/sub-module/permissions/change', [OrganizationRoleController::class, 'changeRoleSubModulePermissions']);
 
     /** User Management Routes */
-    Route::post('user/get/lists', [OrganizationUserController::class, 'getUsers']);
-    Route::post('user/get/{id}', [OrganizationUserController::class, 'getUserDetails']);
+    Route::get('user/get/lists', [OrganizationUserController::class, 'getUsers']);
+    Route::get('user/get/{id}', [OrganizationUserController::class, 'getUserDetails']);
     Route::post('user/add', [OrganizationUserController::class, 'addUser']);
-    Route::post('user/update', [OrganizationUserController::class, 'updateUser']);
-    Route::post('user/status/change', [OrganizationUserController::class, 'changeUserStatus']);
+    Route::put('user/update/{userUuid}', [OrganizationUserController::class, 'updateUser']);
+    Route::patch('user/status/change/{userUuid}', [OrganizationUserController::class, 'changeUserStatus']);
 
     /* Unit Types Routes */
-    Route::post('unit-type/get/lists', [UnitTypesController::class, 'getUnitTypes']);
-    Route::post('unit-type/get/{id}', [UnitTypesController::class, 'getDetails']);
+    Route::get('unit-type/get/lists', [UnitTypesController::class, 'getUnitTypes']);
+    Route::get('unit-type/get/{id}', [UnitTypesController::class, 'getDetails']);
     Route::post('unit-type/add', [UnitTypesController::class, 'addUnitType']);
-    Route::post('unit-type/update', [UnitTypesController::class, 'updateUnitType']);
-    Route::post('unit-type/status/change', [UnitTypesController::class, 'changeStatus']);
+    Route::put('unit-type/update/{id}', [UnitTypesController::class, 'updateUnitType']);
+    Route::patch('unit-type/status/change/{id}', [UnitTypesController::class, 'changeStatus']);
 
     /* Material Type Routes */
-    Route::post('material-type/get/lists', [MaterialTypesController::class, 'getMaterialTypes']);
-    Route::post('material-type/get/{id}', [MaterialTypesController::class, 'getDetails']);
+    Route::get('material-type/get/lists', [MaterialTypesController::class, 'getMaterialTypes']);
+    Route::get('material-type/get/{id}', [MaterialTypesController::class, 'getDetails']);
     Route::post('material-type/add', [MaterialTypesController::class, 'addMaterialType']);
-    Route::post('material-type/update', [MaterialTypesController::class, 'updateMaterialType']);
-    Route::post('material-type/status/change', [MaterialTypesController::class, 'changeStatus']);
+    Route::put('material-type/update/{id}', [MaterialTypesController::class, 'updateMaterialType']);
+    Route::patch('material-type/status/change/{id}', [MaterialTypesController::class, 'changeStatus']);
 
     /* Manforce Type Routes */
-    Route::post('manforce-type/get/lists', [ManforceTypesController::class, 'getManforceTypes']);
-    Route::post('manforce-type/get/{id}', [ManforceTypesController::class, 'getDetails']);
+    Route::get('manforce-type/get/lists', [ManforceTypesController::class, 'getManforceTypes']);
+    Route::get('manforce-type/get/{id}', [ManforceTypesController::class, 'getDetails']);
     Route::post('manforce-type/add', [ManforceTypesController::class, 'addManforceType']);
-    Route::post('manforce-type/update', [ManforceTypesController::class, 'updateManforceType']);
-    Route::post('manforce-type/status/change', [ManforceTypesController::class, 'changeStatus']);
+    Route::put('manforce-type/update/{id}', [ManforceTypesController::class, 'updateManforceType']);
+    Route::patch('manforce-type/status/change/{id}', [ManforceTypesController::class, 'changeStatus']);
 
     /* Activity Categories Type Routes */
-    Route::post('activity-category/get/lists', [ActivityCategoriesController::class, 'getActivityCategory']);
-    Route::post('activity-category/get/{id}', [ActivityCategoriesController::class, 'getDetails']);
+    Route::get('activity-category/get/lists', [ActivityCategoriesController::class, 'getActivityCategory']);
+    Route::get('activity-category/get/{id}', [ActivityCategoriesController::class, 'getDetails']);
     Route::post('activity-category/add', [ActivityCategoriesController::class, 'addActivityCategory']);
-    Route::post('activity-category/update', [ActivityCategoriesController::class, 'updateActivityCategory']);
-    Route::post('activity-category/status/change', [ActivityCategoriesController::class, 'changeStatus']);
+    Route::put('activity-category/update/{id}', [ActivityCategoriesController::class, 'updateActivityCategory']);
+    Route::patch('activity-category/status/change/{id}', [ActivityCategoriesController::class, 'changeStatus']);
 
     /* Sub Activity Categories Type Routes */
-    Route::post('sub-activity-category/get/lists', [SubActivityCategoriesController::class, 'getSubActivityCategory']);
-    Route::post('sub-activity-category/get/{id}', [SubActivityCategoriesController::class, 'getDetails']);
+    Route::get('sub-activity-category/get/lists', [SubActivityCategoriesController::class, 'getSubActivityCategory']);
+    Route::get('sub-activity-category/get/{id}', [SubActivityCategoriesController::class, 'getDetails']);
     Route::post('sub-activity-category/add', [SubActivityCategoriesController::class, 'addSubActivityCategory']);
-    Route::post('sub-activity-category/update', [SubActivityCategoriesController::class, 'updateSubActivityCategory']);
-    Route::post('sub-activity-category/status/change', [SubActivityCategoriesController::class, 'changeStatus']);
+    Route::put('sub-activity-category/update/{id}', [SubActivityCategoriesController::class, 'updateSubActivityCategory']);
+    Route::patch('sub-activity-category/status/change/{id}', [SubActivityCategoriesController::class, 'changeStatus']);
 
     /* Machineries Routes */
-    Route::post('machinery/get/lists', [MachineriesController::class, 'getMachineries']);
-    Route::post('machinery/get/{id}', [MachineriesController::class, 'getDetails']);
+    Route::get('machinery/get/lists', [MachineriesController::class, 'getMachineries']);
+    Route::get('machinery/get/{id}', [MachineriesController::class, 'getDetails']);
     Route::post('machinery/add', [MachineriesController::class, 'addMachineryCategory']);
-    Route::post('machinery/update', [MachineriesController::class, 'updateMachineryCategory']);
-    Route::post('machinery/status/change', [MachineriesController::class, 'changeStatus']);
+    Route::put('machinery/update/{id}', [MachineriesController::class, 'updateMachineryCategory']);
+    Route::patch('machinery/status/change/{id}', [MachineriesController::class, 'changeStatus']);
 
     /* Projects Routes */
     Route::post('project/get/lists', [ProjectsController::class, 'getProjects']);
@@ -226,7 +226,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('project/ifc/drawing/status/change', [IFCDrwaingsController::class, 'changeIFCDrwaingStatus']);
 
     /* Time Slots Routes */
-    Route::post('time-slot/get/lists', [TimeSlotsController::class, 'getTimeSlots']);
+    Route::get('time-slot/get/lists', [TimeSlotsController::class, 'getTimeSlots']);
 
     /* Allocate Machinerie to Project Activities Routes */
     Route::post('project/allocate/machinery/get/lists', [MachineryAllocationController::class, 'getAllocateMachineries']);

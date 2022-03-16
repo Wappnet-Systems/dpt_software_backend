@@ -23,7 +23,7 @@ class MaterialTypesController extends Controller
                 if ($user->role_id == User::USER_ROLE['SUPER_ADMIN']) {
                     return $this->sendError('You have no rights to access this module.');
                 }
-                
+
                 $hostnameId = Organization::whereId($user->organization_id)->value('hostname_id');
 
                 $hostname = Hostname::whereId($hostnameId)->first();
@@ -55,7 +55,7 @@ class MaterialTypesController extends Controller
 
             $query = $query->whereRaw('LOWER(CONCAT(`name`)) LIKE ?', ['%' . $search . '%']);
         }
-        
+
         if ($request->exists('cursor')) {
             $materialTypes = $query->cursorPaginate($limit)->toArray();
         } else {
@@ -118,11 +118,10 @@ class MaterialTypesController extends Controller
         }
     }
 
-    public function updateMaterialType(Request $request)
+    public function updateMaterialType(Request $request, $id = null)
     {
         try {
             $validator = Validator::make($request->all(), [
-                'id' => 'required',
                 'name' => 'required',
             ]);
 
@@ -151,19 +150,9 @@ class MaterialTypesController extends Controller
         }
     }
 
-    public function changeStatus(Request $request)
+    public function changeStatus(Request $request, $id = null)
     {
         try {
-            $validator = Validator::make($request->all(), [
-                'id' => 'required',
-            ]);
-
-            if ($validator->fails()) {
-                foreach ($validator->errors()->messages() as $key => $value) {
-                    return $this->sendError('Validation Error.', [$key => $value[0]]);
-                }
-            }
-
             $materialType = MaterialType::whereId($request->id)->first();
 
             if (!isset($materialType) || empty($materialType)) {
