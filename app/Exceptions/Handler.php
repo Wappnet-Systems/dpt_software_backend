@@ -4,6 +4,8 @@ namespace App\Exceptions;
 
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Symfony\Component\HttpKernel\Exception\HttpException;
+use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Throwable;
 
@@ -40,23 +42,43 @@ class Handler extends ExceptionHandler
             //
         });
 
+        $this->renderable(function (MethodNotAllowedHttpException $e, $request) {
+            if ($request->is('api/*')) {
+                return response()->json(['code' => 405,
+                    'type'    => 'failure',
+                    'message' => $e->getMessage(),
+                    'data' => []
+                ], 405);
+            }
+        });
+        
         $this->renderable(function (NotFoundHttpException $e, $request) {
             if ($request->is('api/*')) {
                 return response()->json(['code' => 404,
                     'type'    => 'failure',
-                    'message' => 'Route not found.',
+                    'message' => $e->getMessage() ? $e->getMessage() : 'Url not exists.',
                     'data' => []
                 ], 404);
+            }
+        });
+        
+        $this->renderable(function (HttpException $e, $request) {
+            if ($request->is('api/*')) {
+                return response()->json(['code' => $e->getStatusCode(),
+                    'type'    => 'failure',
+                    'message' => $e->getMessage(),
+                    'data' => []
+                ], $e->getStatusCode());
             }
         });
 
         $this->renderable(function (AuthenticationException $e, $request) {
             if ($request->is('api/*')) {
-                return response()->json(['code' => 404,
+                return response()->json(['code' => 401,
                     'type'    => 'failure',
                     'message' => 'Unauthenticated.',
                     'data' => []
-                ], 404);
+                ], 401);
             }
         });
     }
