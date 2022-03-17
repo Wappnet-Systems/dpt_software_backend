@@ -123,11 +123,10 @@ class ManforcesController extends Controller
         }
     }
 
-    public function updateManforce(Request $request)
+    public function updateManforce(Request $request, $id = null)
     {
         try {
             $validator = Validator::make($request->all(), [
-                'id' => 'required',
                 'manforce_type_id' => 'required|exists:manforce_types,id',
                 'total_manforce' => 'required',
                 'cost' => 'required',
@@ -161,11 +160,11 @@ class ManforcesController extends Controller
         }
     }
 
-    public function changeManforceStatus(Request $request)
+    public function changeManforceStatus(Request $request, $id = null)
     {
         try {
             $validator = Validator::make($request->all(), [
-                'id' => 'required',
+                'status' => 'required',
             ]);
 
             if ($validator->fails()) {

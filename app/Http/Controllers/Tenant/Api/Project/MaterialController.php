@@ -165,14 +165,13 @@ class MaterialController extends Controller
         }
     }
 
-    public function updateMaterial(Request $request)
+    public function updateMaterial(Request $request, $id = null)
     {
         try {
             $user = $request->user();
 
             if (isset($user) && !empty($user)) {
                 $validator = Validator::make($request->all(), [
-                    'id' => 'required',
                     'material_type_id' => 'required|exists:material_types,id',
                     'unit_type_id' => 'required|exists:unit_types,id',
                     'quantity' => 'required',

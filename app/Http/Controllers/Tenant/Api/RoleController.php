@@ -25,7 +25,7 @@ class RoleController extends Controller
                 if ($user->role_id == User::USER_ROLE['SUPER_ADMIN']) {
                     return $this->sendError('You have no rights to access this module.');
                 }
-                
+
                 $hostnameId = Organization::whereId($user->organization_id)->value('hostname_id');
 
                 $hostname = Hostname::whereId($hostnameId)->first();
@@ -44,7 +44,7 @@ class RoleController extends Controller
         });
     }
 
-    public function getRoleSubModulePermissions(Request $request)
+    public function getRoleSubModulePermissions(Request $request, $roleId = null)
     {
         $limit = !empty($request->limit) ? $request->limit : config('constants.default_per_page_limit');
         $orderBy = !empty($request->orderby) ? $request->orderby : config('constants.default_orderby');
@@ -66,8 +66,8 @@ class RoleController extends Controller
         if (!empty($roles['data'])) {
             foreach ($roles['data'] as $key => $value) {
                 foreach ($value['sub_module'] as $subKey => $subValue) {
-                $roles['data'][$key]['sub_module'][$subKey]['role_has_sub_modules'] = RoleHasSubModule::select('is_list', 'is_create', 'is_edit', 'is_delete', 'is_view', 'is_comment')
-                        ->whereRoleId($request->role_id)
+                    $roles['data'][$key]['sub_module'][$subKey]['role_has_sub_modules'] = RoleHasSubModule::select('is_list', 'is_create', 'is_edit', 'is_delete', 'is_view', 'is_comment')
+                        ->whereRoleId($request->roleId)
                         ->whereSubModuleId($subValue['id'])
                         ->first();
                 }
@@ -92,7 +92,7 @@ class RoleController extends Controller
     {
         try {
             $user = $request->user();
-
+            
             if (isset($user) && !empty($user)) {
                 $validator = Validator::make($request->all(), [
                     'role_id' => 'required|exists:system.roles,id',

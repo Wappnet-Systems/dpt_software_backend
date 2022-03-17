@@ -23,7 +23,7 @@ class UnitTypesController extends Controller
                 if ($user->role_id == User::USER_ROLE['SUPER_ADMIN']) {
                     return $this->sendError('You have no rights to access this module.');
                 }
-                
+
                 $hostnameId = Organization::whereId($user->organization_id)->value('hostname_id');
 
                 $hostname = Hostname::whereId($hostnameId)->first();
@@ -118,11 +118,10 @@ class UnitTypesController extends Controller
         }
     }
 
-    public function updateUnitType(Request $request)
+    public function updateUnitType(Request $request, $id = null)
     {
         try {
             $validator = Validator::make($request->all(), [
-                'id' => 'required',
                 'name' => 'required',
             ]);
 
@@ -151,19 +150,9 @@ class UnitTypesController extends Controller
         }
     }
 
-    public function changeStatus(Request $request)
+    public function changeStatus(Request $request, $id = null)
     {
         try {
-            $validator = Validator::make($request->all(), [
-                'id' => 'required',
-            ]);
-
-            if ($validator->fails()) {
-                foreach ($validator->errors()->messages() as $key => $value) {
-                    return $this->sendError('Validation Error.', [$key => $value[0]]);
-                }
-            }
-
             $unitTypes = UnitType::whereId($request->id)->first();
 
             if (!isset($unitTypes) || empty($unitTypes)) {
@@ -173,7 +162,7 @@ class UnitTypesController extends Controller
             $unitTypes->deleted_at = null;
             $unitTypes->status = $request->status;
             $unitTypes->save();
-            
+
             if ($unitTypes->status == UnitType::STATUS['Deleted']) {
                 $unitTypes->delete();
             }

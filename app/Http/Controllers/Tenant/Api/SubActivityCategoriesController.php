@@ -24,7 +24,7 @@ class SubActivityCategoriesController extends Controller
                 if ($user->role_id == User::USER_ROLE['SUPER_ADMIN']) {
                     return $this->sendError('You have no rights to access this module.');
                 }
-                
+
                 $hostnameId = Organization::whereId($user->organization_id)->value('hostname_id');
 
                 $hostname = Hostname::whereId($hostnameId)->first();
@@ -131,11 +131,10 @@ class SubActivityCategoriesController extends Controller
         }
     }
 
-    public function updateSubActivityCategory(Request $request)
+    public function updateSubActivityCategory(Request $request, $id = null)
     {
         try {
             $validator = Validator::make($request->all(), [
-                'id' => 'required',
                 'activity_category_id' => 'required|exists:activity_categories,id',
                 'unit_type_id' => 'required|exists:unit_types,id',
                 'name' => 'required',
@@ -148,7 +147,7 @@ class SubActivityCategoriesController extends Controller
             }
 
             $subActivityCategory = ActivitySubCategory::whereId($request->id)->first();
-            
+
             if (!isset($subActivityCategory) || empty($subActivityCategory)) {
                 return $this->sendError('Sub activity category dose not exists.');
             }
@@ -167,19 +166,9 @@ class SubActivityCategoriesController extends Controller
         }
     }
 
-    public function changeStatus(Request $request)
+    public function changeStatus(Request $request, $id = null)
     {
         try {
-            $validator = Validator::make($request->all(), [
-                'id' => 'required',
-            ]);
-
-            if ($validator->fails()) {
-                foreach ($validator->errors()->messages() as $key => $value) {
-                    return $this->sendError('Validation Error.', [$key => $value[0]]);
-                }
-            }
-
             $subActivityCategory = ActivitySubCategory::whereId($request->id)->first();
 
             if (!isset($subActivityCategory) || empty($subActivityCategory)) {

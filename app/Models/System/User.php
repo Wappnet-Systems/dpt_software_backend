@@ -74,7 +74,7 @@ class User extends Authenticatable
         'CONSTRUCATION_SITE_ADMIN' => 3,
         'MANAGER' => 4,
     ];
-    
+
     /* const TYPE = [
         'Super Admin' => 1,
         'Company Admin' => 2,
@@ -132,12 +132,14 @@ class User extends Authenticatable
 
     public function role()
     {
-        return $this->belongsTo(Role::class, 'role_id', 'id');
+        return $this->belongsTo(Role::class, 'role_id', 'id')
+            ->select('id', 'name', 'status');
     }
-    
+
     public function organization()
     {
-        return $this->belongsTo(Organization::class, 'organization_id', 'id');
+        return $this->belongsTo(Organization::class, 'organization_id', 'id')
+            ->select('id', 'hostname_id', 'name', 'email', 'logo', 'phone_no', 'address', 'city', 'state', 'country', 'zip_code', 'status', 'is_details_visible', 'subscription_id');
     }
 
     /**

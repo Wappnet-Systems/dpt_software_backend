@@ -76,10 +76,10 @@ class MachineryAllocationController extends Controller
                     ->whereIn('machinery_id', $machineriesIds)
                     ->get()
                     ->toArray();
-                    
+
                 $timeSlotMachinery[$timeSlotVal->id]['allocated_machinery'] = $allocatedMachinery;
             }
-            
+
             return $this->sendResponse($timeSlotMachinery, 'Allocated machinery list.');
         } catch (\Exception $e) {
             return $this->sendError($e->getMessage());
@@ -104,9 +104,9 @@ class MachineryAllocationController extends Controller
                         return $this->sendError('Validation Error.', [$key => $value[0]]);
                     }
                 }
-                
+
                 $timeSlotsIds = explode(',', $request->time_slots);
-                
+
                 $existSlotsCnt = TimeSlot::whereIn('id', $timeSlotsIds)->count();
 
                 if ($existSlotsCnt < count($timeSlotsIds)) {
@@ -156,14 +156,13 @@ class MachineryAllocationController extends Controller
         }
     }
 
-    public function deleteAllocateMachinery(Request $request)
+    public function deleteAllocateMachinery(Request $request, $id = null)
     {
         try {
             $user = $request->user();
 
             if (isset($user) && !empty($user)) {
                 $validator = Validator::make($request->all(), [
-                    'id' => 'required|exists:projects_activities_allocate_machineries,id',
                     'time_slots' => 'required',
                 ]);
 
