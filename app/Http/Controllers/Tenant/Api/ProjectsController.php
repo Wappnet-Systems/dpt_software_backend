@@ -21,7 +21,7 @@ class ProjectsController extends Controller
     public function __construct()
     {
         $this->uploadFile = new UploadFile();
-        
+
         $this->middleware(function ($request, $next) {
             $user = $request->user();
 
@@ -29,7 +29,7 @@ class ProjectsController extends Controller
                 if ($user->role_id == User::USER_ROLE['SUPER_ADMIN']) {
                     return $this->sendError('You have no rights to access this module.');
                 }
-                
+
                 $hostnameId = Organization::whereId($user->organization_id)->value('hostname_id');
 
                 $hostname = Hostname::whereId($hostnameId)->first();
@@ -58,7 +58,7 @@ class ProjectsController extends Controller
         try {
             if (isset($user) && !empty($user)) {
                 $query = Project::orderBy('id', $orderBy);
-            
+
                 if (!in_array($user->role_id, [User::USER_ROLE['COMPANY_ADMIN']])) {
                     return $this->sendResponse([], 'Projects List');
                 }
@@ -66,7 +66,7 @@ class ProjectsController extends Controller
                 if (isset($request->search) && !empty($request->search)) {
                     $search = trim(strtolower($request->search));
 
-                    $query = $query->whereRaw('LOWER(CONCAT(`name`,`email`)) LIKE ?', ['%' . $search . '%']);
+                    $query = $query->whereRaw('LOWER(CONCAT(`name`)) LIKE ?', ['%' . $search . '%']);
                 }
 
                 if ($request->exists('cursor')) {
@@ -130,13 +130,13 @@ class ProjectsController extends Controller
                     ], [
                         'logo.max' => 'The logo must not be greater than 8mb.',
                     ]);
-    
+
                     if ($validator->fails()) {
                         foreach ($validator->errors()->messages() as $key => $value) {
                             return $this->sendError('Validation Error.', [$key => $value[0]]);
                         }
                     }
-    
+
                     $project = new Project();
                     $project->name = $request->name;
                     $project->uuid = AppHelper::generateUuid();
@@ -157,7 +157,7 @@ class ProjectsController extends Controller
                     if (!$project->save()) {
                         return $this->sendError('Something went wrong while creating the project.');
                     }
-    
+
                     if ($request->hasFile('logo')) {
                         $dirPath = str_replace([':uid:', ':project_uuid:'], [$user->organization_id, $project->id], config('constants.organizations.projects.logo_path'));
 
@@ -165,7 +165,7 @@ class ProjectsController extends Controller
 
                         $project->save();
                     }
-    
+
                     return $this->sendResponse($project, 'Project created successfully.');
                 }
             } else {
@@ -176,13 +176,13 @@ class ProjectsController extends Controller
         }
     }
 
-    public function updateProject(Request $request)
+    public function updateProject(Request $request, $Uuid = null)
     {
         try {
             $user = $request->user();
 
             if (isset($user) && !empty($user)) {
-                $project = Project::whereUuid($request->uuid)->first();
+                $project = Project::whereUuid($request->Uuid)->first();
 
                 if (!isset($project) || empty($project)) {
                     return $this->sendError('Project dose not exists.');
@@ -205,7 +205,7 @@ class ProjectsController extends Controller
                             return $this->sendError('Validation Error.', [$key => $value[0]]);
                         }
                     }
-                    
+
                     if ($request->filled('name')) $project->name = $request->name;
 
                     if ($request->filled('address')) {
@@ -251,12 +251,12 @@ class ProjectsController extends Controller
             $user = $request->user();
 
             if (isset($user) && !empty($user)) {
-                $project = Project::whereUuid($request->uuid)->first();
+                $project = Project::whereUuid($request->Uuid)->first();
 
                 if (!isset($project) || empty($project)) {
                     return $this->sendError('Project dose not exists.');
                 } else if (!in_array($user->role_id, [User::USER_ROLE['COMPANY_ADMIN']])) {
-                    return $this->sendError('You have no rights to update User.');
+                    return $this->sendError('You have no rights to delete project.');
                 } else {
                     $project->delete();
 
@@ -270,18 +270,18 @@ class ProjectsController extends Controller
         }
     }
 
-    public function changeProjectStatus(Request $request)
+    public function changeProjectStatus(Request $request, $Uuid = null)
     {
         try {
             $user  = $request->user();
 
             if (isset($user) && !empty($user)) {
-                $project = Project::whereUuid($request->uuid)->first();
+                $project = Project::whereUuid($request->Uuid)->first();
 
                 if (!isset($project) || empty($project)) {
                     return $this->sendError('Project dose not exists.');
                 } else if (!in_array($user->role_id, [User::USER_ROLE['CONSTRUCATION_SITE_ADMIN'], User::USER_ROLE['MANAGER']])) {
-                    return $this->sendError('You have no rights to update User.');
+                    return $this->sendError('You have no rights to change status of project.');
                 } else {
                     $project->status = $request->status;
                     $project->save();
@@ -421,7 +421,7 @@ class ProjectsController extends Controller
 
                 $request->user_ids = explode(',', $request->user_ids);
 
-                $projAssignUser = ProjectAssignedUser::whereProjectId($request->project_id)
+                ProjectAssignedUser::whereProjectId($request->project_id)
                     ->whereIn('user_id', $request->user_ids)
                     ->delete();
 

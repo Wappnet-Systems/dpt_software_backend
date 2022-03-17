@@ -162,14 +162,13 @@ class MaterialAllocationController extends Controller
         }
     }
 
-    public function updateAllocateMaterial(Request $request)
+    public function updateAllocateMaterial(Request $request, $id = null)
     {
         try {
             $user = $request->user();
 
             if (isset($user) && !empty($user)) {
                 $validator = Validator::make($request->all(), [
-                    'id' => 'required',
                     'quantity' => 'required',
                     'is_increase' => 'required',
                 ]);

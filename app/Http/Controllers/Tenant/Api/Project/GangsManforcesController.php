@@ -119,11 +119,10 @@ class GangsManforcesController extends Controller
         }
     }
 
-    public function updateGangManforce(Request $request)
+    public function updateGangManforce(Request $request, $id = null)
     {
         try {
             $validator = Validator::make($request->all(), [
-                'id' => 'required',
                 'gang_id' => 'required|exists:projects_gangs,id',
                 'manforce_type_id' => 'required|exists:manforce_types,id',
                 'total_manforce' => 'required'

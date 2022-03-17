@@ -153,14 +153,13 @@ class MaterialTransferRequestsController extends Controller
         }
     }
 
-    public function updateMaterialTransferRequest(Request $request)
+    public function updateMaterialTransferRequest(Request $request, $id = null)
     {
         try {
             $user = $request->user();
 
             if (isset($user) && !empty($user)) {
                 $validator = Validator::make($request->all(), [
-                    'id' => 'required',
                     'from_project_id' => 'exists:projects,id',
                     'to_project_id' => 'exists:projects,id',
                     'material_type_id' => 'exists:material_types,id',
@@ -249,11 +248,10 @@ class MaterialTransferRequestsController extends Controller
         }
     }
 
-    public function changeMaterialTransferRequestStatus(Request $request)
+    public function changeMaterialTransferRequestStatus(Request $request, $id = null)
     {
         try {
             $validator = Validator::make($request->all(), [
-                'id' => 'required',
                 'status' => 'required'
             ]);
 

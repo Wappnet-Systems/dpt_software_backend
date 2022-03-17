@@ -76,10 +76,9 @@ class InventoryStocksController extends Controller
         }
     }
 
-    public function updateMinimunQuntity(Request $request)
+    public function updateMinimunQuntity(Request $request, $projectInventoryId = null)
     {
         $validator = Validator::make($request->all(), [
-            'project_inventory_id' => 'required',
             'minimum_quantity' => 'required',
         ]);
 
@@ -89,7 +88,7 @@ class InventoryStocksController extends Controller
             }
         }
 
-        $projectInventory = ProjectInventory::whereId($request->project_inventory_id)->first();
+        $projectInventory = ProjectInventory::whereId($request->projectInventoryId)->first();
 
         if (!isset($projectInventory) && empty($projectInventory)) {
             return $this->sendError('Project inventory does not exist.');

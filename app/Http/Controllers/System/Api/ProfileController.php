@@ -74,7 +74,8 @@ class ProfileController extends Controller
     {
         $user = $request->user();
 
-        $user = User::select('id', 'name', 'email', 'personal_email', 'phone_number', 'profile_image', 'address', 'lat', 'long', 'city', 'state', 'country', 'zip_code')
+        $user = User::with('role', 'organization')
+            ->select('id', 'name', 'email', 'personal_email', 'phone_number', 'profile_image', 'address', 'lat', 'long', 'city', 'state', 'country', 'zip_code', 'role_id', 'organization_id')
             ->whereId($user->id)
             ->first();
 
@@ -88,7 +89,7 @@ class ProfileController extends Controller
         $validator = Validator::make($request->all(), [
             'name' => 'required',
             'profile_image' => sprintf('mimes:%s|max:%s', config('constants.upload_image_types'), config('constants.upload_image_max_size'))
-        ],[
+        ], [
             'profile_image.max' => 'The profile image must not be greater than 8mb.'
         ]);
 

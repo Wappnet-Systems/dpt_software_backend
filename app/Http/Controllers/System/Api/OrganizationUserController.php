@@ -190,13 +190,13 @@ class OrganizationUserController extends Controller
         }
     }
 
-    public function updateUser(Request $request)
+    public function updateUser(Request $request, $userUuid = null)
     {
         try {
             $user = $request->user();
 
             if (isset($user) && !empty($user)) {
-                $orgUser = User::where('user_uuid', $request->user_uuid)
+                $orgUser = User::where('user_uuid', $request->userUuid)
                     ->where('status', User::STATUS['Active'])
                     ->where('role_id', '!=', User::USER_ROLE['SUPER_ADMIN'])
                     ->first();
@@ -275,13 +275,13 @@ class OrganizationUserController extends Controller
         }
     }
 
-    public function changeUserStatus(Request $request)
+    public function changeUserStatus(Request $request, $userUuid = null)
     {
         try {
             $user  = $request->user();
 
             if (isset($user) && !empty($user)) {
-                $orgUser = User::where('user_uuid', $request->user_uuid)
+                $orgUser = User::where('user_uuid', $request->userUuid)
                     ->where('role_id', '!=', User::USER_ROLE['SUPER_ADMIN'])
                     ->first();
 
