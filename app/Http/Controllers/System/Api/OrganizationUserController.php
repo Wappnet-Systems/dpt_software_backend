@@ -88,9 +88,11 @@ class OrganizationUserController extends Controller
 
     public function getUserDetails(Request $request)
     {
-        $organizationUsers = User::with('role')->select('id', 'name', 'email', 'personal_email', 'phone_number', 'profile_image', 'address', 'lat', 'long', 'city', 'state', 'country', 'zip_code', 'status', 'role_id', 'organization_id')
+        $organizationUsers = User::with('role')
+            ->select('id', 'uuid', 'name', 'email', 'personal_email', 'phone_number', 'profile_image', 'address', 'lat', 'long', 'city', 'state', 'country', 'zip_code', 'status', 'role_id', 'organization_id')
             ->where('role_id', '!=', User::USER_ROLE['SUPER_ADMIN'])
-            ->whereUserUuid($request->id)->first();
+            ->whereUserUuid($request->id)
+            ->first();
 
         if (!isset($organizationUsers) || empty($organizationUsers)) {
             return $this->sendError('User does not exists.');
@@ -217,7 +219,6 @@ class OrganizationUserController extends Controller
                     return $this->sendError('You have no rights to update User.');
                 } else {
                     $validator = Validator::make($request->all(), [
-                        'user_uuid' => 'required',
                         'name' => 'required',
                         'email' => 'required',
                         'personal_email' => 'required',
