@@ -128,80 +128,77 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::patch('machinery/status/change/{id}', [MachineriesController::class, 'changeStatus']);
 
     /* Projects Routes */
-    Route::post('project/get/lists', [ProjectsController::class, 'getProjects']);
-    Route::post('project/get/{id}', [ProjectsController::class, 'getProjectDetails']);
+    Route::get('project/get/lists', [ProjectsController::class, 'getProjects']);
+    Route::get('project/get/{id}', [ProjectsController::class, 'getProjectDetails']);
     Route::post('project/add', [ProjectsController::class, 'addProject']);
-    Route::post('project/update', [ProjectsController::class, 'updateProject']);
-    Route::delete('project/delete/{uuid}', [ProjectsController::class, 'deleteProject']);
-    Route::post('project/status/change', [ProjectsController::class, 'changeProjectStatus']);
+    Route::put('project/update/{Uuid}', [ProjectsController::class, 'updateProject']);
+    Route::delete('project/delete/{Uuid}', [ProjectsController::class, 'deleteProject']);
+    Route::patch('project/status/change/{Uuid}', [ProjectsController::class, 'changeProjectStatus']);
 
     /* Assign Users to Projects Routes */
-    Route::post('project/assign/users/list', [ProjectsController::class, 'assignUsersList']);
+    Route::get('project/assign/users/list', [ProjectsController::class, 'assignUsersList']);
     Route::post('project/assign/users', [ProjectsController::class, 'assignUsers']);
     Route::post('project/un-assign/users', [ProjectsController::class, 'unAssignUsers']);
 
     /* Projects Non Working Days Routes */
-    Route::post('project/non-working-day/get/lists', [NonWorkingDaysController::class, 'getNonWorkingDays']);
-    Route::post('project/non-working-day/get/{id}', [NonWorkingDaysController::class, 'getNonWorkingDayDetails']);
+    Route::get('project/non-working-day/get/lists', [NonWorkingDaysController::class, 'getNonWorkingDays']);
+    Route::get('project/non-working-day/get/{id}', [NonWorkingDaysController::class, 'getNonWorkingDayDetails']);
     Route::post('project/non-working-day/add', [NonWorkingDaysController::class, 'addNonWorkingDay']);
-    Route::post('project/non-working-day/update', [NonWorkingDaysController::class, 'updateNonWorkingDay']);
-    Route::post('project/non-working-day/status/change', [NonWorkingDaysController::class, 'changeNonWorkingDayStatus']);
+    Route::put('project/non-working-day/update/{id}', [NonWorkingDaysController::class, 'updateNonWorkingDay']);
+    Route::patch('project/non-working-day/status/change/{id}', [NonWorkingDaysController::class, 'changeNonWorkingDayStatus']);
 
     /* Projects Manforces Routes */
-    Route::post('project/manforce/get/lists', [ManforcesController::class, 'getManforces']);
-    Route::post('project/manforce/get/{id}', [ManforcesController::class, 'getManforceDetails']);
+    Route::get('project/manforce/get/lists', [ManforcesController::class, 'getManforces']);
+    Route::get('project/manforce/get/{id}', [ManforcesController::class, 'getManforceDetails']);
     Route::post('project/manforce/add', [ManforcesController::class, 'addManforce']);
-    Route::post('project/manforce/update', [ManforcesController::class, 'updateManforce']);
-    Route::post('project/manforce/status/change', [ManforcesController::class, 'changeManforceStatus']);
+    Route::put('project/manforce/update/{id}', [ManforcesController::class, 'updateManforce']);
+    Route::patch('project/manforce/status/change/{id}', [ManforcesController::class, 'changeManforceStatus']);
 
     /* Projects Gangs Routes */
-    Route::post('project/gang/get/lists', [GangsController::class, 'getGangs']);
-    Route::post('project/gang/get/{id}', [GangsController::class, 'getGangDetails']);
+    Route::get('project/gang/get/lists', [GangsController::class, 'getGangs']);
+    Route::get('project/gang/get/{id}', [GangsController::class, 'getGangDetails']);
     Route::post('project/gang/add', [GangsController::class, 'addGang']);
-    Route::post('project/gang/update', [GangsController::class, 'updateGang']);
-    Route::post('project/gang/status/change', [GangsController::class, 'changeGangStatus']);
+    Route::put('project/gang/update/{id}', [GangsController::class, 'updateGang']);
+    Route::patch('project/gang/status/change/{id}', [GangsController::class, 'changeGangStatus']);
 
     /* Projects Gangs Manforces Routes */
-    Route::post('project/gang/manforce/get/lists', [GangsManforcesController::class, 'getGangsManforces']);
-    Route::post('project/gang/manforce/get/{id}', [GangsManforcesController::class, 'getGangManforceDetails']);
+    Route::get('project/gang/manforce/get/lists', [GangsManforcesController::class, 'getGangsManforces']);
+    Route::get('project/gang/manforce/get/{id}', [GangsManforcesController::class, 'getGangManforceDetails']);
     Route::post('project/gang/manforce/add', [GangsManforcesController::class, 'addGangManforce']);
-    Route::post('project/gang/manforce/update', [GangsManforcesController::class, 'updateGangManforce']);
+    Route::put('project/gang/manforce/update/{id}', [GangsManforcesController::class, 'updateGangManforce']);
     Route::delete('project/gang/manforce/delete/{id}', [GangsManforcesController::class, 'deleteGangManforce']);
 
     /* Project Materials Routes */
-    Route::post('project/material/get/lists', [MaterialController::class, 'getMaterials']);
-    Route::post('project/material/get/{id}', [MaterialController::class, 'getMaterialsDetails']);
+    Route::get('project/material/get/lists', [MaterialController::class, 'getMaterials']);
+    Route::get('project/material/get/{id}', [MaterialController::class, 'getMaterialsDetails']);
     Route::post('project/material/add', [MaterialController::class, 'addMaterial']);
-    Route::post('project/material/update', [MaterialController::class, 'updateMaterial']);
+    Route::put('project/material/update/{id}', [MaterialController::class, 'updateMaterial']);
     Route::delete('project/material/delete/{id}', [MaterialController::class, 'deleteMaterial']);
     Route::post('project/material/upload/format/file', [MaterialController::class, 'uploadMaterialFormatFile']);
     Route::post('project/material/export/format/file', [MaterialController::class, 'exportMaterialFormatFile']);
     Route::post('project/material/import', [MaterialController::class, 'importMaterial']);
 
     /* Projects Inventories Stocks Routes */
-    Route::post('project/inventory/stock/get/lists', [InventoryStocksController::class, 'getInventoryStocks']);
+    Route::get('project/inventory/stock/get/lists', [InventoryStocksController::class, 'getInventoryStocks']);
 
     /* Projects Inventories Minimum Quantity Update Routes */
-    Route::post('project/inventory/minimum-quantity/update', [InventoryStocksController::class, 'updateMinimunQuntity']);
+    Route::put('project/inventory/minimum-quantity/update/{projectInventoryId}', [InventoryStocksController::class, 'updateMinimunQuntity']);
 
     /* Projects Activity Management Routes */
-    Route::post('project/activity/get/lists', [ActivitiesController::class, 'getActivities']);
-    Route::post('project/activity/get/{id}', [ActivitiesController::class, 'getActivityDetails']);
+    Route::get('project/activity/get/lists', [ActivitiesController::class, 'getActivities']);
+    Route::get('project/activity/get/{id}', [ActivitiesController::class, 'getActivityDetails']);
     Route::post('project/activity/add', [ActivitiesController::class, 'addActivity']);
-    Route::post('project/activity/update', [ActivitiesController::class, 'updateActivity']);
-    Route::post('project/activity/status/change', [ActivitiesController::class, 'changeActivityStatus']);
+    Route::put('project/activity/update/{id}', [ActivitiesController::class, 'updateActivity']);
+    Route::patch('project/activity/status/change/{id}', [ActivitiesController::class, 'changeActivityStatus']);
     Route::delete('project/activity/delete/{id}', [ActivitiesController::class, 'deleteActivity']);
 
-    /* Assign Material to Project Activity Route */
-    Route::post('project/activity/get/lists', [ActivitiesController::class, 'getActivities']);
-
-    /* Projects Raising Material Request Routes */
-    Route::post('project/material/transfer/request/get/lists', [MaterialTransferRequestsController::class, 'getMaterialTransferRequests']);
-    Route::post('project/material/transfer/request/get/{id}', [MaterialTransferRequestsController::class, 'getMaterialTransferRequestDetails']);
+    /* Projects Material Transfer Request Routes */
+    Route::get('project/material/transfer/request/get/lists', [MaterialTransferRequestsController::class, 'getMaterialTransferRequests']);
+    Route::get('project/material/transfer/request/get/{id}', [MaterialTransferRequestsController::class, 'getMaterialTransferRequestDetails']);
     Route::post('project/material/transfer/request/add', [MaterialTransferRequestsController::class, 'addMaterialTransferRequest']);
-    Route::post('project/material/transfer/request/update', [MaterialTransferRequestsController::class, 'updateMaterialTransferRequest']);
+    Route::put('project/material/transfer/request/update/{id}', [MaterialTransferRequestsController::class, 'updateMaterialTransferRequest']);
     Route::delete('project/material/transfer/request/delete/{id}', [MaterialTransferRequestsController::class, 'deleteMaterialTransferRequest']);
-    Route::post('project/material/transfer/request/status/change', [MaterialTransferRequestsController::class, 'changeMaterialTransferRequestStatus']);
+    Route::patch('project/material/transfer/request/status/change/{id}', [MaterialTransferRequestsController::class, 'changeMaterialTransferRequestStatus']);
 
     /* Projects Material Raising Request Routes */
     Route::post('project/material/raising/request/get/lists', [MaterialRaisingRequestsController::class, 'getMaterialRaisingRequests']);
@@ -211,19 +208,18 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('project/material/raising/request/status/change', [MaterialRaisingRequestsController::class, 'changeMaterialRaisingRequestStatus']);
 
     /* Allocate Material to Project Activities Routes */
-    Route::post('project/allocate/material/get/lists', [MaterialAllocationController::class, 'getAllocateMaterials']);
-    Route::post('project/allocate/material/get/{id}', [MaterialAllocationController::class, 'getAllocateMaterialDetails']);
+    Route::get('project/allocate/material/get/lists', [MaterialAllocationController::class, 'getAllocateMaterials']);
+    Route::get('project/allocate/material/get/{id}', [MaterialAllocationController::class, 'getAllocateMaterialDetails']);
     Route::post('project/allocate/material/add', [MaterialAllocationController::class, 'addAllocateMaterial']);
-    Route::post('project/allocate/material/update', [MaterialAllocationController::class, 'updateAllocateMaterial']);
+    Route::put('project/allocate/material/update/{id}', [MaterialAllocationController::class, 'updateAllocateMaterial']);
     Route::delete('project/allocate/material/delete/{id}', [MaterialAllocationController::class, 'deleteAllocateMaterial']);
 
     /* Project IFC Drawings Route */
-    Route::post('project/ifc/drawing/get/lists', [IFCDrwaingsController::class, 'getIFCDrwaings']);
-    Route::post('project/ifc/drawing/get/{id}', [IFCDrwaingsController::class, 'getIFCDrwaingDetails']);
+    Route::get('project/ifc/drawing/get/lists', [IFCDrwaingsController::class, 'getIFCDrwaings']);
+    Route::get('project/ifc/drawing/get/{id}', [IFCDrwaingsController::class, 'getIFCDrwaingDetails']);
     Route::post('project/ifc/drawing/add', [IFCDrwaingsController::class, 'addIFCDrwaing']);
-    Route::post('project/ifc/drawing/update', [IFCDrwaingsController::class, 'updateIFCDrwaing']);
-    Route::post('project/ifc/drawing/delete', [IFCDrwaingsController::class, 'deleteIFCDrwaing']);
-    Route::post('project/ifc/drawing/status/change', [IFCDrwaingsController::class, 'changeIFCDrwaingStatus']);
+    Route::put('project/ifc/drawing/update/{id}', [IFCDrwaingsController::class, 'updateIFCDrwaing']);
+    Route::patch('project/ifc/drawing/status/change/{id}', [IFCDrwaingsController::class, 'changeIFCDrwaingStatus']);
 
     /* Time Slots Routes */
     Route::get('time-slot/get/lists', [TimeSlotsController::class, 'getTimeSlots']);
@@ -231,5 +227,5 @@ Route::middleware('auth:sanctum')->group(function () {
     /* Allocate Machinerie to Project Activities Routes */
     Route::post('project/allocate/machinery/get/lists', [MachineryAllocationController::class, 'getAllocateMachineries']);
     Route::post('project/allocate/machinery', [MachineryAllocationController::class, 'allocateMachinery']);
-    Route::post('project/allocate/machinery/delete', [MachineryAllocationController::class, 'deleteAllocateMachinery']);
+    Route::patch('project/allocate/machinery/delete/{id}', [MachineryAllocationController::class, 'deleteAllocateMachinery']);
 });

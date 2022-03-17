@@ -128,11 +128,10 @@ class GangsController extends Controller
         }
     }
 
-    public function updateGang(Request $request)
+    public function updateGang(Request $request, $id = null)
     {
         try {
             $validator = Validator::make($request->all(), [
-                'id' => 'required',
                 'name' => 'required',
             ]);
 
@@ -164,7 +163,7 @@ class GangsController extends Controller
     {
         try {
             $validator = Validator::make($request->all(), [
-                'id' => 'required',
+                'status' => 'required',
             ]);
 
             if ($validator->fails()) {
@@ -184,10 +183,10 @@ class GangsController extends Controller
             $projectGangs->save();
 
             if ($projectGangs->status == ProjectGang::STATUS['Deleted']) {
-               $projectGangs->delete();
+                $projectGangs->delete();
             }
 
-            return $this->sendResponse($projectGangs,'Status changed successfully.');
+            return $this->sendResponse($projectGangs, 'Status changed successfully.');
         } catch (\Exception $e) {
             return $this->sendError($e->getMessage());
         }

@@ -134,11 +134,10 @@ class NonWorkingDaysController extends Controller
         }
     }
 
-    public function updateNonWorkingDay(Request $request)
+    public function updateNonWorkingDay(Request $request, $id = null)
     {
         try {
             $validator = Validator::make($request->all(), [
-                'id' => 'required',
                 'name' => 'required',
                 'start_date_time' => 'date_format:Y-m-d H:i:s',
                 'end_date_time' => 'date_format:Y-m-d H:i:s',
@@ -171,11 +170,11 @@ class NonWorkingDaysController extends Controller
         }
     }
 
-    public function changeNonWorkingDayStatus(Request $request)
+    public function changeNonWorkingDayStatus(Request $request, $id = null)
     {
         try {
             $validator = Validator::make($request->all(), [
-                'id' => 'required',
+                'status' => 'required',
             ]);
 
             if ($validator->fails()) {

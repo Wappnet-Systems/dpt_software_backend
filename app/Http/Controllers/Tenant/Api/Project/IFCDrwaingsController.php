@@ -114,7 +114,7 @@ class IFCDrwaingsController extends Controller
                 $validator = Validator::make($request->all(), [
                     'project_id' => 'required|exists:projects,id',
                     'name' => 'required',
-                    'path' => sprintf('mimes:%s|max:%s', 'pdf,jpeg,jpg,bmp,png', config('constants.organizations.projects.ifc_drawings.upload_image_max_size')),
+                    'path' => sprintf('required|mimes:%s|max:%s', 'pdf,jpeg,jpg,bmp,png', config('constants.organizations.projects.ifc_drawings.upload_image_max_size')),
                     'location' => 'required',
                     'area' => 'required',
                 ], [
@@ -161,14 +161,13 @@ class IFCDrwaingsController extends Controller
         }
     }
 
-    public function updateIFCDrwaing(Request $request)
+    public function updateIFCDrwaing(Request $request, $id = null)
     {
         try {
             $user = $request->user();
 
             if (isset($user) && !empty($user)) {
                 $validator = Validator::make($request->all(), [
-                    'id' => 'required',
                     'name' => 'required',
                     'path' => sprintf('mimes:%s|max:%s', 'pdf,jpeg,jpg,bmp,png', config('constants.organizations.projects.ifc_drawings.upload_image_max_size')),
                     'location' => 'required',
@@ -224,11 +223,10 @@ class IFCDrwaingsController extends Controller
         }
     }
 
-    public function changeIFCDrwaingStatus(Request $request)
+    public function changeIFCDrwaingStatus(Request $request, $id = null)
     {
         try {
             $validator = Validator::make($request->all(), [
-                'id' => 'required',
                 'status' => 'required'
             ]);
 

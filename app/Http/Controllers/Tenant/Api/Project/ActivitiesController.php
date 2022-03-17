@@ -54,7 +54,7 @@ class ActivitiesController extends Controller
         if (isset($request->search) && !empty($request->search)) {
             $search = trim(strtolower($request->search));
 
-            $query = $query->whereRaw('LOWER(CONCAT(`name`)) LIKE ?', ['%'. $search .'%']);
+            $query = $query->whereRaw('LOWER(CONCAT(`name`)) LIKE ?', ['%' . $search . '%']);
         }
 
         if ($request->exists('cursor')) {
@@ -151,14 +151,13 @@ class ActivitiesController extends Controller
         }
     }
 
-    public function updateActivity(Request $request)
+    public function updateActivity(Request $request, $id = null)
     {
         try {
             $user = $request->user();
 
             if (isset($user) && !empty($user)) {
                 $validator = Validator::make($request->all(), [
-                    'id' => 'required',
                     'activity_sub_category_id' => 'exists:activity_sub_categories,id',
                     'project_drowing_id' => 'exists:projects_ifc_drawings,id',
                     'start_date' => 'date_format:Y-m-d H:i:s',
@@ -219,7 +218,7 @@ class ActivitiesController extends Controller
                 if (!isset($proActivity) || empty($proActivity)) {
                     return $this->sendError('Activity dose not exists.');
                 } else if (!in_array($user->role_id, [User::USER_ROLE['COMPANY_ADMIN']])) {
-                    return $this->sendError('You have no rights to update User.');
+                    return $this->sendError('You have no rights to delete project activity.');
                 } else {
                     $proActivity->delete();
 
@@ -233,11 +232,21 @@ class ActivitiesController extends Controller
         }
     }
 
-    public function changeActivityStatus(Request $request)
+    public function changeActivityStatus(Request $request, $id = null)
     {
         try {
             $user = $request->user();
-            
+
+            $validator = Validator::make($request->all(), [
+                'status' => 'required',
+            ]);
+
+            if ($validator->fails()) {
+                foreach ($validator->errors()->messages() as $key => $value) {
+                    return $this->sendError('Validation Error.', [$key => $value[0]]);
+                }
+            }
+
             if (!in_array($user->role_id, [User::USER_ROLE['COMPANY_ADMIN']])) {
                 return $this->sendError('You have no rights to update User.');
             }
