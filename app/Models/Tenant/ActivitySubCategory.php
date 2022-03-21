@@ -41,6 +41,13 @@ class ActivitySubCategory extends Model
 
     public function activityCategory()
     {
-        return $this->belongsTo(ActivityCategory::class, 'activity_category_id', 'id');
+        return $this->belongsTo(ActivityCategory::class, 'activity_category_id', 'id')
+            ->select('id', 'name', 'status');
+    }
+
+    public function unitType()
+    {
+        return $this->belongsTo(UnitType::class, 'unit_type_id', 'id')
+            ->select('id', 'name', 'status');
     }
 }
