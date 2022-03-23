@@ -42,7 +42,7 @@ class ProjectActivity extends Model
 
     public function project()
     {
-        return $this->belongsTo(Project::class, 'projects_id', 'id')
+        return $this->belongsTo(Project::class, 'project_id', 'id')
             ->select('id', 'name', 'logo', 'address', 'lat', 'long', 'city', 'state', 'country', 'zip_code', 'start_date', 'end_date', 'cost', 'status');
     }
 
