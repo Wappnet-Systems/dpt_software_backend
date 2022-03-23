@@ -11,6 +11,7 @@ use App\Models\System\Organization;
 use App\Models\System\User;
 use App\Helpers\AppHelper;
 use App\Models\Tenant\ProjectActivity;
+use App\Models\Tenant\RoleHasSubModule;
 
 class ActivitiesController extends Controller
 {
@@ -23,6 +24,10 @@ class ActivitiesController extends Controller
                 if ($user->role_id == User::USER_ROLE['SUPER_ADMIN']) {
                     return $this->sendError('You have no rights to access this module.');
                 }
+
+                // if (!AppHelper::roleHasModulePermission('Planning and Scheduling', $user)) {
+                //     return $this->sendError('You have no rights to access this module.');
+                // }
 
                 $hostnameId = Organization::whereId($user->organization_id)->value('hostname_id');
 
@@ -44,10 +49,16 @@ class ActivitiesController extends Controller
 
     public function getActivities(Request $request)
     {
+        $user = $request->user();
+
+        // if (!AppHelper::roleHasSubModulePermission('Activity Settings', RoleHasSubModule::ACTIONS['list'], $user)) {
+        //     return $this->sendError('You have no rights to access this action.');
+        // }
+
         $limit = !empty($request->limit) ? $request->limit : config('constants.default_per_page_limit');
         $orderBy = !empty($request->orderby) ? $request->orderby : config('constants.default_orderby');
 
-        $query = ProjectActivity::with('activitySubCategory', 'ifcDrawing')
+        $query = ProjectActivity::with('project', 'activitySubCategory', 'ifcDrawing')
             ->whereProjectId($request->project_id ?? '')
             ->orderBy('id', $orderBy);
 
@@ -82,7 +93,13 @@ class ActivitiesController extends Controller
 
     public function getActivityDetails(Request $request)
     {
-        $proActivity = ProjectActivity::with('activitySubCategory', 'ifcDrawing')
+        $user = $request->user();
+
+        // if (!AppHelper::roleHasSubModulePermission('Activity Settings', RoleHasSubModule::ACTIONS['view'], $user)) {
+        //     return $this->sendError('You have no rights to access this action.');
+        // }
+
+        $proActivity = ProjectActivity::with('project','activitySubCategory', 'ifcDrawing')
             ->whereId($request->id)
             ->first();
 
@@ -97,6 +114,10 @@ class ActivitiesController extends Controller
     {
         try {
             $user = $request->user();
+
+            // if (!AppHelper::roleHasSubModulePermission('Activity Settings', RoleHasSubModule::ACTIONS['create'], $user)) {
+            //     return $this->sendError('You have no rights to access this action.');
+            // }
 
             if (isset($user) && !empty($user)) {
                 $validator = Validator::make($request->all(), [
@@ -156,6 +177,10 @@ class ActivitiesController extends Controller
         try {
             $user = $request->user();
 
+            // if (!AppHelper::roleHasSubModulePermission('Activity Settings', RoleHasSubModule::ACTIONS['edit'], $user)) {
+            //     return $this->sendError('You have no rights to access this action.');
+            // }
+
             if (isset($user) && !empty($user)) {
                 $validator = Validator::make($request->all(), [
                     'activity_sub_category_id' => 'exists:activity_sub_categories,id',
@@ -211,6 +236,10 @@ class ActivitiesController extends Controller
     {
         try {
             $user = $request->user();
+
+            // if (!AppHelper::roleHasSubModulePermission('Activity Settings', RoleHasSubModule::ACTIONS['delete'], $user)) {
+            //     return $this->sendError('You have no rights to access this action.');
+            // }
 
             if (isset($user) && !empty($user)) {
                 $proActivity = ProjectActivity::whereId($request->id)->first();
