@@ -82,7 +82,7 @@ class RoleController extends Controller
                 'per_page' => $roles['per_page'],
                 'next_page_url' => $roles['next_page_url'],
                 'prev_page_url' => $roles['prev_page_url']
-            ], 'Organization List');
+            ], 'Sub module permissions list');
         } else {
             return $this->sendResponse($results, 'Sub module permissions list');
         }

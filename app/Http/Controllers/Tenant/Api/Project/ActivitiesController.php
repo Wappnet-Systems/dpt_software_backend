@@ -10,6 +10,7 @@ use Hyn\Tenancy\Models\Website;
 use App\Models\System\Organization;
 use App\Models\System\User;
 use App\Helpers\AppHelper;
+use App\Models\Tenant\ActivitySubCategory;
 use App\Models\Tenant\ProjectActivity;
 use App\Models\Tenant\RoleHasSubModule;
 
@@ -55,40 +56,16 @@ class ActivitiesController extends Controller
             return $this->sendError('You have no rights to access this action.');
         }
 
-        $limit = !empty($request->limit) ? $request->limit : config('constants.default_per_page_limit');
-        $orderBy = !empty($request->orderby) ? $request->orderby : config('constants.default_orderby');
+        $subActivityIds = ProjectActivity::whereProjectId($request->project_id ?? '')
+            ->pluck('activity_sub_category_id')
+            ->unique();
 
-        $query = ProjectActivity::with('project', 'activitySubCategory', 'ifcDrawing')
-            ->whereProjectId($request->project_id ?? '')
-            ->orderBy('id', $orderBy);
-
-        if (isset($request->search) && !empty($request->search)) {
-            $search = trim(strtolower($request->search));
-
-            $query = $query->whereRaw('LOWER(CONCAT(`name`)) LIKE ?', ['%' . $search . '%']);
-        }
-
-        if ($request->exists('cursor')) {
-            $proActivities = $query->cursorPaginate($limit)->toArray();
-        } else {
-            $proActivities['data'] = $query->get()->toArray();
-        }
-
-        $results = [];
-        if (!empty($proActivities['data'])) {
-            $results = $proActivities['data'];
-        }
-
-        if ($request->exists('cursor')) {
-            return $this->sendResponse([
-                'lists' => $results,
-                'per_page' => $proActivities['per_page'],
-                'next_page_url' => $proActivities['next_page_url'],
-                'prev_page_url' => $proActivities['prev_page_url']
-            ], 'Activities List');
-        } else {
-            return $this->sendResponse($results, 'Activities List');
-        }
+        $proActivities = ActivitySubCategory::with('activityCategory', 'unitType', 'projectActivities')
+            ->whereIn('id', $subActivityIds)
+            ->get()
+            ->toArray();
+        
+        return $this->sendResponse($proActivities, 'Activities List');
     }
 
     public function getActivityDetails(Request $request)
