@@ -25,9 +25,9 @@ class ActivitiesController extends Controller
                     return $this->sendError('You have no rights to access this module.');
                 }
 
-                // if (!AppHelper::roleHasModulePermission('Planning and Scheduling', $user)) {
-                //     return $this->sendError('You have no rights to access this module.');
-                // }
+                if (!AppHelper::roleHasModulePermission('Planning and Scheduling', $user)) {
+                    return $this->sendError('You have no rights to access this module.');
+                }
 
                 $hostnameId = Organization::whereId($user->organization_id)->value('hostname_id');
 
@@ -51,9 +51,9 @@ class ActivitiesController extends Controller
     {
         $user = $request->user();
 
-        // if (!AppHelper::roleHasSubModulePermission('Activity Settings', RoleHasSubModule::ACTIONS['list'], $user)) {
-        //     return $this->sendError('You have no rights to access this action.');
-        // }
+        if (!AppHelper::roleHasSubModulePermission('Activity Settings', RoleHasSubModule::ACTIONS['list'], $user)) {
+            return $this->sendError('You have no rights to access this action.');
+        }
 
         $limit = !empty($request->limit) ? $request->limit : config('constants.default_per_page_limit');
         $orderBy = !empty($request->orderby) ? $request->orderby : config('constants.default_orderby');
@@ -95,9 +95,9 @@ class ActivitiesController extends Controller
     {
         $user = $request->user();
 
-        // if (!AppHelper::roleHasSubModulePermission('Activity Settings', RoleHasSubModule::ACTIONS['view'], $user)) {
-        //     return $this->sendError('You have no rights to access this action.');
-        // }
+        if (!AppHelper::roleHasSubModulePermission('Activity Settings', RoleHasSubModule::ACTIONS['view'], $user)) {
+            return $this->sendError('You have no rights to access this action.');
+        }
 
         $proActivity = ProjectActivity::with('project','activitySubCategory', 'ifcDrawing')
             ->whereId($request->id)
@@ -115,9 +115,9 @@ class ActivitiesController extends Controller
         try {
             $user = $request->user();
 
-            // if (!AppHelper::roleHasSubModulePermission('Activity Settings', RoleHasSubModule::ACTIONS['create'], $user)) {
-            //     return $this->sendError('You have no rights to access this action.');
-            // }
+            if (!AppHelper::roleHasSubModulePermission('Activity Settings', RoleHasSubModule::ACTIONS['create'], $user)) {
+                return $this->sendError('You have no rights to access this action.');
+            }
 
             if (isset($user) && !empty($user)) {
                 $validator = Validator::make($request->all(), [
@@ -177,9 +177,9 @@ class ActivitiesController extends Controller
         try {
             $user = $request->user();
 
-            // if (!AppHelper::roleHasSubModulePermission('Activity Settings', RoleHasSubModule::ACTIONS['edit'], $user)) {
-            //     return $this->sendError('You have no rights to access this action.');
-            // }
+            if (!AppHelper::roleHasSubModulePermission('Activity Settings', RoleHasSubModule::ACTIONS['edit'], $user)) {
+                return $this->sendError('You have no rights to access this action.');
+            }
 
             if (isset($user) && !empty($user)) {
                 $validator = Validator::make($request->all(), [
@@ -237,9 +237,9 @@ class ActivitiesController extends Controller
         try {
             $user = $request->user();
 
-            // if (!AppHelper::roleHasSubModulePermission('Activity Settings', RoleHasSubModule::ACTIONS['delete'], $user)) {
-            //     return $this->sendError('You have no rights to access this action.');
-            // }
+            if (!AppHelper::roleHasSubModulePermission('Activity Settings', RoleHasSubModule::ACTIONS['delete'], $user)) {
+                return $this->sendError('You have no rights to access this action.');
+            }
 
             if (isset($user) && !empty($user)) {
                 $proActivity = ProjectActivity::whereId($request->id)->first();
