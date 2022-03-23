@@ -2,6 +2,7 @@
 
 namespace App\Models\Tenant;
 
+use App\Helpers\AppHelper;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -49,5 +50,12 @@ class ActivitySubCategory extends Model
     {
         return $this->belongsTo(UnitType::class, 'unit_type_id', 'id')
             ->select('id', 'name', 'status');
+    }
+    
+    public function projectActivities()
+    {
+        AppHelper::setDefaultDBConnection();
+
+        return $this->hasMany(ProjectActivity::class, 'activity_sub_category_id', 'id')->with('project', 'ifcDrawing');
     }
 }
