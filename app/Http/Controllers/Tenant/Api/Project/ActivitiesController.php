@@ -62,8 +62,11 @@ class ActivitiesController extends Controller
 
         $proActivities = ActivitySubCategory::with('activityCategory', 'unitType', 'projectActivities')
             ->whereIn('id', $subActivityIds)
-            ->get()
-            ->toArray();
+            ->get();
+
+        $proActivities->load(['projectActivities' => function ($query) use($request) {
+            $query->where('project_id', $request->project_id ?? '');
+        }]);
         
         return $this->sendResponse($proActivities, 'Activities List');
     }
