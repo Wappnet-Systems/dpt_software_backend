@@ -13,7 +13,7 @@ use App\Models\Tenant\ActivityCategory;
 use App\Models\Tenant\ActivitySubCategory;
 use App\Helpers\AppHelper;
 
-class SubActivityCategoriesController extends Controller
+class ActivitySubCategoriesController extends Controller
 {
     public function __construct()
     {
@@ -43,7 +43,7 @@ class SubActivityCategoriesController extends Controller
         });
     }
 
-    public function getSubActivityCategory(Request $request)
+    public function getActivitySubCategory(Request $request)
     {
         $limit = !empty($request->limit) ? $request->limit : config('constants.default_per_page_limit');
         $orderBy = !empty($request->orderby) ? $request->orderby : config('constants.default_orderby');
@@ -78,9 +78,9 @@ class SubActivityCategoriesController extends Controller
             return $this->sendResponse([
                 'lists' => $results,
                 'per_page' => $subActivityCategory['per_page'],
-                'next_page_url' => $subActivityCategory['next_page_url'],
-                'prev_page_url' => $subActivityCategory['prev_page_url']
-            ], 'Activity Category List');
+                'next_page_url' => ltrim(str_replace($subActivityCategory['path'], "", $subActivityCategory['next_page_url']), "?cursor="),
+                'prev_page_url' => ltrim(str_replace($subActivityCategory['path'], "", $subActivityCategory['prev_page_url']), "?cursor=")
+            ], 'Sub Activity Category List');
         } else {
             return $this->sendResponse($results, 'Activity Category List');
         }
@@ -99,7 +99,7 @@ class SubActivityCategoriesController extends Controller
         return $this->sendResponse($subActivityCategory, 'Sub activity category details.');
     }
 
-    public function addSubActivityCategory(Request $request)
+    public function addActivitySubCategory(Request $request)
     {
         try {
             $validator = Validator::make($request->all(), [
@@ -131,7 +131,7 @@ class SubActivityCategoriesController extends Controller
         }
     }
 
-    public function updateSubActivityCategory(Request $request, $id = null)
+    public function updateActivitySubCategory(Request $request, $id = null)
     {
         try {
             $validator = Validator::make($request->all(), [

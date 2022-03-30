@@ -84,9 +84,9 @@ class ProjectsController extends Controller
                     return $this->sendResponse([
                         'lists' => $results,
                         'per_page' => $projects['per_page'],
-                        'next_page_url' => $projects['next_page_url'],
-                        'prev_page_url' => $projects['prev_page_url']
-                    ], 'Projects List');
+                        'next_page_url' => ltrim(str_replace($projects['path'], "", $projects['next_page_url']), "?cursor="),
+                        'prev_page_url' => ltrim(str_replace($projects['path'], "", $projects['prev_page_url']), "?cursor=")
+                    ], 'Projects List.');
                 } else {
                     return $this->sendResponse($results, 'Projects List');
                 }
@@ -340,8 +340,8 @@ class ProjectsController extends Controller
                     return $this->sendResponse([
                         'lists' => $results,
                         'per_page' => $projects['per_page'],
-                        'next_page_url' => $projects['next_page_url'],
-                        'prev_page_url' => $projects['prev_page_url']
+                        'next_page_url' => ltrim(str_replace($projects['path'], "", $projects['next_page_url']), "?cursor="),
+                        'prev_page_url' => ltrim(str_replace($projects['path'], "", $projects['prev_page_url']), "?cursor=")
                     ], 'Project Assigned Users List');
                 } else {
                     return $this->sendResponse($results, 'Project Assigned Users List');

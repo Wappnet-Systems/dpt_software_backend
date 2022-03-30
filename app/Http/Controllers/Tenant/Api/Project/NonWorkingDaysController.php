@@ -72,8 +72,8 @@ class NonWorkingDaysController extends Controller
             return $this->sendResponse([
                 'lists' => $results,
                 'per_page' => $nonWorkingDays['per_page'],
-                'next_page_url' => $nonWorkingDays['next_page_url'],
-                'prev_page_url' => $nonWorkingDays['prev_page_url']
+                'next_page_url' => ltrim(str_replace($nonWorkingDays['path'], "", $nonWorkingDays['next_page_url']), "?cursor="),
+                'prev_page_url' => ltrim(str_replace($nonWorkingDays['path'], "", $nonWorkingDays['prev_page_url']), "?cursor=")
             ], 'Non working days List');
         } else {
             return $this->sendResponse($results, 'Non working days List');

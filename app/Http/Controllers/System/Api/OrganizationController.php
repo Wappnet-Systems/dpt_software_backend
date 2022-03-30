@@ -35,10 +35,10 @@ class OrganizationController extends Controller
         if (isset($request->search) && !empty($request->search)) {
             $search = trim(strtolower($request->search));
 
-            $query = $query->whereRaw('LOWER(CONCAT(`name`,`email`,`phone_no`)) LIKE ?', ['%'. $search .'%']);
+            $query = $query->whereRaw('LOWER(CONCAT(`name`,`email`,`phone_no`)) LIKE ?', ['%' . $search . '%']);
 
-            $query = $query->orWhereHas('user', function($query) use($search) {
-                $query->whereRaw('LOWER(`name`) LIKE ?', ['%'. $search .'%'])
+            $query = $query->orWhereHas('user', function ($query) use ($search) {
+                $query->whereRaw('LOWER(`name`) LIKE ?', ['%' . $search . '%'])
                     ->where('role_id', User::USER_ROLE['COMPANY_ADMIN']);
             });
         }
@@ -58,8 +58,8 @@ class OrganizationController extends Controller
             return $this->sendResponse([
                 'lists' => $results,
                 'per_page' => $organizations['per_page'],
-                'next_page_url' => $organizations['next_page_url'],
-                'prev_page_url' => $organizations['prev_page_url']
+                'next_page_url' => ltrim(str_replace($organizations['path'], "", $organizations['next_page_url']), "?cursor="),
+                'prev_page_url' => ltrim(str_replace($organizations['path'], "", $organizations['prev_page_url']), "?cursor=")
             ], 'Organization List');
         } else {
             return $this->sendResponse($results, 'Organization List');
@@ -148,7 +148,7 @@ class OrganizationController extends Controller
                     $dirPath = str_replace(':uid:', $organization->id, config('constants.organizations.logo_path'));
 
                     $organization->logo = $this->uploadFile->uploadFileInS3($request, $dirPath, 'logo', "100", "100");
-                    
+
                     $organization->save();
                 }
 

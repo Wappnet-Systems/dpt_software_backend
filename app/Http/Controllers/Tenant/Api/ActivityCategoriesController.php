@@ -48,7 +48,8 @@ class ActivityCategoriesController extends Controller
         $limit = !empty($request->limit) ? $request->limit : config('constants.default_per_page_limit');
         $orderBy = !empty($request->orderby) ? $request->orderby : config('constants.default_orderby');
 
-        $query = ActivityCategory::with('activitySubCategories')->whereStatus(ActivityCategory::STATUS['Active'])->orderBy('id', $orderBy);
+        $query = ActivityCategory::with('activitySubCategories')->whereStatus(ActivityCategory::STATUS['Active'])
+            ->orderBy('id', $orderBy);
 
         if (isset($request->search) && !empty($request->search)) {
             $search = trim(strtolower($request->search));
@@ -76,8 +77,8 @@ class ActivityCategoriesController extends Controller
             return $this->sendResponse([
                 'lists' => $results,
                 'per_page' => $activityCategory['per_page'],
-                'next_page_url' => $activityCategory['next_page_url'],
-                'prev_page_url' => $activityCategory['prev_page_url']
+                'next_page_url' => ltrim(str_replace($activityCategory['path'], "", $activityCategory['next_page_url']), "?cursor="),
+                'prev_page_url' => ltrim(str_replace($activityCategory['path'], "", $activityCategory['prev_page_url']), "?cursor=")
             ], 'Activity Category List');
         } else {
             return $this->sendResponse($results, 'Activity Category List');

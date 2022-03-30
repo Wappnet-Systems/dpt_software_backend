@@ -13,7 +13,7 @@ use App\Http\Controllers\Tenant\Api\UnitTypesController;
 use App\Http\Controllers\Tenant\Api\MaterialTypesController;
 use App\Http\Controllers\Tenant\Api\ManforceTypesController;
 use App\Http\Controllers\Tenant\Api\ActivityCategoriesController;
-use App\Http\Controllers\Tenant\Api\SubActivityCategoriesController;
+use App\Http\Controllers\Tenant\Api\ActivitySubCategoriesController;
 use App\Http\Controllers\Tenant\Api\MachineriesController;
 use App\Http\Controllers\Tenant\Api\ProjectsController;
 use App\Http\Controllers\Tenant\Api\TimeSlotsController;
@@ -115,11 +115,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::patch('activity-category/status/change/{id}', [ActivityCategoriesController::class, 'changeStatus']);
 
     /* Sub Activity Categories Type Routes */
-    Route::get('sub-activity-category/get/lists', [SubActivityCategoriesController::class, 'getSubActivityCategory']);
-    Route::get('sub-activity-category/get/{id}', [SubActivityCategoriesController::class, 'getDetails']);
-    Route::post('sub-activity-category/add', [SubActivityCategoriesController::class, 'addSubActivityCategory']);
-    Route::put('sub-activity-category/update/{id}', [SubActivityCategoriesController::class, 'updateSubActivityCategory']);
-    Route::patch('sub-activity-category/status/change/{id}', [SubActivityCategoriesController::class, 'changeStatus']);
+    Route::get('activity-sub-category/get/lists', [ActivitySubCategoriesController::class, 'getActivitySubCategory']);
+    Route::get('activity-sub-category/get/{id}', [ActivitySubCategoriesController::class, 'getDetails']);
+    Route::post('activity-sub-category/add', [ActivitySubCategoriesController::class, 'addActivitySubCategory']);
+    Route::put('activity-sub-category/update/{id}', [ActivitySubCategoriesController::class, 'updateActivitySubCategory']);
+    Route::patch('activity-sub-category/status/change/{id}', [ActivitySubCategoriesController::class, 'changeStatus']);
 
     /* Machineries Routes */
     Route::get('machinery/get/lists', [MachineriesController::class, 'getMachineries']);

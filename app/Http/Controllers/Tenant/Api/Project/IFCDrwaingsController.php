@@ -94,8 +94,8 @@ class IFCDrwaingsController extends Controller
             return $this->sendResponse([
                 'lists' => $results,
                 'per_page' => $projectIFCDrawing['per_page'],
-                'next_page_url' => $projectIFCDrawing['next_page_url'],
-                'prev_page_url' => $projectIFCDrawing['prev_page_url']
+                'next_page_url' => ltrim(str_replace($projectIFCDrawing['path'], "", $projectIFCDrawing['next_page_url']), "?cursor="),
+                'prev_page_url' => ltrim(str_replace($projectIFCDrawing['path'], "", $projectIFCDrawing['prev_page_url']), "?cursor=")
             ], 'Project IFC drawing list');
         } else {
             return $this->sendResponse($results, 'Project IFC drawing list');

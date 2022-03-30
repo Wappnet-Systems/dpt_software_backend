@@ -71,8 +71,8 @@ class MachineriesController extends Controller
             return $this->sendResponse([
                 'lists' => $results,
                 'per_page' => $machineries['per_page'],
-                'next_page_url' => $machineries['next_page_url'],
-                'prev_page_url' => $machineries['prev_page_url']
+                'next_page_url' => ltrim(str_replace($machineries['path'], "", $machineries['next_page_url']), "?cursor="),
+                'prev_page_url' => ltrim(str_replace($machineries['path'], "", $machineries['prev_page_url']), "?cursor=")
             ], 'Machinery List');
         } else {
             return $this->sendResponse($results, 'Machinery List');
