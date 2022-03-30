@@ -10,6 +10,7 @@ use Hyn\Tenancy\Models\Website;
 use App\Models\System\Organization;
 use App\Models\System\User;
 use App\Models\Tenant\ProjectManforce;
+use App\Models\Tenant\ProjectActivityAllocateManforce;
 use App\Helpers\AppHelper;
 
 class ManforcesController extends Controller
@@ -49,7 +50,6 @@ class ManforcesController extends Controller
 
         $query = ProjectManforce::with('manforce')
             ->whereProjectId($request->project_id ?? null)
-            ->whereStatus(ProjectManforce::STATUS['Active'])
             ->orderBy('id', $orderBy);
 
         if ($request->exists('cursor')) {
@@ -77,8 +77,8 @@ class ManforcesController extends Controller
 
     public function getManforceDetails(Request $request)
     {
-        $projectManforce = ProjectManforce::select('id', 'project_id', 'manforce_type_id', 'total_manforce', 'available_manforce', 'productivity_rate', 'cost', 'status')
-            ->with('manforce')
+        $projectManforce = ProjectManforce::with('manforce')
+            ->select('id', 'project_id', 'manforce_type_id', 'total_manforce', 'productivity_rate', 'cost')
             ->whereId($request->id)
             ->first();
 
@@ -96,6 +96,7 @@ class ManforcesController extends Controller
                 'project_id' => 'required|exists:projects,id',
                 'manforce_type_id' => 'required|exists:manforce_types,id',
                 'total_manforce' => 'required',
+                'productivity_rate' => 'required',
                 'cost' => 'required',
             ]);
 
@@ -109,6 +110,7 @@ class ManforcesController extends Controller
             $projectManforce->project_id = $request->project_id;
             $projectManforce->manforce_type_id = $request->manforce_type_id;
             $projectManforce->total_manforce = $request->total_manforce;
+            $projectManforce->productivity_rate = $request->productivity_rate;
             $projectManforce->cost = $request->cost;
             $projectManforce->created_ip = $request->ip();
             $projectManforce->updated_ip = $request->ip();
@@ -127,8 +129,8 @@ class ManforcesController extends Controller
     {
         try {
             $validator = Validator::make($request->all(), [
-                'manforce_type_id' => 'required|exists:manforce_types,id',
                 'total_manforce' => 'required',
+                'productivity_rate' => 'required',
                 'cost' => 'required',
             ]);
 
@@ -144,8 +146,8 @@ class ManforcesController extends Controller
                 return $this->sendError('Project manforce does not exists.');
             }
 
-            if ($request->filled('manforce_type_id')) $projectManforce->manforce_type_id = $request->manforce_type_id;
             if ($request->filled('total_manforce')) $projectManforce->total_manforce = $request->total_manforce;
+            if ($request->filled('productivity_rate')) $projectManforce->productivity_rate = $request->productivity_rate;
             if ($request->filled('cost')) $projectManforce->cost = $request->cost;
 
             $projectManforce->updated_ip = $request->ip();
@@ -160,33 +162,25 @@ class ManforcesController extends Controller
         }
     }
 
-    public function changeManforceStatus(Request $request, $id = null)
+    public function deleteManforce(Request $request, $id = null)
     {
         try {
-            $validator = Validator::make($request->all(), [
-                'status' => 'required',
-            ]);
-
-            if ($validator->fails()) {
-                foreach ($validator->errors()->messages() as $key => $value) {
-                    return $this->sendError('Validation Error.', [$key => $value[0]]);
-                }
-            }
-
             $projectManforce = ProjectManforce::whereId($request->id)->first();
 
             if (!isset($projectManforce) || empty($projectManforce)) {
                 return $this->sendError('Project manforce does not exists.');
             }
 
-            $projectManforce->status = $request->status;
-            $projectManforce->save();
+            /* check manforce is already used in activity */
+            $isUsedManforce = ProjectActivityAllocateManforce::where('project_manforce_id', $request->id)->exists();
 
-            if ($projectManforce->status == ProjectManforce::STATUS['Deleted']) {
-                $projectManforce->delete();
+            if ($isUsedManforce) {
+                return $this->sendError('You can not remove allocated manforce from activity.');
             }
 
-            return $this->sendResponse($projectManforce, 'Status changed successfully.');
+            $projectManforce->delete();
+
+            return $this->sendResponse([], 'Allocated manforce remove from activity successfully.');
         } catch (\Exception $e) {
             return $this->sendError($e->getMessage());
         }

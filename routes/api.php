@@ -29,6 +29,7 @@ use App\Http\Controllers\Tenant\Api\Project\MaterialAllocationController;
 use App\Http\Controllers\Tenant\Api\Project\MaterialRaisingRequestsController;
 use App\Http\Controllers\Tenant\Api\Project\MaterialTransferRequestsController;
 use App\Http\Controllers\Tenant\Api\Project\MachineryAllocationController;
+use App\Http\Controllers\Tenant\Api\Project\ManforcesAllocationController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -152,7 +153,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('project/manforce/get/{id}', [ManforcesController::class, 'getManforceDetails']);
     Route::post('project/manforce/add', [ManforcesController::class, 'addManforce']);
     Route::put('project/manforce/update/{id}', [ManforcesController::class, 'updateManforce']);
-    Route::patch('project/manforce/status/change/{id}', [ManforcesController::class, 'changeManforceStatus']);
+    Route::delete('project/manforce/delete/{id}', [ManforcesController::class, 'deleteManforce']);
 
     /* Projects Gangs Routes */
     Route::get('project/gang/get/lists', [GangsController::class, 'getGangs']);
@@ -228,4 +229,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('project/allocate/machinery/get/lists', [MachineryAllocationController::class, 'getAllocateMachineries']);
     Route::post('project/allocate/machinery', [MachineryAllocationController::class, 'allocateMachinery']);
     Route::patch('project/allocate/machinery/delete/{id}', [MachineryAllocationController::class, 'deleteAllocateMachinery']);
+
+    /* Allocate Manforce to Project Activities Routes */
+    Route::get('project/allocate/manforce/get/lists', [ManforcesAllocationController::class, 'getAllocateManforces']);
+    Route::get('project/allocate/manforce/get/{id}', [ManforcesAllocationController::class, 'getAllocateManforcesDetails']);
+    Route::post('project/allocate/manforce/add', [ManforcesAllocationController::class, 'addAllocateManforces']);
+    Route::put('project/allocate/manforce/update/{id}', [ManforcesAllocationController::class, 'updateAllocateManforces']);
+    Route::delete('project/allocate/manforce/delete/{id}', [ManforcesAllocationController::class, 'deleteAllocateManforces']);
 });

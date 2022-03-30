@@ -15,30 +15,6 @@ class ProjectManforce extends Model
 
     protected $guarded = [];
 
-    protected $appends = ['status_name'];
-
-    const STATUS = [
-        'Active' => 1,
-        'In Active' => 2,
-        'Deleted' => 3,
-    ];
-
-    /**
-     * Get the status name.
-     *
-     * @return string
-     */
-    public function getStatusNameAttribute()
-    {
-        $flipStatus = array_flip(self::STATUS);
-
-        if (isset($flipStatus[$this->status]) && !empty($flipStatus[$this->status])) {
-            return "{$flipStatus[$this->status]}";
-        }
-
-        return null;
-    }
-
     public function project()
     {
         return $this->belongsTo(Project::class, 'project_id', 'id')
