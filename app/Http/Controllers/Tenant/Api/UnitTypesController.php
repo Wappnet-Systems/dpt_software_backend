@@ -71,8 +71,8 @@ class UnitTypesController extends Controller
             return $this->sendResponse([
                 'lists' => $results,
                 'per_page' => $unitTypes['per_page'],
-                'next_page_url' => $unitTypes['next_page_url'],
-                'prev_page_url' => $unitTypes['prev_page_url']
+                'next_page_url' => ltrim(str_replace($unitTypes['path'], "", $unitTypes['next_page_url']), "?cursor="),
+                'prev_page_url' => ltrim(str_replace($unitTypes['path'], "", $unitTypes['prev_page_url']), "?cursor=")
             ], 'Unit Type List');
         } else {
             return $this->sendResponse($results, 'Unit Type List');

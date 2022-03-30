@@ -75,8 +75,8 @@ class MaterialController extends Controller
             return $this->sendResponse([
                 'lists' => $results,
                 'per_page' => $projectMaterial['per_page'],
-                'next_page_url' => $projectMaterial['next_page_url'],
-                'prev_page_url' => $projectMaterial['prev_page_url']
+                'next_page_url' => ltrim(str_replace($projectMaterial['path'], "", $projectMaterial['next_page_url']), "?cursor="),
+                'prev_page_url' => ltrim(str_replace($projectMaterial['path'], "", $projectMaterial['prev_page_url']), "?cursor=")
             ], 'Project material List.');
         } else {
             return $this->sendResponse($results, 'Project material List.');

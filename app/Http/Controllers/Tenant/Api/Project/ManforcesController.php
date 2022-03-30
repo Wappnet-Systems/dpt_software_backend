@@ -67,8 +67,8 @@ class ManforcesController extends Controller
             return $this->sendResponse([
                 'lists' => $results,
                 'per_page' => $projectManforce['per_page'],
-                'next_page_url' => $projectManforce['next_page_url'],
-                'prev_page_url' => $projectManforce['prev_page_url']
+                'next_page_url' => ltrim(str_replace($projectManforce['path'], "", $projectManforce['next_page_url']), "?cursor="),
+                'prev_page_url' => ltrim(str_replace($projectManforce['path'], "", $projectManforce['prev_page_url']), "?cursor=")
             ], 'Project manforce List');
         } else {
             return $this->sendResponse($results, 'Project manforce List');

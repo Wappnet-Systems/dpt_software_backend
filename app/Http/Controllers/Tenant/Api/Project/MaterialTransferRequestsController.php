@@ -73,8 +73,8 @@ class MaterialTransferRequestsController extends Controller
             return $this->sendResponse([
                 'lists' => $results,
                 'per_page' => $transferReqs['per_page'],
-                'next_page_url' => $transferReqs['next_page_url'],
-                'prev_page_url' => $transferReqs['prev_page_url']
+                'next_page_url' => ltrim(str_replace($transferReqs['path'], "", $transferReqs['next_page_url']), "?cursor="),
+                'prev_page_url' => ltrim(str_replace($transferReqs['path'], "", $transferReqs['prev_page_url']), "?cursor=")
             ], 'Raising material request list.');
         } else {
             return $this->sendResponse($results, 'Material transfer request list.');

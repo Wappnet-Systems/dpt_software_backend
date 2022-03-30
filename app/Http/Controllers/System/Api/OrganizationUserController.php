@@ -73,8 +73,8 @@ class OrganizationUserController extends Controller
                     return $this->sendResponse([
                         'lists' => $results,
                         'per_page' => $organizationUsers['per_page'],
-                        'next_page_url' => $organizationUsers['next_page_url'],
-                        'prev_page_url' => $organizationUsers['prev_page_url']
+                        'next_page_url' => ltrim(str_replace($organizationUsers['path'], "", $organizationUsers['next_page_url']), "?cursor="),
+                        'prev_page_url' => ltrim(str_replace($organizationUsers['path'], "", $organizationUsers['prev_page_url']), "?cursor=")
                     ], 'User List');
                 } else {
                     return $this->sendResponse($results, 'User List');

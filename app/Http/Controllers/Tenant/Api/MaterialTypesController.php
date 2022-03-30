@@ -71,8 +71,8 @@ class MaterialTypesController extends Controller
             return $this->sendResponse([
                 'lists' => $results,
                 'per_page' => $materialTypes['per_page'],
-                'next_page_url' => $materialTypes['next_page_url'],
-                'prev_page_url' => $materialTypes['prev_page_url']
+                'next_page_url' => ltrim(str_replace($materialTypes['path'], "", $materialTypes['next_page_url']), "?cursor="),
+                'prev_page_url' => ltrim(str_replace($materialTypes['path'], "", $materialTypes['prev_page_url']), "?cursor=")
             ], 'Material Type List');
         } else {
             return $this->sendResponse($results, 'Material Type List');

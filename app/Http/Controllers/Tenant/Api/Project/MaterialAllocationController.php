@@ -83,8 +83,8 @@ class MaterialAllocationController extends Controller
             return $this->sendResponse([
                 'lists' => $results,
                 'per_page' => $allocatedMaterial['per_page'],
-                'next_page_url' => $allocatedMaterial['next_page_url'],
-                'prev_page_url' => $allocatedMaterial['prev_page_url']
+                'next_page_url' => ltrim(str_replace($allocatedMaterial['path'], "", $allocatedMaterial['next_page_url']), "?cursor="),
+                'prev_page_url' => ltrim(str_replace($allocatedMaterial['path'], "", $allocatedMaterial['prev_page_url']), "?cursor=")
             ], 'Activity allocated materials list.');
         } else {
             return $this->sendResponse($results, 'Activity allocated materials list.');

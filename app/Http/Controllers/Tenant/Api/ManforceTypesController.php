@@ -71,8 +71,8 @@ class ManforceTypesController extends Controller
             return $this->sendResponse([
                 'lists' => $results,
                 'per_page' => $manforceTypes['per_page'],
-                'next_page_url' => $manforceTypes['next_page_url'],
-                'prev_page_url' => $manforceTypes['prev_page_url']
+                'next_page_url' => ltrim(str_replace($manforceTypes['path'], "", $manforceTypes['next_page_url']), "?cursor="),
+                'prev_page_url' => ltrim(str_replace($manforceTypes['path'], "", $manforceTypes['prev_page_url']), "?cursor=")
             ], 'Manforce Type List');
         } else {
             return $this->sendResponse($results, 'Manforce Type List');

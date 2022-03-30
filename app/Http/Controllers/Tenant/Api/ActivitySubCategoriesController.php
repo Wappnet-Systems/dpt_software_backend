@@ -78,9 +78,9 @@ class ActivitySubCategoriesController extends Controller
             return $this->sendResponse([
                 'lists' => $results,
                 'per_page' => $subActivityCategory['per_page'],
-                'next_page_url' => $subActivityCategory['next_page_url'],
-                'prev_page_url' => $subActivityCategory['prev_page_url']
-            ], 'Activity Category List');
+                'next_page_url' => ltrim(str_replace($subActivityCategory['path'], "", $subActivityCategory['next_page_url']), "?cursor="),
+                'prev_page_url' => ltrim(str_replace($subActivityCategory['path'], "", $subActivityCategory['prev_page_url']), "?cursor=")
+            ], 'Sub Activity Category List');
         } else {
             return $this->sendResponse($results, 'Activity Category List');
         }

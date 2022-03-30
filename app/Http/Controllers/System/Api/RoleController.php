@@ -44,8 +44,8 @@ class RoleController extends Controller
             return $this->sendResponse([
                 'lists' => $results,
                 'per_page' => $roles['per_page'],
-                'next_page_url' => $roles['next_page_url'],
-                'prev_page_url' => $roles['prev_page_url']
+                'next_page_url' => ltrim(str_replace($roles['path'], "", $roles['next_page_url']), "?cursor="),
+                'prev_page_url' => ltrim(str_replace($roles['path'], "", $roles['prev_page_url']), "?cursor=")
             ], 'Roles List');
         } else {
             return $this->sendResponse($results, 'Roles List');
@@ -190,8 +190,8 @@ class RoleController extends Controller
             return $this->sendResponse([
                 'lists' => $results,
                 'per_page' => $roles['per_page'],
-                'next_page_url' => $roles['next_page_url'],
-                'prev_page_url' => $roles['prev_page_url']
+                'next_page_url' => ltrim(str_replace($roles['path'], "", $roles['next_page_url']), "?cursor="),
+                'prev_page_url' => ltrim(str_replace($roles['path'], "", $roles['prev_page_url']), "?cursor=")
             ], 'Roles List');
         } else {
             return $this->sendResponse($results, 'Roles List');
