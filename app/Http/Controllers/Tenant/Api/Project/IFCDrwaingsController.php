@@ -11,6 +11,7 @@ use App\Models\System\Organization;
 use App\Models\System\User;
 use App\Models\Tenant\ProjectIFCDrwaing;
 use App\Models\Tenant\ProjectActivity;
+use App\Models\Tenant\RoleHasSubModule;
 use App\Helpers\AppHelper;
 use App\Helpers\UploadFile;
 
@@ -27,6 +28,10 @@ class IFCDrwaingsController extends Controller
 
             if (isset($user) && !empty($user)) {
                 if ($user->role_id == User::USER_ROLE['SUPER_ADMIN']) {
+                    return $this->sendError('You have no rights to access this module.');
+                }
+
+                if (!AppHelper::roleHasModulePermission('Design Team', $user)) {
                     return $this->sendError('You have no rights to access this module.');
                 }
 
@@ -50,6 +55,12 @@ class IFCDrwaingsController extends Controller
 
     public function getIFCDrwaings(Request $request)
     {
+        $user = $request->user();
+
+        if (!AppHelper::roleHasSubModulePermission('Upload Drawings', RoleHasSubModule::ACTIONS['list'], $user)) {
+            return $this->sendError('You have no rights to access this action.');
+        }
+
         $limit = !empty($request->limit) ? $request->limit : config('constants.default_per_page_limit');
         $orderBy = !empty($request->orderby) ? $request->orderby : config('constants.default_orderby');
 
@@ -83,8 +94,8 @@ class IFCDrwaingsController extends Controller
             return $this->sendResponse([
                 'lists' => $results,
                 'per_page' => $projectIFCDrawing['per_page'],
-                'next_page_url' => $projectIFCDrawing['next_page_url'],
-                'prev_page_url' => $projectIFCDrawing['prev_page_url']
+                'next_page_url' => ltrim(str_replace($projectIFCDrawing['path'], "", $projectIFCDrawing['next_page_url']), "?cursor="),
+                'prev_page_url' => ltrim(str_replace($projectIFCDrawing['path'], "", $projectIFCDrawing['prev_page_url']), "?cursor=")
             ], 'Project IFC drawing list');
         } else {
             return $this->sendResponse($results, 'Project IFC drawing list');
@@ -93,6 +104,12 @@ class IFCDrwaingsController extends Controller
 
     public function getIFCDrwaingDetails(Request $request)
     {
+        $user = $request->user();
+
+        if (!AppHelper::roleHasSubModulePermission('Upload Drawings', RoleHasSubModule::ACTIONS['view'], $user)) {
+            return $this->sendError('You have no rights to access this action.');
+        }
+
         $projectIFCDrawing = ProjectIFCDrwaing::with('project')
             ->select('id', 'project_id', 'name', 'path', 'location', 'area', 'type', 'status')
             ->whereId($request->id)
@@ -109,6 +126,10 @@ class IFCDrwaingsController extends Controller
     {
         try {
             $user = $request->user();
+
+            if (!AppHelper::roleHasSubModulePermission('Upload Drawings', RoleHasSubModule::ACTIONS['create'], $user)) {
+                return $this->sendError('You have no rights to access this action.');
+            }
 
             if (isset($user) && !empty($user)) {
                 $validator = Validator::make($request->all(), [
@@ -165,6 +186,10 @@ class IFCDrwaingsController extends Controller
     {
         try {
             $user = $request->user();
+
+            if (!AppHelper::roleHasSubModulePermission('Upload Drawings', RoleHasSubModule::ACTIONS['edit'], $user)) {
+                return $this->sendError('You have no rights to access this action.');
+            }
 
             if (isset($user) && !empty($user)) {
                 $validator = Validator::make($request->all(), [
@@ -226,6 +251,8 @@ class IFCDrwaingsController extends Controller
     public function changeIFCDrwaingStatus(Request $request, $id = null)
     {
         try {
+            $user = $request->user();
+
             $validator = Validator::make($request->all(), [
                 'status' => 'required'
             ]);
@@ -247,6 +274,11 @@ class IFCDrwaingsController extends Controller
             }
 
             if ($request->status == ProjectIFCDrwaing::STATUS['Deleted']) {
+
+                if (!AppHelper::roleHasSubModulePermission('Upload Drawings', RoleHasSubModule::ACTIONS['delete'], $user)) {
+                    return $this->sendError('You have no rights to access this action.');
+                }
+
                 $isAssigned = ProjectActivity::whereIn('status', [ProjectActivity::STATUS['Start'], ProjectActivity::STATUS['Hold'], ProjectActivity::STATUS['Pending']])
                     ->whereProjectDrowingId($request->id)
                     ->exists();

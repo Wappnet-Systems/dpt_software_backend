@@ -72,8 +72,8 @@ class GangsController extends Controller
             return $this->sendResponse([
                 'lists' => $results,
                 'per_page' => $projectGangs['per_page'],
-                'next_page_url' => $projectGangs['next_page_url'],
-                'prev_page_url' => $projectGangs['prev_page_url']
+                'next_page_url' => ltrim(str_replace($projectGangs['path'], "", $projectGangs['next_page_url']), "?cursor="),
+                'prev_page_url' => ltrim(str_replace($projectGangs['path'], "", $projectGangs['prev_page_url']), "?cursor=")
             ], 'Project gangs List');
         } else {
             return $this->sendResponse($results, 'Project gangs List');

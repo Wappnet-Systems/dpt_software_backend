@@ -13,6 +13,7 @@ use App\Models\Tenant\ProjectInventory;
 use App\Models\Tenant\ProjectActivityAllocateMaterial;
 use App\Helpers\AppHelper;
 use App\Models\Tenant\ProjectActivityMaterialUses;
+use App\Models\Tenant\RoleHasSubModule;
 
 class MaterialAllocationController extends Controller
 {
@@ -23,6 +24,10 @@ class MaterialAllocationController extends Controller
 
             if (isset($user) && !empty($user)) {
                 if ($user->role_id == User::USER_ROLE['SUPER_ADMIN']) {
+                    return $this->sendError('You have no rights to access this module.');
+                }
+
+                if (!AppHelper::roleHasModulePermission('Planning and Scheduling', $user)) {
                     return $this->sendError('You have no rights to access this module.');
                 }
 
@@ -46,6 +51,12 @@ class MaterialAllocationController extends Controller
 
     public function getAllocateMaterials(Request $request)
     {
+        $user = $request->user();
+
+        if (!AppHelper::roleHasSubModulePermission('Material Sheet', RoleHasSubModule::ACTIONS['list'], $user)) {
+            return $this->sendError('You have no rights to access this action.');
+        }
+
         $limit = !empty($request->limit) ? $request->limit : config('constants.default_per_page_limit');
         $orderBy = !empty($request->orderby) ? $request->orderby : config('constants.default_orderby');
 
@@ -72,8 +83,8 @@ class MaterialAllocationController extends Controller
             return $this->sendResponse([
                 'lists' => $results,
                 'per_page' => $allocatedMaterial['per_page'],
-                'next_page_url' => $allocatedMaterial['next_page_url'],
-                'prev_page_url' => $allocatedMaterial['prev_page_url']
+                'next_page_url' => ltrim(str_replace($allocatedMaterial['path'], "", $allocatedMaterial['next_page_url']), "?cursor="),
+                'prev_page_url' => ltrim(str_replace($allocatedMaterial['path'], "", $allocatedMaterial['prev_page_url']), "?cursor=")
             ], 'Activity allocated materials list.');
         } else {
             return $this->sendResponse($results, 'Activity allocated materials list.');
@@ -82,6 +93,12 @@ class MaterialAllocationController extends Controller
 
     public function getAllocateMaterialDetails(Request $request)
     {
+        $user = $request->user();
+
+        if (!AppHelper::roleHasSubModulePermission('Material Sheet', RoleHasSubModule::ACTIONS['view'], $user)) {
+            return $this->sendError('You have no rights to access this action.');
+        }
+
         $allocatedMaterial = ProjectActivityAllocateMaterial::with('projectActivity', 'projectInventory')
             ->whereId($request->id)
             ->first();
@@ -97,6 +114,10 @@ class MaterialAllocationController extends Controller
     {
         try {
             $user = $request->user();
+
+            if (!AppHelper::roleHasSubModulePermission('Material Sheet', RoleHasSubModule::ACTIONS['create'], $user)) {
+                return $this->sendError('You have no rights to access this action.');
+            }
 
             if (isset($user) && !empty($user)) {
                 $validator = Validator::make($request->all(), [
@@ -166,6 +187,10 @@ class MaterialAllocationController extends Controller
     {
         try {
             $user = $request->user();
+
+            if (!AppHelper::roleHasSubModulePermission('Material Sheet', RoleHasSubModule::ACTIONS['edit'], $user)) {
+                return $this->sendError('You have no rights to access this action.');
+            }
 
             if (isset($user) && !empty($user)) {
                 $validator = Validator::make($request->all(), [
@@ -243,6 +268,10 @@ class MaterialAllocationController extends Controller
     {
         try {
             $user = $request->user();
+
+            if (!AppHelper::roleHasSubModulePermission('Material Sheet', RoleHasSubModule::ACTIONS['delete'], $user)) {
+                return $this->sendError('You have no rights to access this action.');
+            }
 
             if (isset($user) && !empty($user)) {
                 $allocatedMaterial = ProjectActivityAllocateMaterial::whereId($request->id)->first();

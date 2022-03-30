@@ -67,8 +67,8 @@ class GangsManforcesController extends Controller
             return $this->sendResponse([
                 'lists' => $results,
                 'per_page' => $projectGangManforce['per_page'],
-                'next_page_url' => $projectGangManforce['next_page_url'],
-                'prev_page_url' => $projectGangManforce['prev_page_url']
+                'next_page_url' => ltrim(str_replace($projectGangManforce['path'], "", $projectGangManforce['next_page_url']), "?cursor="),
+                'prev_page_url' => ltrim(str_replace($projectGangManforce['path'], "", $projectGangManforce['prev_page_url']), "?cursor=")
             ], 'Project gangs manforce List.');
         } else {
             return $this->sendResponse($results, 'Project gangs manforce List.');

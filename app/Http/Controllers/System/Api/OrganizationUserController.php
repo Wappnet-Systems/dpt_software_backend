@@ -28,7 +28,8 @@ class OrganizationUserController extends Controller
 
         $user = $request->user();
 
-        $query = User::where('role_id', '!=', User::USER_ROLE['SUPER_ADMIN'])
+        $query = User::with('role', 'organization')
+            ->where('role_id', '!=', User::USER_ROLE['SUPER_ADMIN'])
             ->orderBy('id', $orderBy);
 
         try {
@@ -88,7 +89,7 @@ class OrganizationUserController extends Controller
 
     public function getUserDetails(Request $request)
     {
-        $organizationUsers = User::with('role')
+        $organizationUsers = User::with('role', 'organization')
             ->select('id', 'user_uuid', 'name', 'email', 'personal_email', 'phone_number', 'profile_image', 'address', 'lat', 'long', 'city', 'state', 'country', 'zip_code', 'status', 'role_id', 'organization_id')
             ->where('role_id', '!=', User::USER_ROLE['SUPER_ADMIN'])
             ->whereUserUuid($request->id)

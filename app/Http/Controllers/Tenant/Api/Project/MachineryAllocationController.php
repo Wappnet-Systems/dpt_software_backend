@@ -11,7 +11,7 @@ use App\Models\System\Organization;
 use App\Models\System\User;
 use App\Models\Tenant\ProjectActivityAllocateMachinery;
 use App\Models\Tenant\TimeSlot;
-use App\Models\Tenant\Machinery;
+use App\Models\Tenant\RoleHasSubModule;
 use App\Helpers\AppHelper;
 
 class MachineryAllocationController extends Controller
@@ -23,6 +23,10 @@ class MachineryAllocationController extends Controller
 
             if (isset($user) && !empty($user)) {
                 if ($user->role_id == User::USER_ROLE['SUPER_ADMIN']) {
+                    return $this->sendError('You have no rights to access this module.');
+                }
+
+                if (!AppHelper::roleHasModulePermission('Planning and Scheduling', $user)) {
                     return $this->sendError('You have no rights to access this module.');
                 }
 
@@ -47,6 +51,12 @@ class MachineryAllocationController extends Controller
     public function getAllocateMachineries(Request $request)
     {
         try {
+            $user = $request->user();
+
+            if (!AppHelper::roleHasSubModulePermission('Planned Machinerry', RoleHasSubModule::ACTIONS['list'], $user)) {
+                return $this->sendError('You have no rights to access this action.');
+            }
+
             $timeSlots = TimeSlot::get();
 
             if (!isset($timeSlots) || empty($timeSlots)) {
@@ -90,6 +100,10 @@ class MachineryAllocationController extends Controller
     {
         try {
             $user = $request->user();
+
+            if (!AppHelper::roleHasSubModulePermission('Planned Machinerry', RoleHasSubModule::ACTIONS['create'], $user)) {
+                return $this->sendError('You have no rights to access this action.');
+            }
 
             if (isset($user) && !empty($user)) {
                 $validator = Validator::make($request->all(), [
@@ -160,6 +174,10 @@ class MachineryAllocationController extends Controller
     {
         try {
             $user = $request->user();
+
+            if (!AppHelper::roleHasSubModulePermission('Planned Machinerry', RoleHasSubModule::ACTIONS['delete'], $user)) {
+                return $this->sendError('You have no rights to access this action.');
+            }
 
             if (isset($user) && !empty($user)) {
                 $validator = Validator::make($request->all(), [

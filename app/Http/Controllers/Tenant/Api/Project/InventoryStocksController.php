@@ -68,8 +68,8 @@ class InventoryStocksController extends Controller
             return $this->sendResponse([
                 'lists' => $results,
                 'per_page' => $projectInventory['per_page'],
-                'next_page_url' => $projectInventory['next_page_url'],
-                'prev_page_url' => $projectInventory['prev_page_url']
+                'next_page_url' => ltrim(str_replace($projectInventory['path'], "", $projectInventory['next_page_url']), "?cursor="),
+                'prev_page_url' => ltrim(str_replace($projectInventory['path'], "", $projectInventory['prev_page_url']), "?cursor=")
             ], 'Project material List.');
         } else {
             return $this->sendResponse($results, 'Project inventory material List.');
