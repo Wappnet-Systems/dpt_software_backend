@@ -80,8 +80,8 @@ class RoleController extends Controller
             return $this->sendResponse([
                 'lists' => $results,
                 'per_page' => $roles['per_page'],
-                'next_page_url' => $roles['next_page_url'],
-                'prev_page_url' => $roles['prev_page_url']
+                'next_page_url' => ltrim(str_replace($roles['path'], "", $roles['next_page_url']), "?cursor="),
+                'prev_page_url' => ltrim(str_replace($roles['path'], "", $roles['prev_page_url']), "?cursor=")
             ], 'Organization List');
         } else {
             return $this->sendResponse($results, 'Sub module permissions list');
@@ -92,7 +92,7 @@ class RoleController extends Controller
     {
         try {
             $user = $request->user();
-            
+
             if (isset($user) && !empty($user)) {
                 $validator = Validator::make($request->all(), [
                     'role_id' => 'required|exists:system.roles,id',
