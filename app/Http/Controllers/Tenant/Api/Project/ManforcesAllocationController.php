@@ -62,13 +62,13 @@ class ManforcesAllocationController extends Controller
         if (!empty($allocatedManforces['data'])) {
             $results = $allocatedManforces['data'];
         }
-        
+
         if ($request->exists('cursor')) {
             return $this->sendResponse([
                 'lists' => $results,
                 'per_page' => $allocatedManforces['per_page'],
-                'next_page_url' => $allocatedManforces['next_page_url'],
-                'prev_page_url' => $allocatedManforces['prev_page_url']
+                'next_page_url' => ltrim(str_replace($allocatedManforces['path'], "", $allocatedManforces['next_page_url']), "?cursor="),
+                'prev_page_url' => ltrim(str_replace($allocatedManforces['path'], "", $allocatedManforces['prev_page_url']), "?cursor=")
             ], 'Activity allocated manforces list.');
         } else {
             return $this->sendResponse($results, 'Activity allocated manforces list.');
