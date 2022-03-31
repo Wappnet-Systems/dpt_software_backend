@@ -63,8 +63,8 @@ class TimeSlotsController extends Controller
             return $this->sendResponse([
                 'lists' => $results,
                 'per_page' => $timeSlot['per_page'],
-                'next_page_url' => $timeSlot['next_page_url'],
-                'prev_page_url' => $timeSlot['prev_page_url']
+                'next_page_url' => ltrim(str_replace($timeSlot['path'], "", $timeSlot['next_page_url']), "?cursor="),
+                'prev_page_url' => ltrim(str_replace($timeSlot['path'], "", $timeSlot['prev_page_url']), "?cursor=")
             ], 'Time slot list');
         } else {
             return $this->sendResponse($results, 'Time slot list');
