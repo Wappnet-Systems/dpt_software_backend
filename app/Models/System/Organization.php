@@ -5,6 +5,7 @@ namespace App\Models\System;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Hyn\Tenancy\Models\Hostname;
 use App\Helpers\AppHelper;
 use App\Helpers\UploadFile;
 
@@ -61,7 +62,7 @@ class Organization extends Model
 
     public function hostname()
     {
-        return $this->belongsTo(Hostname::class);
+        return $this->belongsTo(Hostname::class)->with('website')->select('id', 'fqdn', 'website_id');
     }
 
     public function user()

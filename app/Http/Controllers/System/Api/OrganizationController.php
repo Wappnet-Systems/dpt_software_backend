@@ -28,7 +28,7 @@ class OrganizationController extends Controller
         $limit = !empty($request->limit) ? $request->limit : config('constants.default_per_page_limit');
         $orderBy = !empty($request->orderby) ? $request->orderby : config('constants.default_orderby');
 
-        $query = Organization::with('user')
+        $query = Organization::with('user', 'hostname')
             ->where('status', Organization::STATUS['Active'])
             ->orderBy('id', $orderBy);
 
@@ -68,7 +68,8 @@ class OrganizationController extends Controller
 
     public function getOrganizationDetails(Request $request)
     {
-        $organization = Organization::select('id', 'name', 'email', 'logo', 'phone_no', 'address', 'city', 'state', 'country', 'zip_code', 'subscription_id', 'status')
+        $organization = Organization::with('user', 'hostname')
+            ->select('id', 'hostname_id', 'name', 'email', 'logo', 'phone_no', 'address', 'city', 'state', 'country', 'zip_code', 'subscription_id', 'status')
             ->whereId($request->id)
             ->first();
 
