@@ -72,7 +72,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::patch('role/status/change/{id}', [RoleController::class, 'changeRoleStatus']);
 
     /* Assign Modules Permission to Roles Routes */
-    Route::get('role/module/permissions/get/{orgId}', [RoleController::class, 'getRoleModulePermissions']);
+    Route::get('role/module/permissions/get/{orgId?}', [RoleController::class, 'getRoleModulePermissions']);
     Route::post('role/module/permissions/change', [RoleController::class, 'changeRoleModulePermissions']);
 
     /* Assign Sub Modules Permission to Roles Routes */

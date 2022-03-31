@@ -43,12 +43,17 @@ class Module extends Model
      */
     public function scopeIsAssigned($query, $orgId = null)
     {
-        if (!isset($orgId) || empty($orgId)) return null;
-
-        return $query->addSelect(DB::raw(
-                sprintf('*, (EXISTS (SELECT * FROM role_has_modules WHERE role_has_modules.module_id = modules.id AND role_id = %s AND organization_id = %s)) as is_assigned', User::USER_ROLE['COMPANY_ADMIN'], $orgId)
-            )
-        );
+        if (!isset($orgId) || empty($orgId)) {
+            return $query->addSelect(DB::raw(
+                sprintf('*, (EXISTS (SELECT * FROM role_has_modules WHERE role_has_modules.module_id = modules.id AND role_id = %s)) as is_assigned', User::USER_ROLE['SUPER_ADMIN'])
+                )
+            );
+        } else {
+            return $query->addSelect(DB::raw(
+                    sprintf('*, (EXISTS (SELECT * FROM role_has_modules WHERE role_has_modules.module_id = modules.id AND role_id = %s AND organization_id = %s)) as is_assigned', User::USER_ROLE['COMPANY_ADMIN'], $orgId)
+                )
+            );
+        }
     }
 
     public function subModule()
