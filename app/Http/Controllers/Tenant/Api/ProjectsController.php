@@ -161,7 +161,7 @@ class ProjectsController extends Controller
                     if ($request->hasFile('logo')) {
                         $dirPath = str_replace([':uid:', ':project_uuid:'], [$user->organization_id, $project->id], config('constants.organizations.projects.logo_path'));
 
-                        $project->logo = $this->uploadFile->uploadFileInS3($request, $dirPath, 'logo', "100", "100");
+                        $project->logo = $this->uploadFile->uploadFileInS3($request, $dirPath, 'logo'/* , "100", "100" */);
 
                         $project->save();
                     }
@@ -229,7 +229,7 @@ class ProjectsController extends Controller
 
                         $dirPath = str_replace([':uid:', ':project_uuid:'], [$user->organization_id, $project->id], config('constants.organizations.projects.logo_path'));
 
-                        $project->logo = $this->uploadFile->uploadFileInS3($request, $dirPath, 'logo', "100", "100");
+                        $project->logo = $this->uploadFile->uploadFileInS3($request, $dirPath, 'logo'/* , "100", "100" */);
                     }
 
                     $project->updated_ip = $request->ip();
@@ -255,13 +255,15 @@ class ProjectsController extends Controller
 
                 if (!isset($project) || empty($project)) {
                     return $this->sendError('Project dose not exists.');
-                } else if (!in_array($user->role_id, [User::USER_ROLE['COMPANY_ADMIN']])) {
+                } 
+                
+                if (!in_array($user->role_id, [User::USER_ROLE['MANAGER']])) {
                     return $this->sendError('You have no rights to delete project.');
-                } else {
-                    $project->delete();
-
-                    return $this->sendResponse([], 'Project deleted Successfully.');
                 }
+
+                $project->delete();
+
+                return $this->sendResponse([], 'Project deleted Successfully.');
             } else {
                 return $this->sendError('User does not exists.');
             }
@@ -285,10 +287,6 @@ class ProjectsController extends Controller
                 } else {
                     $project->status = $request->status;
                     $project->save();
-
-                    /* if ($project->status == Project::STATUS['Deleted']) {
-                        $project->delete();
-                    } */
 
                     return $this->sendResponse($project, 'Status changed successfully.');
                 }
