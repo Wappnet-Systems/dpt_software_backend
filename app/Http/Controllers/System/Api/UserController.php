@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\System\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\System\Module;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
@@ -35,8 +36,13 @@ class UserController extends Controller
 
                         $this->deviceLogin($req, $user->toArray());
                     }
+
+                    $data = [
+                        'user' => $user,
+                        'modules' => Module::pluck('name', 'id')
+                    ];
         
-                    return $this->sendResponse($user, 'User login successfully.');
+                    return $this->sendResponse($data, 'User login successfully.');
                 } else {
                     return $this->sendError('Invalid credentials.');
                 }
