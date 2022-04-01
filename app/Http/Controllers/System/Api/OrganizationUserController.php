@@ -58,6 +58,9 @@ class OrganizationUserController extends Controller
                     });
                 }
 
+                $totalQuery = $query;
+                $totalQuery = $totalQuery->count();
+                
                 if ($request->exists('cursor')) {
                     $organizationUsers = $query->cursorPaginate($limit)->toArray();
                 } else {
@@ -68,10 +71,10 @@ class OrganizationUserController extends Controller
                 if (!empty($organizationUsers['data'])) {
                     $results = $organizationUsers['data'];
                 }
-
                 if ($request->exists('cursor')) {
                     return $this->sendResponse([
                         'lists' => $results,
+                        'total' => $totalQuery,
                         'per_page' => $organizationUsers['per_page'],
                         'next_page_url' => ltrim(str_replace($organizationUsers['path'], "", $organizationUsers['next_page_url']), "?cursor="),
                         'prev_page_url' => ltrim(str_replace($organizationUsers['path'], "", $organizationUsers['prev_page_url']), "?cursor=")

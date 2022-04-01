@@ -63,6 +63,9 @@ class ActivitySubCategoriesController extends Controller
             });
         }
 
+        $totalQuery = $query;
+        $totalQuery = $totalQuery->count();
+
         if ($request->exists('cursor')) {
             $subActivityCategory = $query->cursorPaginate($limit)->toArray();
         } else {
@@ -77,6 +80,7 @@ class ActivitySubCategoriesController extends Controller
         if ($request->exists('cursor')) {
             return $this->sendResponse([
                 'lists' => $results,
+                'total' => $totalQuery,
                 'per_page' => $subActivityCategory['per_page'],
                 'next_page_url' => ltrim(str_replace($subActivityCategory['path'], "", $subActivityCategory['next_page_url']), "?cursor="),
                 'prev_page_url' => ltrim(str_replace($subActivityCategory['path'], "", $subActivityCategory['prev_page_url']), "?cursor=")

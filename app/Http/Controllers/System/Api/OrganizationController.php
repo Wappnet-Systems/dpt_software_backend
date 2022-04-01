@@ -43,6 +43,9 @@ class OrganizationController extends Controller
             });
         }
 
+        $totalQuery = $query;
+        $totalQuery = $totalQuery->count();
+
         if ($request->exists('cursor')) {
             $organizations = $query->cursorPaginate($limit)->toArray();
         } else {
@@ -57,6 +60,7 @@ class OrganizationController extends Controller
         if ($request->exists('cursor')) {
             return $this->sendResponse([
                 'lists' => $results,
+                'total' => $totalQuery,
                 'per_page' => $organizations['per_page'],
                 'next_page_url' => ltrim(str_replace($organizations['path'], "", $organizations['next_page_url']), "?cursor="),
                 'prev_page_url' => ltrim(str_replace($organizations['path'], "", $organizations['prev_page_url']), "?cursor=")

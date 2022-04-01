@@ -68,6 +68,9 @@ class MaterialAllocationController extends Controller
             $query = $query->orWhere('project_inventory_id', $request->project_inventory_id);
         }
 
+        $totalQuery = $query;
+        $totalQuery = $totalQuery->count();
+
         if ($request->exists('cursor')) {
             $allocatedMaterial = $query->cursorPaginate($limit)->toArray();
         } else {
@@ -82,6 +85,7 @@ class MaterialAllocationController extends Controller
         if ($request->exists('cursor')) {
             return $this->sendResponse([
                 'lists' => $results,
+                'total' => $totalQuery,
                 'per_page' => $allocatedMaterial['per_page'],
                 'next_page_url' => ltrim(str_replace($allocatedMaterial['path'], "", $allocatedMaterial['next_page_url']), "?cursor="),
                 'prev_page_url' => ltrim(str_replace($allocatedMaterial['path'], "", $allocatedMaterial['prev_page_url']), "?cursor=")

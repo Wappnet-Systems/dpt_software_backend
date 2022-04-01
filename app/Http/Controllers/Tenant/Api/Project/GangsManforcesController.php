@@ -52,6 +52,9 @@ class GangsManforcesController extends Controller
             ->whereGangId($request->gang_id ?? '')
             ->orderBy('id', $orderBy);
 
+        $totalQuery = $query;
+        $totalQuery = $totalQuery->count();
+
         if ($request->exists('cursor')) {
             $projectGangManforce = $query->cursorPaginate($limit)->toArray();
         } else {
@@ -66,6 +69,7 @@ class GangsManforcesController extends Controller
         if ($request->exists('cursor')) {
             return $this->sendResponse([
                 'lists' => $results,
+                'total' => $totalQuery,
                 'per_page' => $projectGangManforce['per_page'],
                 'next_page_url' => ltrim(str_replace($projectGangManforce['path'], "", $projectGangManforce['next_page_url']), "?cursor="),
                 'prev_page_url' => ltrim(str_replace($projectGangManforce['path'], "", $projectGangManforce['prev_page_url']), "?cursor=")

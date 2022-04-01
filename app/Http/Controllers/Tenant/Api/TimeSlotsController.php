@@ -48,6 +48,9 @@ class TimeSlotsController extends Controller
 
         $query = TimeSlot::orderby('id', $orderBy);
 
+        $totalQuery = $query;
+        $totalQuery = $totalQuery->count();
+
         if ($request->exists('cursor')) {
             $timeSlot = $query->cursorPaginate($limit)->toArray();
         } else {
@@ -62,6 +65,7 @@ class TimeSlotsController extends Controller
         if ($request->exists('cursor')) {
             return $this->sendResponse([
                 'lists' => $results,
+                'total' => $totalQuery,
                 'per_page' => $timeSlot['per_page'],
                 'next_page_url' => ltrim(str_replace($timeSlot['path'], "", $timeSlot['next_page_url']), "?cursor="),
                 'prev_page_url' => ltrim(str_replace($timeSlot['path'], "", $timeSlot['prev_page_url']), "?cursor=")

@@ -53,6 +53,9 @@ class InventoryStocksController extends Controller
             ->whereStatus(ProjectInventory::STATUS['Active'])
             ->orderby('id', $orderBy);
 
+        $totalQuery = $query;
+        $totalQuery = $totalQuery->count();
+
         if ($request->exists('cursor')) {
             $projectInventory = $query->cursorPaginate($limit)->toArray();
         } else {
@@ -67,6 +70,7 @@ class InventoryStocksController extends Controller
         if ($request->exists('cursor')) {
             return $this->sendResponse([
                 'lists' => $results,
+                'total' => $totalQuery,
                 'per_page' => $projectInventory['per_page'],
                 'next_page_url' => ltrim(str_replace($projectInventory['path'], "", $projectInventory['next_page_url']), "?cursor="),
                 'prev_page_url' => ltrim(str_replace($projectInventory['path'], "", $projectInventory['prev_page_url']), "?cursor=")
