@@ -263,4 +263,71 @@ class ManforcesAllocationController extends Controller
             return $this->sendError($e->getMessage());
         }
     }
+
+    /* Activity manpower APIs */
+    public function getActivityManpower(Request $request)
+    {
+        $limit = !empty($request->limit) ? $request->limit : config('constants.default_per_page_limit');
+        $orderBy = !empty($request->orderby) ? $request->orderby : config('constants.default_orderby');
+
+        try {
+            $user = $request->user();
+
+            if (isset($user) && !empty($user)) {
+                $validator = Validator::make($request->all(), [
+                    'project_id' => 'required|exists:projects,id'
+                ]);
+
+                if ($validator->fails()) {
+                    foreach ($validator->errors()->messages() as $key => $value) {
+                        return $this->sendError('Validation Error.', [$key => $value[0]]);
+                    }
+                }
+
+                $query = ProjectActivityAllocateManforce::with('projectActivity', 'projectManforce')
+                    ->orderBy('id', $orderBy);
+
+                if (isset($request->date) && !empty($request->date)) {
+                    $query = $query->whereDate('date', date('Y-m-d', strtotime($request->date)));
+                }
+
+                if (isset($request->project_activity_id) && !empty($request->project_activity_id)) {
+                    $query = $query->whereHas('projectActivity', function ($query) use ($request) {
+                        $query->where('id', $request->project_activity_id ?? '')
+                            ->where('project_id', $request->project_id ?? '');
+                    });
+                } else {
+                    $query = $query->whereHas('projectActivity', function ($query) use ($request) {
+                        $query->where('project_id', $request->project_id);
+                    });
+                }
+
+                if ($request->exists('cursor')) {
+                    $activityManpower = $query->cursorPaginate($limit)->toArray();
+                } else {
+                    $activityManpower['data'] = $query->get()->toArray();
+                }
+
+                $results = [];
+                if (!empty($activityManpower['data'])) {
+                    $results = $activityManpower['data'];
+                }
+
+                if ($request->exists('cursor')) {
+                    return $this->sendResponse([
+                        'lists' => $results,
+                        'per_page' => $activityManpower['per_page'],
+                        'next_page_url' => ltrim(str_replace($activityManpower['path'], "", $activityManpower['next_page_url']), "?cursor="),
+                        'prev_page_url' => ltrim(str_replace($activityManpower['path'], "", $activityManpower['prev_page_url']), "?cursor=")
+                    ], 'Activity manpower list.');
+                } else {
+                    return $this->sendResponse($results, 'Activity allocated manforces list.');
+                }
+            } else {
+                return $this->sendError('User not exists.');
+            }
+        } catch (\Exception $e) {
+            return $this->sendError($e->getMessage());
+        }
+    }
 }
