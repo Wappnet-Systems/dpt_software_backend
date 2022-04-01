@@ -56,6 +56,9 @@ class ManforceTypesController extends Controller
             $query = $query->whereRaw('LOWER(CONCAT(`name`)) LIKE ?', ['%' . $search . '%']);
         }
 
+        $totalQuery = $query;
+        $totalQuery = $totalQuery->count();
+
         if ($request->exists('cursor')) {
             $manforceTypes = $query->cursorPaginate($limit)->toArray();
         } else {
@@ -70,6 +73,7 @@ class ManforceTypesController extends Controller
         if ($request->exists('cursor')) {
             return $this->sendResponse([
                 'lists' => $results,
+                'total' => $totalQuery,
                 'per_page' => $manforceTypes['per_page'],
                 'next_page_url' => ltrim(str_replace($manforceTypes['path'], "", $manforceTypes['next_page_url']), "?cursor="),
                 'prev_page_url' => ltrim(str_replace($manforceTypes['path'], "", $manforceTypes['prev_page_url']), "?cursor=")

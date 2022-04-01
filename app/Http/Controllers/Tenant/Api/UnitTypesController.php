@@ -56,6 +56,9 @@ class UnitTypesController extends Controller
             $query = $query->whereRaw('LOWER(CONCAT(`name`)) LIKE ?', ['%' . $search . '%']);
         }
 
+        $totalQuery = $query;
+        $totalQuery = $totalQuery->count();
+
         if ($request->exists('cursor')) {
             $unitTypes = $query->cursorPaginate($limit)->toArray();
         } else {
@@ -70,6 +73,7 @@ class UnitTypesController extends Controller
         if ($request->exists('cursor')) {
             return $this->sendResponse([
                 'lists' => $results,
+                'total' => $totalQuery,
                 'per_page' => $unitTypes['per_page'],
                 'next_page_url' => ltrim(str_replace($unitTypes['path'], "", $unitTypes['next_page_url']), "?cursor="),
                 'prev_page_url' => ltrim(str_replace($unitTypes['path'], "", $unitTypes['prev_page_url']), "?cursor=")
