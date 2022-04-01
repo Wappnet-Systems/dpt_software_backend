@@ -56,6 +56,9 @@ class RoleController extends Controller
 
         AppHelper::setDefaultDBConnection();
 
+        $totalQuery = $query;
+        $totalQuery = $totalQuery->count();
+
         if ($request->exists('cursor')) {
             $roles = $query->cursorPaginate($limit)->toArray();
         } else {
@@ -79,6 +82,7 @@ class RoleController extends Controller
         if ($request->exists('cursor')) {
             return $this->sendResponse([
                 'lists' => $results,
+                'total' => $totalQuery,
                 'per_page' => $roles['per_page'],
                 'next_page_url' => ltrim(str_replace($roles['path'], "", $roles['next_page_url']), "?cursor="),
                 'prev_page_url' => ltrim(str_replace($roles['path'], "", $roles['prev_page_url']), "?cursor=")

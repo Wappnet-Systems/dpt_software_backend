@@ -58,6 +58,9 @@ class MaterialTransferRequestsController extends Controller
             $query = $query->orWhere('to_project_id', $request->to_project_id);
         }
 
+        $totalQuery = $query;
+        $totalQuery = $totalQuery->count();
+
         if ($request->exists('cursor')) {
             $transferReqs = $query->cursorPaginate($limit)->toArray();
         } else {
@@ -72,6 +75,7 @@ class MaterialTransferRequestsController extends Controller
         if ($request->exists('cursor')) {
             return $this->sendResponse([
                 'lists' => $results,
+                'total' => $totalQuery,
                 'per_page' => $transferReqs['per_page'],
                 'next_page_url' => ltrim(str_replace($transferReqs['path'], "", $transferReqs['next_page_url']), "?cursor="),
                 'prev_page_url' => ltrim(str_replace($transferReqs['path'], "", $transferReqs['prev_page_url']), "?cursor=")
