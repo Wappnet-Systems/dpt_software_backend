@@ -56,6 +56,9 @@ class MaterialTypesController extends Controller
             $query = $query->whereRaw('LOWER(CONCAT(`name`)) LIKE ?', ['%' . $search . '%']);
         }
 
+        $totalQuery = $query;
+        $totalQuery = $totalQuery->count();
+
         if ($request->exists('cursor')) {
             $materialTypes = $query->cursorPaginate($limit)->toArray();
         } else {
@@ -70,6 +73,7 @@ class MaterialTypesController extends Controller
         if ($request->exists('cursor')) {
             return $this->sendResponse([
                 'lists' => $results,
+                'total' => $totalQuery,
                 'per_page' => $materialTypes['per_page'],
                 'next_page_url' => ltrim(str_replace($materialTypes['path'], "", $materialTypes['next_page_url']), "?cursor="),
                 'prev_page_url' => ltrim(str_replace($materialTypes['path'], "", $materialTypes['prev_page_url']), "?cursor=")
