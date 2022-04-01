@@ -52,6 +52,9 @@ class ManforcesAllocationController extends Controller
             ->whereProjectActivityId($request->project_activity_id ?? '')
             ->orderby('id', $orderBy);
 
+        $totalQuery = $query;
+        $totalQuery = $totalQuery->count();
+
         if ($request->exists('cursor')) {
             $allocatedManforces = $query->cursorPaginate($limit)->toArray();
         } else {
@@ -66,6 +69,7 @@ class ManforcesAllocationController extends Controller
         if ($request->exists('cursor')) {
             return $this->sendResponse([
                 'lists' => $results,
+                'total' => $totalQuery,
                 'per_page' => $allocatedManforces['per_page'],
                 'next_page_url' => ltrim(str_replace($allocatedManforces['path'], "", $allocatedManforces['next_page_url']), "?cursor="),
                 'prev_page_url' => ltrim(str_replace($allocatedManforces['path'], "", $allocatedManforces['prev_page_url']), "?cursor=")
@@ -287,6 +291,9 @@ class ManforcesAllocationController extends Controller
                 $query = ProjectActivityAllocateManforce::with('projectActivity', 'projectManforce')
                     ->orderBy('id', $orderBy);
 
+                $totalQuery = $query;
+                $totalQuery = $totalQuery->count();
+
                 if (isset($request->date) && !empty($request->date)) {
                     $query = $query->whereDate('date', date('Y-m-d', strtotime($request->date)));
                 }
@@ -316,6 +323,7 @@ class ManforcesAllocationController extends Controller
                 if ($request->exists('cursor')) {
                     return $this->sendResponse([
                         'lists' => $results,
+                        'total' => $totalQuery,
                         'per_page' => $activityManpower['per_page'],
                         'next_page_url' => ltrim(str_replace($activityManpower['path'], "", $activityManpower['next_page_url']), "?cursor="),
                         'prev_page_url' => ltrim(str_replace($activityManpower['path'], "", $activityManpower['prev_page_url']), "?cursor=")

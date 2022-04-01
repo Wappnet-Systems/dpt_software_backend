@@ -52,6 +52,9 @@ class ManforcesController extends Controller
             ->whereProjectId($request->project_id ?? null)
             ->orderBy('id', $orderBy);
 
+        $totalQuery = $query;
+        $totalQuery = $totalQuery->count();
+
         if ($request->exists('cursor')) {
             $projectManforce = $query->cursorPaginate($limit)->toArray();
         } else {
@@ -66,6 +69,7 @@ class ManforcesController extends Controller
         if ($request->exists('cursor')) {
             return $this->sendResponse([
                 'lists' => $results,
+                'total' => $totalQuery,
                 'per_page' => $projectManforce['per_page'],
                 'next_page_url' => ltrim(str_replace($projectManforce['path'], "", $projectManforce['next_page_url']), "?cursor="),
                 'prev_page_url' => ltrim(str_replace($projectManforce['path'], "", $projectManforce['prev_page_url']), "?cursor=")

@@ -57,6 +57,9 @@ class NonWorkingDaysController extends Controller
             $query = $query->whereRaw('LOWER(CONCAT(`name`)) LIKE ?', ['%' . $search . '%']);
         }
 
+        $totalQuery = $query;
+        $totalQuery = $totalQuery->count();
+
         if ($request->exists('cursor')) {
             $nonWorkingDays = $query->cursorPaginate($limit)->toArray();
         } else {
@@ -71,6 +74,7 @@ class NonWorkingDaysController extends Controller
         if ($request->exists('cursor')) {
             return $this->sendResponse([
                 'lists' => $results,
+                'total' => $totalQuery,
                 'per_page' => $nonWorkingDays['per_page'],
                 'next_page_url' => ltrim(str_replace($nonWorkingDays['path'], "", $nonWorkingDays['next_page_url']), "?cursor="),
                 'prev_page_url' => ltrim(str_replace($nonWorkingDays['path'], "", $nonWorkingDays['prev_page_url']), "?cursor=")

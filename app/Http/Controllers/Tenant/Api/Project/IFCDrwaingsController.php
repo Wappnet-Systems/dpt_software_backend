@@ -79,6 +79,9 @@ class IFCDrwaingsController extends Controller
             });
         }
 
+        $totalQuery = $query;
+        $totalQuery = $totalQuery->count();
+
         if ($request->exists('cursor')) {
             $projectIFCDrawing = $query->cursorPaginate($limit)->toArray();
         } else {
@@ -93,6 +96,7 @@ class IFCDrwaingsController extends Controller
         if ($request->exists('cursor')) {
             return $this->sendResponse([
                 'lists' => $results,
+                'total' => $totalQuery,
                 'per_page' => $projectIFCDrawing['per_page'],
                 'next_page_url' => ltrim(str_replace($projectIFCDrawing['path'], "", $projectIFCDrawing['next_page_url']), "?cursor="),
                 'prev_page_url' => ltrim(str_replace($projectIFCDrawing['path'], "", $projectIFCDrawing['prev_page_url']), "?cursor=")

@@ -61,6 +61,9 @@ class ActivityCategoriesController extends Controller
                     ->whereStatus(ActivitySubCategory::STATUS['Active']);
             });
         }
+        
+        $totalQuery = $query;
+        $totalQuery = $totalQuery->count();
 
         if ($request->exists('cursor')) {
             $activityCategory = $query->cursorPaginate($limit)->toArray();
@@ -76,6 +79,7 @@ class ActivityCategoriesController extends Controller
         if ($request->exists('cursor')) {
             return $this->sendResponse([
                 'lists' => $results,
+                'total' => $totalQuery,
                 'per_page' => $activityCategory['per_page'],
                 'next_page_url' => ltrim(str_replace($activityCategory['path'], "", $activityCategory['next_page_url']), "?cursor="),
                 'prev_page_url' => ltrim(str_replace($activityCategory['path'], "", $activityCategory['prev_page_url']), "?cursor=")

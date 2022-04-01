@@ -69,6 +69,9 @@ class ProjectsController extends Controller
                     $query = $query->whereRaw('LOWER(CONCAT(`name`)) LIKE ?', ['%' . $search . '%']);
                 }
 
+                $totalQuery = $query;
+                $totalQuery = $totalQuery->count();
+
                 if ($request->exists('cursor')) {
                     $projects = $query->cursorPaginate($limit)->toArray();
                 } else {
@@ -83,6 +86,7 @@ class ProjectsController extends Controller
                 if ($request->exists('cursor')) {
                     return $this->sendResponse([
                         'lists' => $results,
+                        'total' => $totalQuery,
                         'per_page' => $projects['per_page'],
                         'next_page_url' => ltrim(str_replace($projects['path'], "", $projects['next_page_url']), "?cursor="),
                         'prev_page_url' => ltrim(str_replace($projects['path'], "", $projects['prev_page_url']), "?cursor=")
@@ -255,8 +259,8 @@ class ProjectsController extends Controller
 
                 if (!isset($project) || empty($project)) {
                     return $this->sendError('Project dose not exists.');
-                } 
-                
+                }
+
                 if (!in_array($user->role_id, [User::USER_ROLE['MANAGER']])) {
                     return $this->sendError('You have no rights to delete project.');
                 }
@@ -323,6 +327,9 @@ class ProjectsController extends Controller
                     $query = $query->whereRaw('LOWER(CONCAT(`name`)) LIKE ?', ['%' . $search . '%']);
                 }
 
+                $totalQuery = $query;
+                $totalQuery = $totalQuery->count();
+
                 if ($request->exists('cursor')) {
                     $projects = $query->cursorPaginate($limit)->toArray();
                 } else {
@@ -337,6 +344,7 @@ class ProjectsController extends Controller
                 if ($request->exists('cursor')) {
                     return $this->sendResponse([
                         'lists' => $results,
+                        'total' => $totalQuery,
                         'per_page' => $projects['per_page'],
                         'next_page_url' => ltrim(str_replace($projects['path'], "", $projects['next_page_url']), "?cursor="),
                         'prev_page_url' => ltrim(str_replace($projects['path'], "", $projects['prev_page_url']), "?cursor=")
