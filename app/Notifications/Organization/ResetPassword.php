@@ -42,7 +42,7 @@ class ResetPassword extends Notification implements ShouldQueue
      */
     public function toMail($notifiable)
     {
-        $url = route('reset-password', ['token' => $this->token]);
+        $url = sprintf('%s/reset-password/%s', env('FRONT_APP_URL'), $this->token);
 
         return (new MailMessage)
             ->subject('Reset Password Notification')

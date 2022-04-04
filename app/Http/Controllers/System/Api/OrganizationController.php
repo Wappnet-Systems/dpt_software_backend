@@ -13,6 +13,7 @@ use App\Models\System\Organization;
 use App\Models\System\User;
 use App\Helpers\AppHelper;
 use App\Helpers\UploadFile;
+use Illuminate\Support\Facades\Password;
 
 class OrganizationController extends Controller
 {
@@ -179,7 +180,13 @@ class OrganizationController extends Controller
                     return $this->sendError('Something went wrong while creating the organization.');
                 }
 
-                $orgUser->notify(new ResetPassword($orgUser->user_uuid));
+                $status = Password::sendResetLink(
+                    $orgUser->only('email')
+                );
+
+                /* $token = base64_encode($orgUser->user_uuid . ":" . $orgUser->email);
+
+                $orgUser->notify(new ResetPassword($token)); */
 
                 return $this->sendResponse($orgUser, 'Organization register successfully, also sent reset password link on organization mail.');
             } else {
