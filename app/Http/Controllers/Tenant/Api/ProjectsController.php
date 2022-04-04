@@ -286,7 +286,7 @@ class ProjectsController extends Controller
 
                 if (!isset($project) || empty($project)) {
                     return $this->sendError('Project dose not exists.');
-                } else if (!in_array($user->role_id, [User::USER_ROLE['CONSTRUCATION_SITE_ADMIN'], User::USER_ROLE['MANAGER']])) {
+                } else if (!in_array($user->role_id, [User::USER_ROLE['COMPANY_ADMIN'],User::USER_ROLE['CONSTRUCATION_SITE_ADMIN'], User::USER_ROLE['MANAGER']])) {
                     return $this->sendError('You have no rights to change status of project.');
                 } else {
                     $project->status = $request->status;
