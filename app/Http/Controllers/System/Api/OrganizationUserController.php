@@ -11,6 +11,7 @@ use App\Models\System\Organization;
 use App\Models\System\User;
 use App\Helpers\AppHelper;
 use App\Helpers\UploadFile;
+use Illuminate\Support\Facades\Password;
 
 class OrganizationUserController extends Controller
 {
@@ -60,7 +61,7 @@ class OrganizationUserController extends Controller
 
                 $totalQuery = $query;
                 $totalQuery = $totalQuery->count();
-                
+
                 if ($request->exists('cursor')) {
                     $organizationUsers = $query->cursorPaginate($limit)->toArray();
                 } else {
@@ -126,7 +127,6 @@ class OrganizationUserController extends Controller
                         'name' => 'required',
                         'email' => 'required',
                         'personal_email' => 'required',
-                        'password' => 'required',
                         'profile_image' => sprintf('mimes:%s|max:%s', config('constants.upload_image_types'), config('constants.upload_image_max_size')),
                         'role_id' => 'required|exists:roles,id'
                     ], [
@@ -156,7 +156,6 @@ class OrganizationUserController extends Controller
                     $orgSubUser->name = $request->name;
                     $orgSubUser->email = strtolower($request->email);
                     $orgSubUser->personal_email = $request->personal_email;
-                    $orgSubUser->password = Hash::make($request->password);
                     $orgSubUser->phone_number = !empty($request->phone_number) ? $request->phone_number : NULL;
                     $orgSubUser->address = !empty($request->address) ? $request->address : NULL;
                     $orgSubUser->lat = !empty($request->lat) ? $request->lat : NULL;
@@ -184,7 +183,11 @@ class OrganizationUserController extends Controller
                         return $this->sendError('Something went wrong while creating the user.');
                     }
 
-                    $orgSubUser->notify(new ResetPassword($orgSubUser->user_uuid));
+                    // $orgSubUser->notify(new ResetPassword($orgSubUser->user_uuid));
+
+                    Password::sendResetLink(
+                        $orgSubUser->only('email')
+                    );
 
                     return $this->sendResponse($orgSubUser, 'User saved successfully, also sent reset password link on organization mail.');
                 }
