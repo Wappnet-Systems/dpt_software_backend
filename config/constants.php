@@ -18,6 +18,9 @@ return [
             ],
             'inspection' => [
                 'document_path' => 'organizations/:uid:/project/inspection'
+            ],
+            'method_statements' => [
+                'file_path' => 'organizations/:uid:/project/method_statements'
             ]
         ]
     ],
