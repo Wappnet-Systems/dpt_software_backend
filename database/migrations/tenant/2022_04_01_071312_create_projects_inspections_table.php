@@ -30,7 +30,7 @@ class CreateProjectsInspectionsTable extends Migration
             $table->tinyInteger('inspection_status')->default(1)->comment('1 - Pending, 2 - Approved, 3 - Rejected');
             $table->longText('comments')->nullable();
             $table->longText('reason')->nullable();
-            $table->tinyInteger('status')->default(1)->comment('1 - Active, 2 - In Active, 3 - Deleted');
+            $table->tinyInteger('status')->default(1)->comment('1 - Active, 2 - In Active');
             $table->unsignedBigInteger('created_by');
             $table->unsignedBigInteger('updated_by');
             $table->ipAddress('created_ip')->nullable();

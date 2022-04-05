@@ -15,6 +15,9 @@ return [
             'ifc_drawings' => [
                 'file_path' => 'organizations/:uid:/project/:project_uuid:/ifc-drawing',
                 'upload_image_max_size' => '10000' // 10 mb
+            ],
+            'inspection' => [
+                'document_path' => 'organizations/:uid:/project/inspection'
             ]
         ]
     ],

@@ -240,8 +240,13 @@ Route::middleware('auth:sanctum')->group(function () {
 
     /* Activity Manpower Routes */
     Route::get('project/activity/manpower/get/lists', [ManforcesAllocationController::class, 'getActivityManpower']);
-    
+
     /* Project Inspection Routes */
     Route::get('project/inspection/get/lists', [InspectionController::class, 'getProjectInspection']);
-
+    Route::get('project/inspection/get/{id}', [InspectionController::class, 'getProjectInspectionDetails']);
+    Route::post('project/inspection/add', [InspectionController::class, 'addProjectInspection']);
+    Route::put('project/inspection/update/{id}', [InspectionController::class, 'updateProjectInspection']);
+    Route::patch('project/inspection/status/change/{id}', [InspectionController::class, 'projectInspectionChangeStatus']);
+    Route::delete('project/inspection/delete/{id}', [InspectionController::class, 'deleteProjectInspection']);
+    Route::patch('project/inspection/approve-reject/{id}', [InspectionController::class, 'projectInspectionApproveReject']);
 });
