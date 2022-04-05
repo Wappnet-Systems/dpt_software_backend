@@ -34,8 +34,7 @@ class ProjectInspection extends Model
 
     const STATUS = [
         'Active' => 1,
-        'In Active' => 2,
-        'Deleted' => 3,
+        'In Active' => 2
     ];
 
     /**

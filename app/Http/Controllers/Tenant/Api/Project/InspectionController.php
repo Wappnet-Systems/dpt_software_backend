@@ -327,6 +327,7 @@ class InspectionController extends Controller
 
                 $projectInspection->approve_reject_date = date('Y-m-d');
                 $projectInspection->reason = $request->reason;
+                $projectInspection->comments = $request->comments;
                 $projectInspection->updated_by = $user->id;
                 $projectInspection->updated_ip = $request->ip();
                 $projectInspection->save();
