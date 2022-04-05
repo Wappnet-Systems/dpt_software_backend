@@ -112,7 +112,7 @@ class MethodStatementController extends Controller
             if (isset($user) && !empty($user)) {
                 $validator = Validator::make($request->all(), [
                     'project_id' => 'required|exists:projects,id',
-                    'path' => 'required|mimes:pdf,msword,jpg,jpeg,png|max:10240',
+                    'path' => 'required|mimes:pdf,jpg,jpeg,png|max:10240',
                 ], [
                     'path.max' => 'The file must not be greater than 10mb.',
                 ]);
@@ -154,7 +154,7 @@ class MethodStatementController extends Controller
 
             if (isset($user) && !empty($user)) {
                 $validator = Validator::make($request->all(), [
-                    'path' => 'mimes:pdf,msword,jpg,jpeg,png|max:10240',
+                    'path' => 'mimes:pdf,jpg,jpeg,png|max:10240',
                 ], [
                     'path.max' => 'The file must not be greater than 10mb.',
                 ]);
