@@ -31,6 +31,7 @@ use App\Http\Controllers\Tenant\Api\Project\MaterialTransferRequestsController;
 use App\Http\Controllers\Tenant\Api\Project\MachineryAllocationController;
 use App\Http\Controllers\Tenant\Api\Project\ManforcesAllocationController;
 use App\Http\Controllers\Tenant\Api\Project\InspectionController;
+use App\Http\Controllers\Tenant\Api\Project\MethodStatementController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -249,4 +250,12 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::patch('project/inspection/status/change/{id}', [InspectionController::class, 'projectInspectionChangeStatus']);
     Route::delete('project/inspection/delete/{id}', [InspectionController::class, 'deleteProjectInspection']);
     Route::patch('project/inspection/approve-reject/{id}', [InspectionController::class, 'projectInspectionApproveReject']);
+
+    /* Method Statement Routes */
+    Route::get('project/method-statements/get/lists', [MethodStatementController::class, 'getMethodStatements']);
+    Route::get('project/method-statements/get/{id}', [MethodStatementController::class, 'getmethodStatementDetails']);
+    Route::post('project/method-statements/add', [MethodStatementController::class, 'addMethodStatement']);
+    Route::put('project/method-statements/update/{id}', [MethodStatementController::class, 'updateMethodStatement']);
+    Route::delete('project/method-statements/delete/{id}', [MethodStatementController::class, 'deleteMethodStatement']);
+    Route::put('project/method-statements/update-activity/{id}', [MethodStatementController::class, 'updateMethodActivity']);
 });
