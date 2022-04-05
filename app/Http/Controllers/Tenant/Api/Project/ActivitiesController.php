@@ -26,9 +26,9 @@ class ActivitiesController extends Controller
                     return $this->sendError('You have no rights to access this module.');
                 }
 
-                if (!AppHelper::roleHasModulePermission('Planning and Scheduling', $user)) {
-                    return $this->sendError('You have no rights to access this module.');
-                }
+                // if (!AppHelper::roleHasModulePermission('Planning and Scheduling', $user)) {
+                //     return $this->sendError('You have no rights to access this module.');
+                // }
 
                 $hostnameId = Organization::whereId($user->organization_id)->value('hostname_id');
 
@@ -52,9 +52,9 @@ class ActivitiesController extends Controller
     {
         $user = $request->user();
 
-        if (!AppHelper::roleHasSubModulePermission('Activity Settings', RoleHasSubModule::ACTIONS['list'], $user)) {
-            return $this->sendError('You have no rights to access this action.');
-        }
+        // if (!AppHelper::roleHasSubModulePermission('Activity Settings', RoleHasSubModule::ACTIONS['list'], $user)) {
+        //     return $this->sendError('You have no rights to access this action.');
+        // }
 
         $subActivityIds = ProjectActivity::whereProjectId($request->project_id ?? '')
             ->pluck('activity_sub_category_id')
