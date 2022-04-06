@@ -173,11 +173,17 @@ class RoleController extends Controller
 
     public function getRoleModulePermissions(Request $request, $orgId = null)
     {
+        $user = $request->user();
+
         $limit = !empty($request->limit) ? $request->limit : config('constants.default_per_page_limit');
         $orderBy = !empty($request->orderby) ? $request->orderby : config('constants.default_orderby');
 
         $query = Module::orderBy('id', $orderBy)
             ->isAssigned($request->orgId);
+
+        if ($user->role_id != User::USER_ROLE['SUPER_ADMIN']) {
+            $query->where('name', '!=', 'Organization Management');
+        }
 
         if ($request->exists('cursor')) {
             $roles = $query->cursorPaginate($limit)->toArray();

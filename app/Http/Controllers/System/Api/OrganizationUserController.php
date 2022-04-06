@@ -31,6 +31,7 @@ class OrganizationUserController extends Controller
 
         $query = User::with('role', 'organization')
             ->where('role_id', '!=', User::USER_ROLE['SUPER_ADMIN'])
+            ->where('id', '!=', $user->id)
             ->orderBy('id', $orderBy);
 
         try {
@@ -44,7 +45,7 @@ class OrganizationUserController extends Controller
                 if (in_array($user->role_id, [User::USER_ROLE['SUPER_ADMIN']])) {
                     $query = $query->whereRoleId(User::USER_ROLE['COMPANY_ADMIN']);
                 } else if (in_array($user->role_id, [User::USER_ROLE['COMPANY_ADMIN']])) {
-                    $query = $query->whereNotIn('role_id', [User::USER_ROLE['SUPER_ADMIN'], User::USER_ROLE['COMPANY_ADMIN']]);
+                    $query = $query->where('role_id', User::USER_ROLE['CONSTRUCATION_SITE_ADMIN']);
                 } else if (in_array($user->role_id, [User::USER_ROLE['CONSTRUCATION_SITE_ADMIN']])) {
                     $query = $query->whereNotIn('role_id', [User::USER_ROLE['SUPER_ADMIN'], User::USER_ROLE['COMPANY_ADMIN'], User::USER_ROLE['CONSTRUCATION_SITE_ADMIN']]);
                 } else if (in_array($user->role_id, [User::USER_ROLE['MANAGER']])) {
