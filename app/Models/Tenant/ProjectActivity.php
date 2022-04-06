@@ -52,10 +52,4 @@ class ProjectActivity extends Model
             ->with('activityCategory', 'unitType')
             ->select('id', 'activity_category_id', 'unit_type_id', 'name', 'status');
     }
-    
-    public function ifcDrawing()
-    {
-        return $this->belongsTo(ProjectIFCDrwaing::class, 'project_drowing_id', 'id')
-            ->select('id', 'project_id', 'name', 'path', 'location', 'area', 'type', 'status', 'created_by');
-    }
 }
