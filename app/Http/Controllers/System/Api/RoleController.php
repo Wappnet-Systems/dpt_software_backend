@@ -179,7 +179,7 @@ class RoleController extends Controller
         $orderBy = !empty($request->orderby) ? $request->orderby : config('constants.default_orderby');
 
         $query = Module::orderBy('id', $orderBy)
-            ->isAssigned($request->orgId);
+            ->isAssigned($request->orgId, $user->role_id);
 
         if ($user->role_id != User::USER_ROLE['SUPER_ADMIN']) {
             $query->where('name', '!=', 'Organization Management');
