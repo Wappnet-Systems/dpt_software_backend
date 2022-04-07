@@ -41,7 +41,7 @@ class Module extends Model
      * @param  string  $orgId
      * @return void
      */
-    public function scopeIsAssigned($query, $orgId = null)
+    public function scopeIsAssigned($query, $orgId = null, $roleId = null)
     {
         if (!isset($orgId) || empty($orgId)) {
             return $query->addSelect(DB::raw(
@@ -50,7 +50,7 @@ class Module extends Model
             );
         } else {
             return $query->addSelect(DB::raw(
-                    sprintf('*, (EXISTS (SELECT * FROM role_has_modules WHERE role_has_modules.module_id = modules.id AND role_id = %s AND organization_id = %s)) as is_assigned', User::USER_ROLE['COMPANY_ADMIN'], $orgId)
+                    sprintf('*, (EXISTS (SELECT * FROM role_has_modules WHERE role_has_modules.module_id = modules.id AND role_id = %s AND organization_id = %s)) as is_assigned', $roleId, $orgId)
                 )
             );
         }
