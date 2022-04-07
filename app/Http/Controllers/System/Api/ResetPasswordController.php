@@ -39,7 +39,7 @@ class ResetPasswordController extends Controller
 
         $request->merge([
             'token' => $tokens[0],
-            'email' => $tokens[1]
+            'email' => strtolower($tokens[1])
         ]);
 
         $status = Password::reset(
