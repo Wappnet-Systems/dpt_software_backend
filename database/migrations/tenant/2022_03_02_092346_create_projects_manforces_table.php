@@ -21,8 +21,8 @@ class CreateProjectsManforcesTable extends Migration
             $table->foreignId('project_id')->constrained('projects')->cascadeOnUpdate()->cascadeOnDelete();
             $table->foreignId('manforce_type_id')->constrained('manforce_types')->cascadeOnUpdate()->cascadeOnDelete();
             $table->tinyInteger('total_manforce');
-            $table->double('productivity_rate', 8, 2)->nullable();
             $table->double('cost', 10, 2)->nullable();
+            $table->tinyInteger('cost_type')->comment('1 - Per Hour, 2 - Per Day');
             $table->ipAddress('created_ip')->nullable();
             $table->ipAddress('updated_ip')->nullable();
             $table->softDeletes();

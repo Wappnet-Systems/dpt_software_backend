@@ -15,6 +15,29 @@ class ProjectManforce extends Model
 
     protected $guarded = [];
 
+    protected $appends = ['cost_type_name'];
+
+    const COST_TYPE = [
+        'Per Hour' => 1,
+        'Per Day' => 2,
+    ];
+
+    /**
+     * Get the status name.
+     *
+     * @return string
+     */
+    public function getCostTypeNameAttribute()
+    {
+        $flipCost = array_flip(self::COST_TYPE);
+
+        if (isset($flipCost[$this->cost_type]) && !empty($flipCost[$this->cost_type])) {
+            return "{$flipCost[$this->cost_type]}";
+        }
+
+        return null;
+    }
+
     public function project()
     {
         return $this->belongsTo(Project::class, 'project_id', 'id')

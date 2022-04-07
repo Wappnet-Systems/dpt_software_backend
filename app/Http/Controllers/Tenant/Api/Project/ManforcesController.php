@@ -82,7 +82,7 @@ class ManforcesController extends Controller
     public function getManforceDetails(Request $request)
     {
         $projectManforce = ProjectManforce::with('manforce')
-            ->select('id', 'project_id', 'manforce_type_id', 'total_manforce', 'productivity_rate', 'cost')
+            ->select('id', 'project_id', 'manforce_type_id', 'total_manforce', 'cost')
             ->whereId($request->id)
             ->first();
 
@@ -100,8 +100,8 @@ class ManforcesController extends Controller
                 'project_id' => 'required|exists:projects,id',
                 'manforce_type_id' => 'required|exists:manforce_types,id',
                 'total_manforce' => 'required',
-                'productivity_rate' => 'required',
                 'cost' => 'required',
+                'cost_type' => 'required',
             ]);
 
             if ($validator->fails()) {
@@ -114,8 +114,8 @@ class ManforcesController extends Controller
             $projectManforce->project_id = $request->project_id;
             $projectManforce->manforce_type_id = $request->manforce_type_id;
             $projectManforce->total_manforce = $request->total_manforce;
-            $projectManforce->productivity_rate = $request->productivity_rate;
             $projectManforce->cost = $request->cost;
+            $projectManforce->cost_type = $request->cost_type;
             $projectManforce->created_ip = $request->ip();
             $projectManforce->updated_ip = $request->ip();
 
@@ -134,8 +134,8 @@ class ManforcesController extends Controller
         try {
             $validator = Validator::make($request->all(), [
                 'total_manforce' => 'required',
-                'productivity_rate' => 'required',
                 'cost' => 'required',
+                'cost_type' => 'required',
             ]);
 
             if ($validator->fails()) {
@@ -151,8 +151,8 @@ class ManforcesController extends Controller
             }
 
             if ($request->filled('total_manforce')) $projectManforce->total_manforce = $request->total_manforce;
-            if ($request->filled('productivity_rate')) $projectManforce->productivity_rate = $request->productivity_rate;
             if ($request->filled('cost')) $projectManforce->cost = $request->cost;
+            if ($request->filled('cost_type')) $projectManforce->cost_type = $request->cost_type;
 
             $projectManforce->updated_ip = $request->ip();
 

@@ -23,7 +23,7 @@ class ProjectActivityAllocateManforce extends Model
     public function projectManforce()
     {
         return $this->belongsTo(ProjectManforce::class, 'project_manforce_id', 'id')
-            ->select('id', 'project_id', 'manforce_type_id', 'total_manforce', 'productivity_rate', 'cost')
+            ->select('id', 'project_id', 'manforce_type_id', 'total_manforce', 'cost', 'cost_type')
             ->with('manforce');
     }
 }
