@@ -165,6 +165,10 @@ class ManforceTypesController extends Controller
                 return $this->sendError('Manforce Type does not exists.');
             }
 
+            if (!in_array($request->status, ManforceType::STATUS)) {
+                return $this->sendError('Invalid status requested.');
+            }
+
             $manforceType->deleted_at = null;
             $manforceType->status = $request->status;
             $manforceType->save();

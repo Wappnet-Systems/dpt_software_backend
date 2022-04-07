@@ -48,7 +48,7 @@ class ActivitySubCategoriesController extends Controller
         $limit = !empty($request->limit) ? $request->limit : config('constants.default_per_page_limit');
         $orderBy = !empty($request->orderby) ? $request->orderby : config('constants.default_orderby');
 
-        $query = ActivitySubCategory::with('activityCategory','unitType')
+        $query = ActivitySubCategory::with('activityCategory', 'unitType')
             ->whereStatus(ActivitySubCategory::STATUS['Active'])
             ->orderBy('id', $orderBy);
 
@@ -177,6 +177,10 @@ class ActivitySubCategoriesController extends Controller
 
             if (!isset($subActivityCategory) || empty($subActivityCategory)) {
                 return $this->sendError('Sub activity category dose not exists.');
+            }
+
+            if (!in_array($request->status, ActivityCategory::STATUS)) {
+                return $this->sendError('Invalid status requested.');
             }
 
             $subActivityCategory->deleted_at = null;

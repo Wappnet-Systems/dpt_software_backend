@@ -272,6 +272,10 @@ class OrganizationController extends Controller
         try {
             $organization = Organization::whereId($request->orgId)->first();
 
+            if (!in_array($request->status, Organization::STATUS)) {
+                return $this->sendError('Invalid status requested.');
+            }
+
             if (isset($organization) && !empty($organization)) {
                 $organization->status = $request->status;
                 $organization->deleted_at = null;

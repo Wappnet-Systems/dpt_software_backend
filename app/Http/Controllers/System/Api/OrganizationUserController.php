@@ -296,6 +296,10 @@ class OrganizationUserController extends Controller
                     ->where('role_id', '!=', User::USER_ROLE['SUPER_ADMIN'])
                     ->first();
 
+                if (!in_array($request->status, User::STATUS)) {
+                    return $this->sendError('Invalid status requested.');
+                }
+
                 if (!isset($orgUser) || empty($orgUser)) {
                     return $this->sendError('User dose not exists.');
                 } else if (!in_array($user->role_id, [User::USER_ROLE['SUPER_ADMIN'], User::USER_ROLE['COMPANY_ADMIN'], User::USER_ROLE['CONSTRUCATION_SITE_ADMIN'], User::USER_ROLE['MANAGER']])) {
