@@ -323,8 +323,6 @@ class ActivityDocumentController extends Controller
                     return $this->sendError('Project activity document does not exist.');
                 }
 
-                // var_dump($request->project_activity_id);die;
-
                 $projectActivityDocument->project_activity_id = !empty($request->project_activity_id) ? $request->project_activity_id : NULL;
 
                 if (!$projectActivityDocument->save()) {
@@ -333,7 +331,7 @@ class ActivityDocumentController extends Controller
 
                 return $this->sendResponse($projectActivityDocument, 'Project activity document updated successfully.');
             } else {
-                # code...
+                return $this->sendError('User not exists.');
             }
         } catch (\Exception $e) {
             return $this->sendError($e->getMessage());
