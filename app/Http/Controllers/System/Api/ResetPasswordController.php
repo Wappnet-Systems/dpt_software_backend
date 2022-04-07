@@ -55,6 +55,8 @@ class ResetPasswordController extends Controller
 
         if ($status == Password::PASSWORD_RESET) {
             return $this->sendResponse([], 'Your password has been reset!');
+        } else if ($status == Password::INVALID_TOKEN) {
+            return $this->sendError('This password reset token is invalid');
         } else {
             return $this->sendError('We can not find a user with that email address.');
         }

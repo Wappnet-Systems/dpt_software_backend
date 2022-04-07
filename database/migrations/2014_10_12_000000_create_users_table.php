@@ -34,6 +34,7 @@ class CreateUsersTable extends Migration
             $table->string('state', 25)->nullable();
             $table->string('country', 25)->nullable();
             $table->string('zip_code', 10)->nullable();
+            $table->string('po_box')->nullable();
             $table->tinyInteger('status')->default(1)->comment('1 - Active, 2 - In Active, 3 - Deleted');
             $table->foreignId('created_by')->nullable()->constrained('users')->cascadeOnDelete();
             $table->timestamp('email_verified_at')->nullable();

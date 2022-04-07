@@ -75,7 +75,7 @@ class ProfileController extends Controller
         $user = $request->user();
 
         $user = User::with('role', 'organization')
-            ->select('id', 'name', 'email', 'personal_email', 'phone_number', 'profile_image', 'address', 'lat', 'long', 'city', 'state', 'country', 'zip_code', 'role_id', 'organization_id')
+            ->select('id', 'name', 'email', 'personal_email', 'phone_number', 'profile_image', 'address', 'lat', 'long', 'city', 'state', 'country', 'zip_code', 'po_box', 'role_id', 'organization_id')
             ->whereId($user->id)
             ->first();
 
