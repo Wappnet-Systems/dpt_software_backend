@@ -163,6 +163,10 @@ class MaterialTypesController extends Controller
                 return $this->sendError('Material type dose not exists.');
             }
 
+            if (!in_array($request->status, MaterialType::STATUS)) {
+                return $this->sendError('Invalid status requested.');
+            }
+
             $materialType->deleted_at = null;
             $materialType->status = $request->status;
             $materialType->save();

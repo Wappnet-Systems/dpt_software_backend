@@ -61,7 +61,7 @@ class ActivityCategoriesController extends Controller
                     ->whereStatus(ActivitySubCategory::STATUS['Active']);
             });
         }
-        
+
         $totalQuery = $query;
         $totalQuery = $totalQuery->count();
 
@@ -168,6 +168,10 @@ class ActivityCategoriesController extends Controller
 
             if (!isset($activityCategory) || empty($activityCategory)) {
                 return $this->sendError('Activity category dose not exists.');
+            }
+
+            if (!in_array($request->status, ActivityCategory::STATUS)) {
+                return $this->sendError('Invalid status requested.');
             }
 
             $activityCategory->deleted_at = null;

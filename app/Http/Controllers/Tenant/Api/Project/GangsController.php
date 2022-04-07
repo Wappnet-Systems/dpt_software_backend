@@ -182,6 +182,10 @@ class GangsController extends Controller
                 return $this->sendError('Project gang does not exists.');
             }
 
+            if (!in_array($request->status, ProjectGang::STATUS)) {
+                return $this->sendError('Invalid status requested.');
+            }
+
             $projectGangs->deleted_at = null;
             $projectGangs->status = $request->status;
             $projectGangs->save();

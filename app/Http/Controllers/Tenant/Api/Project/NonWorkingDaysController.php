@@ -193,6 +193,10 @@ class NonWorkingDaysController extends Controller
                 return $this->sendError('Non working day does not exists.');
             }
 
+            if (!in_array($request->status, ProjectNonWorkingDay::STATUS)) {
+                return $this->sendError('Invalid status requested.');
+            }
+
             $nonWorkingDays->deleted_at = null;
             $nonWorkingDays->status = $request->status;
             $nonWorkingDays->save();
