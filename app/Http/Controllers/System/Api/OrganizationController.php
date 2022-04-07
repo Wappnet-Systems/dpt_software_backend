@@ -171,6 +171,7 @@ class OrganizationController extends Controller
                 $orgUser->state = $organization->state;
                 $orgUser->country = $organization->country;
                 $orgUser->zip_code = $organization->zip_code;
+                $orgUser->po_box = $request->po_box;
                 $orgUser->created_by = $user->id;
                 $orgUser->email_verified_at = date('Y-m-d H:i:s');
                 $orgUser->created_ip = $request->ip();

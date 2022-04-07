@@ -109,6 +109,7 @@ class ManforceTypesController extends Controller
 
             $manforceType = new ManforceType();
             $manforceType->name = $request->name;
+            $manforceType->is_productive = $request->is_productive;
             $manforceType->created_ip = $request->ip();
             $manforceType->updated_ip = $request->ip();
 
@@ -142,6 +143,7 @@ class ManforceTypesController extends Controller
             }
 
             if ($request->filled('name')) $manforceType->name = $request->name;
+            if ($request->filled('is_productive')) $manforceType->is_productive = $request->is_productive;
             $manforceType->updated_ip = $request->ip();
 
             if (!$manforceType->save()) {

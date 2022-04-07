@@ -95,7 +95,7 @@ class OrganizationUserController extends Controller
     public function getUserDetails(Request $request)
     {
         $organizationUsers = User::with('role', 'organization')
-            ->select('id', 'user_uuid', 'name', 'email', 'personal_email', 'phone_number', 'profile_image', 'address', 'lat', 'long', 'city', 'state', 'country', 'zip_code', 'status', 'role_id', 'organization_id')
+            ->select('id', 'user_uuid', 'name', 'email', 'personal_email', 'phone_number', 'profile_image', 'address', 'lat', 'long', 'city', 'state', 'country', 'zip_code', 'po_box', 'status', 'role_id', 'organization_id')
             ->where('role_id', '!=', User::USER_ROLE['SUPER_ADMIN'])
             ->whereUserUuid($request->id)
             ->first();
@@ -165,6 +165,7 @@ class OrganizationUserController extends Controller
                     $orgSubUser->state = !empty($request->state) ? $request->state : NULL;
                     $orgSubUser->country = !empty($request->country) ? $request->country : NULL;
                     $orgSubUser->zip_code = !empty($request->zip_code) ? $request->zip_code : NULL;
+                    $orgSubUser->po_box = !empty($request->po_box) ? $request->po_box : NULL;
                     $orgSubUser->email_verified_at = date('Y-m-d H:i:s');
                     $orgSubUser->created_by = $user->id;
                     $orgSubUser->created_ip = $request->ip();
@@ -256,6 +257,7 @@ class OrganizationUserController extends Controller
                     if ($request->filled('state')) $orgUser->state = $request->state;
                     if ($request->filled('country')) $orgUser->country = $request->country;
                     if ($request->filled('zip_code')) $orgUser->zip_code = $request->zip_code;
+                    if ($request->filled('po_box')) $orgUser->po_box = $request->po_box;
 
                     if ($request->hasFile('profile_image')) {
                         if (isset($orgUser->profile_image) && !empty($orgUser->profile_image)) {

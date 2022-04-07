@@ -68,7 +68,7 @@ class Organization extends Model
     public function user()
     {
         return $this->hasOne(User::class, 'organization_id', 'id')
-            ->select('user_uuid', 'name', 'email', 'personal_email', 'password', 'phone_number', 'profile_image', 'address', 'lat', 'long', 'city', 'state', 'country', 'zip_code', 'status', 'role_id', 'organization_id');
+            ->select('user_uuid', 'name', 'email', 'personal_email', 'password', 'phone_number', 'profile_image', 'address', 'lat', 'long', 'city', 'state', 'country', 'zip_code', 'po_box', 'status', 'role_id', 'organization_id');
     }
 
     public static function generateUuid($orgDomain = null)
