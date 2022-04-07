@@ -17,9 +17,36 @@ class ModuleSubModuleSeeder extends Seeder
     {
         $modules = [
             [
+                'name' => 'Admin',
+                'sub_module' => [
+                    ['name' => 'Organization Management']
+                ]
+            ],
+            [
+                'name' => 'Authorization',
+                'sub_module' => [
+                    ['name' => 'Role Management'],
+                    ['name' => 'User Management'],
+                ]
+            ],
+            [
+                'name' => 'General',
+                'sub_module' => [
+                    ['name' => 'Project Management'],
+                ]
+            ],
+            [
+                'name' => 'Masters',
+                'sub_module' => [
+                    ['name' => 'Role Management'],
+                    ['name' => 'User Management'],
+                ]
+            ],
+            [
                 'name' => 'Planning and Scheduling',
                 'sub_module' => [
                     ['name' => 'Gant Chart'],
+                    ['name' => 'Non working day'],
                     ['name' => 'Activity Settings'],
                     ['name' => 'Planned Manpower'],
                     ['name' => 'Material Sheet'],
