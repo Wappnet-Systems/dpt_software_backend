@@ -75,9 +75,9 @@ class ActivitiesController extends Controller
     {
         $user = $request->user();
 
-        if (!AppHelper::roleHasSubModulePermission('Activity Settings', RoleHasSubModule::ACTIONS['view'], $user)) {
+        /* if (!AppHelper::roleHasSubModulePermission('Activity Settings', RoleHasSubModule::ACTIONS['view'], $user)) {
             return $this->sendError('You have no rights to access this action.');
-        }
+        } */
 
         $proActivity = ProjectActivity::with('project','activitySubCategory')
             ->whereId($request->id)
@@ -95,9 +95,9 @@ class ActivitiesController extends Controller
         try {
             $user = $request->user();
 
-            if (!AppHelper::roleHasSubModulePermission('Activity Settings', RoleHasSubModule::ACTIONS['create'], $user)) {
+            /* if (!AppHelper::roleHasSubModulePermission('Activity Settings', RoleHasSubModule::ACTIONS['create'], $user)) {
                 return $this->sendError('You have no rights to access this action.');
-            }
+            } */
 
             if (isset($user) && !empty($user)) {
                 $validator = Validator::make($request->all(), [
@@ -155,9 +155,9 @@ class ActivitiesController extends Controller
         try {
             $user = $request->user();
 
-            if (!AppHelper::roleHasSubModulePermission('Activity Settings', RoleHasSubModule::ACTIONS['edit'], $user)) {
+            /* if (!AppHelper::roleHasSubModulePermission('Activity Settings', RoleHasSubModule::ACTIONS['edit'], $user)) {
                 return $this->sendError('You have no rights to access this action.');
-            }
+            } */
 
             if (isset($user) && !empty($user)) {
                 $validator = Validator::make($request->all(), [
@@ -213,9 +213,9 @@ class ActivitiesController extends Controller
         try {
             $user = $request->user();
 
-            if (!AppHelper::roleHasSubModulePermission('Activity Settings', RoleHasSubModule::ACTIONS['delete'], $user)) {
+            /* if (!AppHelper::roleHasSubModulePermission('Activity Settings', RoleHasSubModule::ACTIONS['delete'], $user)) {
                 return $this->sendError('You have no rights to access this action.');
-            }
+            } */
 
             if (isset($user) && !empty($user)) {
                 $proActivity = ProjectActivity::whereId($request->id)->first();

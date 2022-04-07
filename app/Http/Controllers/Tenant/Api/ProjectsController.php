@@ -58,9 +58,13 @@ class ProjectsController extends Controller
         try {
             if (isset($user) && !empty($user)) {
                 $query = Project::orderBy('id', $orderBy);
-
-                if (!in_array($user->role_id, [User::USER_ROLE['COMPANY_ADMIN']])) {
-                    return $this->sendResponse([], 'Projects List');
+                
+                if ($user->role_id != User::USER_ROLE['COMPANY_ADMIN']) {
+                    $assignedProIds = ProjectAssignedUser::whereUserId($user->id ?? null)->pluck('project_id');
+                    
+                    if (isset($assignedProIds) && !empty($assignedProIds)) {
+                        $query->whereIn('id', $assignedProIds);
+                    }
                 }
 
                 if (isset($request->search) && !empty($request->search)) {

@@ -49,9 +49,9 @@ class CreateModulesPermissionTables extends Migration
 
             $table->foreignId('module_id')->constrained('modules')->cascadeOnDelete();
             $table->foreignId('role_id')->constrained('roles')->cascadeOnDelete();
-            $table->foreignId('organization_id')->nullable()->constrained('organizations')->cascadeOnDelete();
+            $table->foreignId('organization_id')->constrained('organizations')->cascadeOnDelete();
 
-            $table->primary(['module_id', 'role_id'], 'role_has_modules_module_id_role_id_primary');
+            $table->primary(['module_id', 'role_id', 'organization_id'], 'role_has_modules_module_id_role_id_organization_id_primary');
         });
     }
 
