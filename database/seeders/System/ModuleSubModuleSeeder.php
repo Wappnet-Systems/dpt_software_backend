@@ -19,7 +19,7 @@ class ModuleSubModuleSeeder extends Seeder
             [
                 'name' => 'Admin',
                 'sub_module' => [
-                    ['name' => 'Organization Management']
+                    ['name' => 'Organization Management'],
                 ]
             ],
             [
@@ -38,8 +38,11 @@ class ModuleSubModuleSeeder extends Seeder
             [
                 'name' => 'Masters',
                 'sub_module' => [
-                    ['name' => 'Role Management'],
-                    ['name' => 'User Management'],
+                    ['name' => 'Unit Type Management'],
+                    ['name' => 'Material Type Management'],
+                    ['name' => 'Manforce Type Management'],
+                    ['name' => 'Activity Category Management'],
+                    ['name' => 'Activity Sub Category Management'],
                 ]
             ],
             [
