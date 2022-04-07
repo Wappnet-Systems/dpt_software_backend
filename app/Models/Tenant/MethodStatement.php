@@ -32,6 +32,6 @@ class MethodStatement extends Model
     public function projectActivity()
     {
         return $this->belongsTo(ProjectActivity::class, 'project_activity_id', 'id')
-            ->select('id', 'project_id', 'activity_sub_category_id', 'project_drowing_id', 'name', 'scaffold_number', 'start_date', 'end_date', 'actual_start_date', 'actual_end_date', 'location', 'level', 'actual_area', 'completed_area', 'cost', 'status', 'productivity_rate');
+            ->select('id', 'project_id', 'activity_sub_category_id', 'name', 'scaffold_number', 'start_date', 'end_date', 'actual_start_date', 'actual_end_date', 'location', 'level', 'actual_area', 'completed_area', 'cost', 'status', 'productivity_rate');
     }
 }

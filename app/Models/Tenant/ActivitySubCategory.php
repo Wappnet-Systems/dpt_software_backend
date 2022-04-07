@@ -56,6 +56,6 @@ class ActivitySubCategory extends Model
     {
         AppHelper::setDefaultDBConnection();
 
-        return $this->hasMany(ProjectActivity::class, 'activity_sub_category_id', 'id')->with('project', 'ifcDrawing');
+        return $this->hasMany(ProjectActivity::class, 'activity_sub_category_id', 'id')->with('project');
     }
 }
