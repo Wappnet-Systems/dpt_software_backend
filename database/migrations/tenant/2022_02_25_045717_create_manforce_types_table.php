@@ -20,6 +20,7 @@ class CreateManforceTypesTable extends Migration
             $table->id();
             $table->string('name', 50);
             $table->tinyInteger('status')->default(1)->comment('1 - Active, 2 - In Active, 3 - Deleted');
+            $table->boolean('is_productive');
             $table->ipAddress('created_ip')->nullable();
             $table->ipAddress('updated_ip')->nullable();
             $table->softDeletes();
