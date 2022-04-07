@@ -48,7 +48,7 @@ class ActivitySubCategoriesController extends Controller
         $limit = !empty($request->limit) ? $request->limit : config('constants.default_per_page_limit');
         $orderBy = !empty($request->orderby) ? $request->orderby : config('constants.default_orderby');
 
-        $query = ActivitySubCategory::with('activityCategory')
+        $query = ActivitySubCategory::with('activityCategory','unitType')
             ->whereStatus(ActivitySubCategory::STATUS['Active'])
             ->orderBy('id', $orderBy);
 

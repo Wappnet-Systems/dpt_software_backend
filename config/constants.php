@@ -12,8 +12,8 @@ return [
         'logo_path' => 'organizations/:uid:/logo',
         'projects' => [
             'logo_path' => 'organizations/:uid:/project/:project_uuid:/logo',
-            'ifc_drawings' => [
-                'file_path' => 'organizations/:uid:/project/:project_uuid:/ifc-drawing',
+            'activity_document' => [
+                'file_path' => 'organizations/:uid:/project/:project_uuid:/activity_document',
                 'upload_image_max_size' => '10000' // 10 mb
             ],
             'inspection' => [

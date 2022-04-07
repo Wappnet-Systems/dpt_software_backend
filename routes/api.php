@@ -24,7 +24,7 @@ use App\Http\Controllers\Tenant\Api\Project\GangsController;
 use App\Http\Controllers\Tenant\Api\Project\GangsManforcesController;
 use App\Http\Controllers\Tenant\Api\Project\MaterialController;
 use App\Http\Controllers\Tenant\Api\Project\InventoryStocksController;
-use App\Http\Controllers\Tenant\Api\Project\IFCDrwaingsController;
+use App\Http\Controllers\Tenant\Api\Project\ActivityDocumentController;
 use App\Http\Controllers\Tenant\Api\Project\MaterialAllocationController;
 use App\Http\Controllers\Tenant\Api\Project\MaterialRaisingRequestsController;
 use App\Http\Controllers\Tenant\Api\Project\MaterialTransferRequestsController;
@@ -217,12 +217,13 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('project/allocate/material/update/{id}', [MaterialAllocationController::class, 'updateAllocateMaterial']);
     Route::delete('project/allocate/material/delete/{id}', [MaterialAllocationController::class, 'deleteAllocateMaterial']);
 
-    /* Project IFC Drawings Route */
-    Route::get('project/ifc/drawing/get/lists', [IFCDrwaingsController::class, 'getIFCDrwaings']);
-    Route::get('project/ifc/drawing/get/{id}', [IFCDrwaingsController::class, 'getIFCDrwaingDetails']);
-    Route::post('project/ifc/drawing/add', [IFCDrwaingsController::class, 'addIFCDrwaing']);
-    Route::put('project/ifc/drawing/update/{id}', [IFCDrwaingsController::class, 'updateIFCDrwaing']);
-    Route::patch('project/ifc/drawing/status/change/{id}', [IFCDrwaingsController::class, 'changeIFCDrwaingStatus']);
+    /* Project Activity Documents Route */
+    Route::get('project/activity/document/get/lists', [ActivityDocumentController::class, 'getActivityDocument']);
+    Route::get('project/activity/document/get/{id}', [ActivityDocumentController::class, 'getActivityDocumentDetails']);
+    Route::post('project/activity/document/add', [ActivityDocumentController::class, 'addActivityDocument']);
+    Route::put('project/activity/document/update/{id}', [ActivityDocumentController::class, 'updateActivityDocument']);
+    Route::patch('project/activity/document/status/change/{id}', [ActivityDocumentController::class, 'changeActivityDocumentStatus']);
+    Route::put('project/activity/document/assign-activity/{id}', [ActivityDocumentController::class, 'assignActivityDocument']);
 
     /* Time Slots Routes */
     Route::get('time-slot/get/lists', [TimeSlotsController::class, 'getTimeSlots']);

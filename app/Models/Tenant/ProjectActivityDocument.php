@@ -7,16 +7,16 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Helpers\UploadFile;
 
-class ProjectIFCDrwaing extends Model
+class ProjectActivityDocument extends Model
 {
     use HasFactory;
     use SoftDeletes;
 
-    protected $table = "projects_ifc_drawings";
+    protected $table = "projects_activity_documents";
 
     protected $guarded = [];
 
-    protected $appends = ['status_name', 'type_name', 'file_path'];
+    protected $appends = ['status_name', 'file_type_name', 'type_name', 'file_path'];
 
     const STATUS = [
         'Active' => 1,
@@ -24,9 +24,14 @@ class ProjectIFCDrwaing extends Model
         'Deleted' => 3,
     ];
 
-    const TYPE = [
+    const FILE_TYPE = [
         'Image' => 1,
         'PDF' => 2,
+    ];
+    const TYPE = [
+        'Design/Drawings' => 1,
+        'Engineering Instruction' => 2,
+        'Request For Information' => 3,
     ];
 
     /**
@@ -61,6 +66,22 @@ class ProjectIFCDrwaing extends Model
         return null;
     }
 
+    /**
+     * Get the file type name.
+     *
+     * @return string
+     */
+    public function getFileTypeNameAttribute()
+    {
+        $flipType = array_flip(self::FILE_TYPE);
+
+        if (isset($flipType[$this->file_type]) && !empty($flipType[$this->file_type])) {
+            return "{$flipType[$this->file_type]}";
+        }
+
+        return null;
+    }
+
     public function getFilePathAttribute()
     {
         if ($this->path) {
@@ -76,5 +97,11 @@ class ProjectIFCDrwaing extends Model
     {
         return $this->belongsTo(Project::class, 'project_id', 'id')
             ->select('id', 'name', 'logo', 'address', 'lat', 'long', 'city', 'state', 'country', 'zip_code', 'start_date', 'end_date', 'cost', 'status');
+    }
+
+    public function projectActivity()
+    {
+        return $this->belongsTo(ProjectActivity::class, 'project_activity_id', 'id')
+            ->select('id', 'name', 'status');
     }
 }

@@ -79,7 +79,7 @@ class ActivitiesController extends Controller
             return $this->sendError('You have no rights to access this action.');
         } */
 
-        $proActivity = ProjectActivity::with('project','activitySubCategory', 'ifcDrawing')
+        $proActivity = ProjectActivity::with('project','activitySubCategory')
             ->whereId($request->id)
             ->first();
 
@@ -103,7 +103,6 @@ class ActivitiesController extends Controller
                 $validator = Validator::make($request->all(), [
                     'project_id' => 'required|exists:projects,id',
                     'activity_sub_category_id' => 'required|exists:activity_sub_categories,id',
-                    'project_drowing_id' => 'required|exists:projects_ifc_drawings,id',
                     'name' => 'required',
                     'scaffold_number' => 'required',
                     'start_date' => 'required|date_format:Y-m-d H:i:s',
@@ -124,7 +123,6 @@ class ActivitiesController extends Controller
                 $proActivity = new ProjectActivity();
                 $proActivity->project_id = $request->project_id;
                 $proActivity->activity_sub_category_id = $request->activity_sub_category_id;
-                $proActivity->project_drowing_id = $request->project_drowing_id;
                 $proActivity->name = $request->name;
                 $proActivity->scaffold_number = empty($request->scaffold_number) ? $request->scaffold_number : null;
                 $proActivity->start_date = !empty($request->start_date) ? date('Y-m-d H:i:s', strtotime($request->start_date)) : NULL;
@@ -164,7 +162,6 @@ class ActivitiesController extends Controller
             if (isset($user) && !empty($user)) {
                 $validator = Validator::make($request->all(), [
                     'activity_sub_category_id' => 'exists:activity_sub_categories,id',
-                    'project_drowing_id' => 'exists:projects_ifc_drawings,id',
                     'start_date' => 'date_format:Y-m-d H:i:s',
                     'end_date' => 'date_format:Y-m-d H:i:s',
                     /* 'name' => 'required',
@@ -186,7 +183,6 @@ class ActivitiesController extends Controller
                 }
 
                 if ($request->filled('activity_sub_category_id')) $proActivity->activity_sub_category_id = $request->activity_sub_category_id;
-                if ($request->filled('project_drowing_id')) $proActivity->project_drowing_id = $request->project_drowing_id;
                 if ($request->filled('name')) $proActivity->name = $request->name;
                 if ($request->filled('scaffold_number')) $proActivity->scaffold_number = $request->scaffold_number;
                 if ($request->filled('start_date')) $proActivity->start_date = !empty($request->start_date) ? date('Y-m-d H:i:s', strtotime($request->start_date)) : NULL;
