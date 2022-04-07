@@ -288,6 +288,10 @@ class ProjectsController extends Controller
             if (isset($user) && !empty($user)) {
                 $project = Project::whereUuid($request->Uuid)->first();
 
+                if (!in_array($request->status, Project::STATUS)) {
+                    return $this->sendError('Invalid status requested.');
+                }
+
                 if (!isset($project) || empty($project)) {
                     return $this->sendError('Project dose not exists.');
                 } else if (!in_array($user->role_id, [User::USER_ROLE['COMPANY_ADMIN'],User::USER_ROLE['CONSTRUCATION_SITE_ADMIN'], User::USER_ROLE['MANAGER']])) {
