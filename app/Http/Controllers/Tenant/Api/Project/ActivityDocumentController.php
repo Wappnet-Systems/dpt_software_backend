@@ -293,7 +293,7 @@ class ActivityDocumentController extends Controller
                         ->first();
 
                     if (!isset($projectActivityDocument) || empty($projectActivityDocument)) {
-                        return $this->sendError('You can not delete project activity document.');
+                        return $this->sendError('You can not delete assigned project activity document.');
                     }
 
                     $projectActivityDocument->delete();
