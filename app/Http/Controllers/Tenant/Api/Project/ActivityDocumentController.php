@@ -261,50 +261,52 @@ class ActivityDocumentController extends Controller
         try {
             $user = $request->user();
 
-            $validator = Validator::make($request->all(), [
-                'status' => 'required'
-            ]);
+            if (isset($user) && !empty($user)) {
+                $validator = Validator::make($request->all(), [
+                    'status' => 'required'
+                ]);
 
-            if ($validator->fails()) {
-                foreach ($validator->errors()->messages() as $key => $value) {
-                    return $this->sendError('Validation Error.', [$key => $value[0]]);
+                if ($validator->fails()) {
+                    foreach ($validator->errors()->messages() as $key => $value) {
+                        return $this->sendError('Validation Error.', [$key => $value[0]]);
+                    }
                 }
-            }
 
-            if (!in_array($request->status, ProjectActivityDocument::STATUS)) {
-                return $this->sendError('Invalid status requested.');
-            }
-
-            $projectActivityDocument = ProjectActivityDocument::whereId($request->id)
-                ->whereNull('project_activity_id')
-                ->first();
-
-            if (!isset($projectActivityDocument) || empty($projectActivityDocument)) {
-                return $this->sendError('Project activity document does not exist.');
-            }
-
-            if ($request->status == ProjectActivityDocument::STATUS['Deleted']) {
-
-                if (!AppHelper::roleHasSubModulePermission('Upload Drawings', RoleHasSubModule::ACTIONS['delete'], $user)) {
-                    return $this->sendError('You have no rights to access this action.');
+                if (!in_array($request->status, ProjectActivityDocument::STATUS)) {
+                    return $this->sendError('Invalid status requested.');
                 }
 
                 $projectActivityDocument = ProjectActivityDocument::whereId($request->id)
-                    ->whereNull('project_activity_id')
                     ->first();
 
                 if (!isset($projectActivityDocument) || empty($projectActivityDocument)) {
                     return $this->sendError('Project activity document does not exist.');
                 }
 
-                $projectActivityDocument->delete();
-            } else {
-                $projectActivityDocument->deleted_at = null;
-                $projectActivityDocument->status = $request->status;
-                $projectActivityDocument->save();
-            }
+                if ($request->status == ProjectActivityDocument::STATUS['Deleted']) {
+                    // if (!AppHelper::roleHasSubModulePermission('Upload Drawings', RoleHasSubModule::ACTIONS['delete'], $user)) {
+                    //     return $this->sendError('You have no rights to access this action.');
+                    // }
 
-            return $this->sendResponse($projectActivityDocument, 'Status changed successfully.');
+                    $projectActivityDocument = ProjectActivityDocument::whereId($request->id)
+                        ->whereNull('project_activity_id')
+                        ->first();
+
+                    if (!isset($projectActivityDocument) || empty($projectActivityDocument)) {
+                        return $this->sendError('You can not delete project activity document.');
+                    }
+
+                    $projectActivityDocument->delete();
+                } else {
+                    $projectActivityDocument->deleted_at = null;
+                    $projectActivityDocument->status = $request->status;
+                    $projectActivityDocument->save();
+                }
+
+                return $this->sendResponse($projectActivityDocument, 'Status changed successfully.');
+            } else {
+                return $this->sendError('User not exists.');
+            }
         } catch (\Exception $e) {
             return $this->sendError($e->getMessage());
         }
