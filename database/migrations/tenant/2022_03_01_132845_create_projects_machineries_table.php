@@ -35,6 +35,6 @@ class CreateProjectsMachineriesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('machineries');
+        Schema::dropIfExists('projects_machineries');
     }
 }
