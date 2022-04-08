@@ -150,7 +150,6 @@ class RoleController extends Controller
                 ->first();
 
             if (isset($role) && !empty($role)) {
-
                 if (!in_array($request->status, Role::STATUS)) {
                     return $this->sendError('Invalid status requested.');
                 }
@@ -184,11 +183,7 @@ class RoleController extends Controller
         $orderBy = !empty($request->orderby) ? $request->orderby : config('constants.default_orderby');
 
         $query = Module::orderBy('id', 'desc')
-            ->isAssigned($request->orgId, $user->role_id);
-
-        if ($user->role_id != User::USER_ROLE['SUPER_ADMIN']) {
-            $query->where('name', '!=', 'Organization Management');
-        }
+            ->isAssigned($request->orgId);
 
         if ($request->exists('cursor')) {
             $roles = $query->cursorPaginate($limit)->toArray();

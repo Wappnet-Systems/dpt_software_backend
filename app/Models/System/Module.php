@@ -41,7 +41,7 @@ class Module extends Model
      * @param  string  $orgId
      * @return void
      */
-    public function scopeIsAssigned($query, $orgId = null, $roleId = null)
+    public function scopeIsAssigned($query, $orgId = null, $roleId = User::USER_ROLE['COMPANY_ADMIN'])
     {
         if (!isset($orgId) || empty($orgId)) {
             return $query->addSelect(DB::raw(
