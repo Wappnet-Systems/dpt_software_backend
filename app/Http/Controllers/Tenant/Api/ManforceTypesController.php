@@ -99,6 +99,7 @@ class ManforceTypesController extends Controller
         try {
             $validator = Validator::make($request->all(), [
                 'name' => 'required',
+                'is_productive' => 'required|boolean',
             ]);
 
             if ($validator->fails()) {
@@ -128,6 +129,7 @@ class ManforceTypesController extends Controller
         try {
             $validator = Validator::make($request->all(), [
                 'name' => 'required',
+                'is_productive' => 'required|boolean',
             ]);
 
             if ($validator->fails()) {
