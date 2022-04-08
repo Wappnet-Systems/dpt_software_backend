@@ -40,7 +40,7 @@ class UserController extends Controller
                     $data = [
                         'user' => $user,
                         'modules' => Module::pluck('name', 'id'),
-                        'assign_modules' => Module::isAssigned($user->organization_id ?? null, $user->role_id ?? null)->get()->toArray()
+                        'assign_modules' => Module::isAssigned($user->organization_id ?? null)->get()->toArray()
                     ];
         
                     return $this->sendResponse($data, 'User login successfully.');
