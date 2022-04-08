@@ -22,7 +22,7 @@ class MaterialRaisingRequestsController extends Controller
 
             if (isset($user) && !empty($user)) {
                 if ($user->role_id == User::USER_ROLE['SUPER_ADMIN']) {
-                    return $this->sendError('You have no rights to access this module.');
+                    return $this->sendError('You have no rights to access this module.', [], 401);
                 }
 
                 $hostnameId = Organization::whereId($user->organization_id)->value('hostname_id');
@@ -48,7 +48,7 @@ class MaterialRaisingRequestsController extends Controller
     }
 
     public function getMaterialRaisingRequestDetails(Request $request)
-    {   
+    {
     }
 
     public function addMaterialRaisingRequest(Request $request)
