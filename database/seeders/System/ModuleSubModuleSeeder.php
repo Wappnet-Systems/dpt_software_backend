@@ -17,12 +17,6 @@ class ModuleSubModuleSeeder extends Seeder
     {
         $modules = [
             [
-                'name' => 'Admin',
-                'sub_module' => [
-                    ['name' => 'Organization Management'],
-                ]
-            ],
-            [
                 'name' => 'Authorization',
                 'sub_module' => [
                     ['name' => 'Role Management'],
