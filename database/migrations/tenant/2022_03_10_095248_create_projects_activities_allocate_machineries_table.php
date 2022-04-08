@@ -19,7 +19,7 @@ class CreateProjectsActivitiesAllocateMachineriesTable extends Migration
 
             $table->id();
             $table->unsignedBigInteger('project_activity_id');
-            $table->foreignId('machinery_id')->constrained('machineries')->cascadeOnUpdate()->cascadeOnDelete();
+            $table->unsignedBigInteger('project_machinery_id');
             $table->date('date');
             $table->string('time_slots', 300);
             $table->unsignedBigInteger('assign_by');
@@ -28,6 +28,7 @@ class CreateProjectsActivitiesAllocateMachineriesTable extends Migration
             $table->timestamps();
             
             $table->foreign('project_activity_id', 'pro_activity_allocate_machinery_project_activity_id_foreign')->references('id')->on('projects_activities')->onUpdate('cascade')->onDelete('cascade');
+            $table->foreign('project_machinery_id', 'pro_activity_allocate_machinery_project_machinery_id_foreign')->references('id')->on('projects_machineries')->onUpdate('cascade')->onDelete('cascade');
         });
     }
 

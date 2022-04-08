@@ -166,6 +166,10 @@ class MachineriesController extends Controller
                 return $this->sendError('Machinery does not exists.');
             }
 
+            if (!in_array($request->status, Machinery::STATUS)) {
+                return $this->sendError('Invalid status requested.');
+            }
+
             $machineries->deleted_at = null;
             $machineries->status = $request->status;
             $machineries->save();

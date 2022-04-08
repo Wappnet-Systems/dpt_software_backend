@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Tenant\Api;
+namespace App\Http\Controllers\Tenant\Api\Project;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
@@ -9,10 +9,10 @@ use Hyn\Tenancy\Models\Hostname;
 use Hyn\Tenancy\Models\Website;
 use App\Models\System\Organization;
 use App\Models\System\User;
-use App\Models\Tenant\ManforceType;
+use App\Models\Tenant\ProjectMachinery;
 use App\Helpers\AppHelper;
 
-class ManforceTypesController extends Controller
+class MachineriesController extends Controller
 {
     public function __construct()
     {
@@ -42,12 +42,13 @@ class ManforceTypesController extends Controller
         });
     }
 
-    public function getManforceTypes(Request $request)
+    public function getMachineries(Request $request)
     {
         $limit = !empty($request->limit) ? $request->limit : config('constants.default_per_page_limit');
         $orderBy = !empty($request->orderby) ? $request->orderby : config('constants.default_orderby');
 
-        $query = ManforceType::whereStatus(ManforceType::STATUS['Active'])
+        $query = ProjectMachinery::whereStatus(ProjectMachinery::STATUS['Active'])
+            ->whereProjectId($request->project_id ?? '')
             ->orderBy('id', $orderBy);
 
         if (isset($request->search) && !empty($request->search)) {
@@ -60,46 +61,49 @@ class ManforceTypesController extends Controller
         $totalQuery = $totalQuery->count();
 
         if ($request->exists('cursor')) {
-            $manforceTypes = $query->cursorPaginate($limit)->toArray();
+            $machineries = $query->cursorPaginate($limit)->toArray();
         } else {
-            $manforceTypes['data'] = $query->get()->toArray();
+            $machineries['data'] = $query->get()->toArray();
         }
 
         $results = [];
-        if (!empty($manforceTypes['data'])) {
-            $results = $manforceTypes['data'];
+        if (!empty($machineries['data'])) {
+            $results = $machineries['data'];
         }
 
         if ($request->exists('cursor')) {
             return $this->sendResponse([
                 'lists' => $results,
                 'total' => $totalQuery,
-                'per_page' => $manforceTypes['per_page'],
-                'next_page_url' => ltrim(str_replace($manforceTypes['path'], "", $manforceTypes['next_page_url']), "?cursor="),
-                'prev_page_url' => ltrim(str_replace($manforceTypes['path'], "", $manforceTypes['prev_page_url']), "?cursor=")
-            ], 'Manforce Type List');
+                'per_page' => $machineries['per_page'],
+                'next_page_url' => ltrim(str_replace($machineries['path'], "", $machineries['next_page_url']), "?cursor="),
+                'prev_page_url' => ltrim(str_replace($machineries['path'], "", $machineries['prev_page_url']), "?cursor=")
+            ], 'Machinery List');
         } else {
-            return $this->sendResponse($results, 'Manforce Type List');
+            return $this->sendResponse($results, 'Machinery List');
         }
     }
 
     public function getDetails(Request $request)
     {
-        $manforceType = ManforceType::whereId($request->id)->first();
+        $machineries = ProjectMachinery::select('id', 'name', 'status')
+            ->whereStatus(ProjectMachinery::STATUS['Active'])
+            ->whereId($request->id)
+            ->first();
 
-        if (!isset($manforceType) || empty($manforceType)) {
-            return $this->sendError('manforce type does not exists.');
+        if (!isset($machineries) || empty($machineries)) {
+            return $this->sendError('Machinery does not exists.');
         }
 
-        return $this->sendResponse($manforceType, 'Manforce type details.');
+        return $this->sendResponse($machineries, 'Machinery details.');
     }
 
-    public function addManforceType(Request $request)
+    public function addMachineryCategory(Request $request)
     {
         try {
             $validator = Validator::make($request->all(), [
+                'project_id' => 'required|exists:projects,id',
                 'name' => 'required',
-                'is_productive' => 'required|boolean',
             ]);
 
             if ($validator->fails()) {
@@ -108,28 +112,27 @@ class ManforceTypesController extends Controller
                 }
             }
 
-            $manforceType = new ManforceType();
-            $manforceType->name = $request->name;
-            $manforceType->is_productive = $request->is_productive;
-            $manforceType->created_ip = $request->ip();
-            $manforceType->updated_ip = $request->ip();
+            $machineries = new ProjectMachinery();
+            $machineries->project_id = $request->project_id;
+            $machineries->name = $request->name;
+            $machineries->created_ip = $request->ip();
+            $machineries->updated_ip = $request->ip();
 
-            if (!$manforceType->save()) {
-                return $this->sendError('Something went wrong while creating the manforce type.');
+            if (!$machineries->save()) {
+                return $this->sendError('Something went wrong while creating the machineries.');
             }
 
-            return $this->sendResponse($manforceType, 'Manforce type created successfully.');
+            return $this->sendResponse($machineries, 'Machineries created successfully.');
         } catch (\Exception $e) {
             return $this->sendError($e->getMessage());
         }
     }
 
-    public function updateManforceType(Request $request, $id = null)
+    public function updateMachineryCategory(Request $request, $id = null)
     {
         try {
             $validator = Validator::make($request->all(), [
                 'name' => 'required',
-                'is_productive' => 'required|boolean',
             ]);
 
             if ($validator->fails()) {
@@ -138,21 +141,20 @@ class ManforceTypesController extends Controller
                 }
             }
 
-            $manforceType = ManforceType::whereId($request->id)->first();
+            $machineries = ProjectMachinery::whereId($request->id)->first();
 
-            if (!isset($manforceType) || empty($manforceType)) {
-                return $this->sendError('Manforce Type does not exists.');
+            if (!isset($machineries) || empty($machineries)) {
+                return $this->sendError('Machinery does not exists.');
             }
 
-            if ($request->filled('name')) $manforceType->name = $request->name;
-            if ($request->filled('is_productive')) $manforceType->is_productive = $request->is_productive;
-            $manforceType->updated_ip = $request->ip();
+            if ($request->filled('name')) $machineries->name = $request->name;
+            $machineries->updated_ip = $request->ip();
 
-            if (!$manforceType->save()) {
-                return $this->sendError('Something went wrong while updating the manforce type.');
+            if (!$machineries->save()) {
+                return $this->sendError('Something went wrong while updating the machinery');
             }
 
-            return $this->sendResponse($manforceType, 'Manforce type details updated successfully.');
+            return $this->sendResponse($machineries, 'Machinery details updated successfully.');
         } catch (\Exception $e) {
             return $this->sendError($e->getMessage());
         }
@@ -161,25 +163,25 @@ class ManforceTypesController extends Controller
     public function changeStatus(Request $request, $id = null)
     {
         try {
-            $manforceType = ManforceType::whereId($request->id)->first();
+            $machineries = ProjectMachinery::whereId($request->id)->first();
 
-            if (!isset($manforceType) || empty($manforceType)) {
-                return $this->sendError('Manforce Type does not exists.');
+            if (!isset($machineries) || empty($machineries)) {
+                return $this->sendError('Machinery does not exists.');
             }
 
-            if (!in_array($request->status, ManforceType::STATUS)) {
+            if (!in_array($request->status, ProjectMachinery::STATUS)) {
                 return $this->sendError('Invalid status requested.');
             }
 
-            $manforceType->deleted_at = null;
-            $manforceType->status = $request->status;
-            $manforceType->save();
+            $machineries->deleted_at = null;
+            $machineries->status = $request->status;
+            $machineries->save();
 
-            if ($manforceType->status == ManforceType::STATUS['Deleted']) {
-                $manforceType->delete();
+            if ($machineries->status == ProjectMachinery::STATUS['Deleted']) {
+                $machineries->delete();
             }
 
-            return $this->sendResponse($manforceType, 'Status changed successfully.');
+            return $this->sendResponse($machineries, 'Status changed successfully.');
         } catch (\Exception $e) {
             return $this->sendError($e->getMessage());
         }

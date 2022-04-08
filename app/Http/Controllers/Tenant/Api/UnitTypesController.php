@@ -163,6 +163,10 @@ class UnitTypesController extends Controller
                 return $this->sendError('Unit type does not exists.');
             }
 
+            if (!in_array($request->status, User::STATUS)) {
+                return $this->sendError('Invalid status requested.');
+            }
+
             $unitTypes->deleted_at = null;
             $unitTypes->status = $request->status;
             $unitTypes->save();

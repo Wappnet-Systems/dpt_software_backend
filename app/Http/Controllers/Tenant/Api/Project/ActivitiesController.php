@@ -64,10 +64,10 @@ class ActivitiesController extends Controller
             ->whereIn('id', $subActivityIds)
             ->get();
 
-        $proActivities->load(['projectActivities' => function ($query) use($request) {
+        $proActivities->load(['projectActivities' => function ($query) use ($request) {
             $query->where('project_id', $request->project_id ?? '');
         }]);
-        
+
         return $this->sendResponse($proActivities, 'Activities List');
     }
 
@@ -79,7 +79,7 @@ class ActivitiesController extends Controller
             return $this->sendError('You have no rights to access this action.');
         } */
 
-        $proActivity = ProjectActivity::with('project','activitySubCategory')
+        $proActivity = ProjectActivity::with('project', 'activitySubCategory')
             ->whereId($request->id)
             ->first();
 
@@ -257,6 +257,10 @@ class ActivitiesController extends Controller
             }
 
             $proActivity = ProjectActivity::whereId($request->id)->first();
+
+            if (!in_array($request->status, ProjectActivity::STATUS)) {
+                return $this->sendError('Invalid status requested.');
+            }
 
             if (isset($proActivity) && !empty($proActivity)) {
                 $proActivity->status = $request->status;

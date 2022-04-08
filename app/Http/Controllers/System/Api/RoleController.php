@@ -150,6 +150,11 @@ class RoleController extends Controller
                 ->first();
 
             if (isset($role) && !empty($role)) {
+
+                if (!in_array($request->status, Role::STATUS)) {
+                    return $this->sendError('Invalid status requested.');
+                }
+
                 if ($role->status == Role::STATUS['Deleted']) {
                     if (User::whereRoleId($request->id)->exists()) {
                         return $this->sendError('You can not delete this role because this role has been assigned to many user.');

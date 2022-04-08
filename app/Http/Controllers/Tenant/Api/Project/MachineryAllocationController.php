@@ -53,9 +53,9 @@ class MachineryAllocationController extends Controller
         try {
             $user = $request->user();
 
-            if (!AppHelper::roleHasSubModulePermission('Planned Machinerry', RoleHasSubModule::ACTIONS['list'], $user)) {
-                return $this->sendError('You have no rights to access this action.');
-            }
+            // if (!AppHelper::roleHasSubModulePermission('Planned Machinerry', RoleHasSubModule::ACTIONS['list'], $user)) {
+            //     return $this->sendError('You have no rights to access this action.');
+            // }
 
             $timeSlots = TimeSlot::get();
 
@@ -63,7 +63,7 @@ class MachineryAllocationController extends Controller
                 return $this->sendError('Time slot not available.');
             }
 
-            $machineriesIds = explode(',', $request->machinery_ids);
+            $machineriesIds = explode(',', $request->project_machinery_ids);
 
             $timeSlotMachinery = [];
             foreach ($timeSlots as $timeSlotKey => $timeSlotVal) {
@@ -73,8 +73,8 @@ class MachineryAllocationController extends Controller
                     'end_time' => $timeSlotVal->end_time
                 ];
 
-                $allocatedMachinery = ProjectActivityAllocateMachinery::with('projectActivity', 'machineries')
-                    ->select('id', 'project_activity_id', 'machinery_id', 'date', 'time_slots');
+                $allocatedMachinery = ProjectActivityAllocateMachinery::with('projectActivity', 'projectMachineries')
+                    ->select('id', 'project_activity_id', 'project_machinery_id', 'date', 'time_slots');
 
                 if (isset($request->project_activity_id) && !empty($request->project_activity_id)) {
                     $allocatedMachinery = $allocatedMachinery->whereProjectActivityId($request->project_activity_id);
@@ -83,14 +83,14 @@ class MachineryAllocationController extends Controller
                 $allocatedMachinery = $allocatedMachinery->whereRaw('FIND_IN_SET(' . $timeSlotVal->id . ',time_slots)')
                     ->whereDate('date', '>=', date('Y-m-d', strtotime($request->start_date)))
                     ->whereDate('date', '<=', date('Y-m-d', strtotime($request->end_date)))
-                    ->whereIn('machinery_id', $machineriesIds)
+                    ->whereIn('project_machinery_id', $machineriesIds)
                     ->get()
                     ->toArray();
 
                 $timeSlotMachinery[$timeSlotVal->id]['allocated_machinery'] = $allocatedMachinery;
             }
 
-            return $this->sendResponse($timeSlotMachinery, 'Allocated machinery list.');
+            return $this->sendResponse($timeSlotMachinery, 'Allocated project machinery list.');
         } catch (\Exception $e) {
             return $this->sendError($e->getMessage());
         }
@@ -101,14 +101,14 @@ class MachineryAllocationController extends Controller
         try {
             $user = $request->user();
 
-            if (!AppHelper::roleHasSubModulePermission('Planned Machinerry', RoleHasSubModule::ACTIONS['create'], $user)) {
-                return $this->sendError('You have no rights to access this action.');
-            }
+            // if (!AppHelper::roleHasSubModulePermission('Planned Machinerry', RoleHasSubModule::ACTIONS['create'], $user)) {
+            //     return $this->sendError('You have no rights to access this action.');
+            // }
 
             if (isset($user) && !empty($user)) {
                 $validator = Validator::make($request->all(), [
                     'project_activity_id' => 'required|exists:projects_activities,id',
-                    'machinery_id' => 'required',
+                    'project_machinery_id' => 'required',
                     'time_slots' => 'required',
                     'date' => 'required|date_format:Y-m-d',
                 ]);
@@ -132,7 +132,7 @@ class MachineryAllocationController extends Controller
                 }
 
                 $allocateMachinery = ProjectActivityAllocateMachinery::whereProjectActivityId($request->project_activity_id)
-                    ->whereMachineryId($request->machinery_id)
+                    ->where('project_machinery_id',$request->project_machinery_id)
                     ->whereDate('date', date('Y-m-d', strtotime($request->date)))
                     ->first();
 
@@ -148,7 +148,7 @@ class MachineryAllocationController extends Controller
                 } else {
                     $allocateMachinery = new ProjectActivityAllocateMachinery();
                     $allocateMachinery->project_activity_id = $request->project_activity_id;
-                    $allocateMachinery->machinery_id = $request->machinery_id;
+                    $allocateMachinery->project_machinery_id = $request->project_machinery_id;
                     $allocateMachinery->date = date('Y-m-d', strtotime($request->date));
                     $allocateMachinery->time_slots = $request->time_slots;
                     $allocateMachinery->assign_by = $user->id;
@@ -157,7 +157,7 @@ class MachineryAllocationController extends Controller
                     $allocateMachinery->save();
                 }
 
-                $allocateMachinery = ProjectActivityAllocateMachinery::with('projectActivity', 'machineries')
+                $allocateMachinery = ProjectActivityAllocateMachinery::with('projectActivity', 'projectMachineries')
                     ->whereId($allocateMachinery->id)
                     ->first();
 
@@ -175,9 +175,9 @@ class MachineryAllocationController extends Controller
         try {
             $user = $request->user();
 
-            if (!AppHelper::roleHasSubModulePermission('Planned Machinerry', RoleHasSubModule::ACTIONS['delete'], $user)) {
-                return $this->sendError('You have no rights to access this action.');
-            }
+            // if (!AppHelper::roleHasSubModulePermission('Planned Machinerry', RoleHasSubModule::ACTIONS['delete'], $user)) {
+            //     return $this->sendError('You have no rights to access this action.');
+            // }
 
             if (isset($user) && !empty($user)) {
                 $validator = Validator::make($request->all(), [

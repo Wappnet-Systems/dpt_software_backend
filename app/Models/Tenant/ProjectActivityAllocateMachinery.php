@@ -18,8 +18,8 @@ class ProjectActivityAllocateMachinery extends Model
         return $this->belongsTo(ProjectActivity::class, 'project_activity_id', 'id');
     }
 
-    public function machineries()
+    public function projectMachineries()
     {
-        return $this->belongsTo(Machinery::class, 'machinery_id', 'id')->select('id', 'name', 'status');
+        return $this->belongsTo(ProjectMachinery::class, 'project_machinery_id', 'id')->select('id', 'project_id', 'name', 'status');
     }
 }
