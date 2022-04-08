@@ -14,9 +14,9 @@ use App\Http\Controllers\Tenant\Api\MaterialTypesController;
 use App\Http\Controllers\Tenant\Api\ManforceTypesController;
 use App\Http\Controllers\Tenant\Api\ActivityCategoriesController;
 use App\Http\Controllers\Tenant\Api\ActivitySubCategoriesController;
-use App\Http\Controllers\Tenant\Api\MachineriesController;
 use App\Http\Controllers\Tenant\Api\ProjectsController;
 use App\Http\Controllers\Tenant\Api\TimeSlotsController;
+use App\Http\Controllers\Tenant\Api\Project\MachineriesController;
 use App\Http\Controllers\Tenant\Api\Project\ActivitiesController;
 use App\Http\Controllers\Tenant\Api\Project\NonWorkingDaysController;
 use App\Http\Controllers\Tenant\Api\Project\ManforcesController;
@@ -124,11 +124,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::patch('activity-sub-category/status/change/{id}', [ActivitySubCategoriesController::class, 'changeStatus']);
 
     /* Machineries Routes */
-    Route::get('machinery/get/lists', [MachineriesController::class, 'getMachineries']);
-    Route::get('machinery/get/{id}', [MachineriesController::class, 'getDetails']);
-    Route::post('machinery/add', [MachineriesController::class, 'addMachineryCategory']);
-    Route::put('machinery/update/{id}', [MachineriesController::class, 'updateMachineryCategory']);
-    Route::patch('machinery/status/change/{id}', [MachineriesController::class, 'changeStatus']);
+    Route::get('project/machinery/get/lists', [MachineriesController::class, 'getMachineries']);
+    Route::get('project/machinery/get/{id}', [MachineriesController::class, 'getDetails']);
+    Route::post('project/machinery/add', [MachineriesController::class, 'addMachineryCategory']);
+    Route::put('project/machinery/update/{id}', [MachineriesController::class, 'updateMachineryCategory']);
+    Route::patch('project/machinery/status/change/{id}', [MachineriesController::class, 'changeStatus']);
 
     /* Projects Routes */
     Route::get('project/get/lists', [ProjectsController::class, 'getProjects']);
