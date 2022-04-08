@@ -23,12 +23,12 @@ class MachineryAllocationController extends Controller
 
             if (isset($user) && !empty($user)) {
                 if ($user->role_id == User::USER_ROLE['SUPER_ADMIN']) {
-                    return $this->sendError('You have no rights to access this module.');
+                    return $this->sendError('You have no rights to access this module.', [], 401);
                 }
 
-                if (!AppHelper::roleHasModulePermission('Planning and Scheduling', $user)) {
-                    return $this->sendError('You have no rights to access this module.');
-                }
+                // if (!AppHelper::roleHasModulePermission('Planning and Scheduling', $user)) {
+                //     return $this->sendError('You have no rights to access this module.', [], 401);
+                // }
 
                 $hostnameId = Organization::whereId($user->organization_id)->value('hostname_id');
 
