@@ -183,7 +183,7 @@ class RoleController extends Controller
         $limit = !empty($request->limit) ? $request->limit : config('constants.default_per_page_limit');
         $orderBy = !empty($request->orderby) ? $request->orderby : config('constants.default_orderby');
 
-        $query = Module::orderBy('id', $orderBy)
+        $query = Module::orderBy('id', 'desc')
             ->isAssigned($request->orgId, $user->role_id);
 
         if ($user->role_id != User::USER_ROLE['SUPER_ADMIN']) {
