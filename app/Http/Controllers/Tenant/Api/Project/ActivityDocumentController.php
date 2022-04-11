@@ -79,6 +79,10 @@ class ActivityDocumentController extends Controller
             });
         }
 
+        if (isset($request->type) && !empty($request->type)) {
+            $query = $query->whereType($request->type);
+        }
+
         $totalQuery = $query;
         $totalQuery = $totalQuery->count();
 

@@ -52,6 +52,11 @@ class ManforcesAllocationController extends Controller
             ->whereProjectActivityId($request->project_activity_id ?? '')
             ->orderby('id', $orderBy);
 
+        if (isset($request->date) && !empty($request->date)) {
+            $query = $query->whereDate('date', '>=', date('Y-m-d', strtotime($request->date)))
+                ->whereDate('date', '<=', date('Y-m-d', strtotime($request->date)));
+        }
+
         $totalQuery = $query;
         $totalQuery = $totalQuery->count();
 

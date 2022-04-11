@@ -56,6 +56,11 @@ class InspectionController extends Controller
             $query = ProjectInspection::with('projectActivity')
                 ->orderBy('id', $orderBy);
 
+            if (isset($request->inspection_status) && !empty($request->inspection_status)) {
+                $query = $query->where('inspection_status', $request->inspection_status);
+            }
+
+
             $totalQuery = $query;
             $totalQuery = $totalQuery->count();
 
@@ -305,6 +310,10 @@ class InspectionController extends Controller
 
                 if (!isset($projectInspection) || empty($projectInspection)) {
                     return $this->sendError('Project inspection does not exists.');
+                }
+
+                if (!in_array($request->inspection_status, ProjectInspection::INC_STATUS)) {
+                    return $this->sendError('Invalid status requested.');
                 }
 
                 if ($request->inspection_status == ProjectInspection::INC_STATUS['Rejected']) {
