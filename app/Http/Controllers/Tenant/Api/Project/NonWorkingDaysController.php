@@ -21,7 +21,7 @@ class NonWorkingDaysController extends Controller
 
             if (isset($user) && !empty($user)) {
                 if ($user->role_id == User::USER_ROLE['SUPER_ADMIN']) {
-                    return $this->sendError('You have no rights to access this module.', [], 401);
+                    return $this->sendError('You have no rights to access this module.');
                 }
 
                 $hostnameId = Organization::whereId($user->organization_id)->value('hostname_id');
@@ -55,6 +55,14 @@ class NonWorkingDaysController extends Controller
             $search = trim(strtolower($request->search));
 
             $query = $query->whereRaw('LOWER(CONCAT(`name`)) LIKE ?', ['%' . $search . '%']);
+        }
+
+        if (isset($request->month) && !empty($request->month)) {
+            $query = $query->whereMonth('start_date_time', $request->month);
+        }
+
+        if (isset($request->year) && !empty($request->year)) {
+            $query = $query->whereYear('start_date_time', $request->year);
         }
 
         $totalQuery = $query;
@@ -191,10 +199,6 @@ class NonWorkingDaysController extends Controller
 
             if (!isset($nonWorkingDays) || empty($nonWorkingDays)) {
                 return $this->sendError('Non working day does not exists.');
-            }
-
-            if (!in_array($request->status, ProjectNonWorkingDay::STATUS)) {
-                return $this->sendError('Invalid status requested.');
             }
 
             $nonWorkingDays->deleted_at = null;
