@@ -230,18 +230,18 @@ class RoleController extends Controller
                     }
                 }
 
-                $assignPerQuery = RoleHasModule::whereOrganizationId($request->org_id)->whereRoleId($request->role_id);
-
-                if ($assignPerQuery->exists()) {
-                    $assignPerQuery->delete();
-                }
-
                 $request->module_ids = explode(',', $request->module_ids);
 
                 $isModuleExists = Module::whereIn('id', $request->module_ids)->count();
 
                 if (!isset($isModuleExists) || empty($isModuleExists)) {
                     return $this->sendError('The selected module ids is does not exist.', [], 400);
+                }
+
+                $assignPerQuery = RoleHasModule::whereOrganizationId($request->org_id)->whereRoleId($request->role_id);
+
+                if ($assignPerQuery->exists()) {
+                    $assignPerQuery->delete();
                 }
 
                 // Assign module permission to role of organization

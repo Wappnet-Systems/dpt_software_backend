@@ -21,7 +21,7 @@ class CreateProjectsActivitiesAllocateMachineriesTable extends Migration
             $table->unsignedBigInteger('project_activity_id');
             $table->unsignedBigInteger('project_machinery_id');
             $table->date('date');
-            $table->string('time_slots', 300);
+            $table->string('time_slots', 300)->nullable();
             $table->unsignedBigInteger('assign_by');
             $table->ipAddress('created_ip')->nullable();
             $table->ipAddress('updated_ip')->nullable();
