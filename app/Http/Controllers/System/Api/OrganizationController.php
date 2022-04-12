@@ -115,9 +115,9 @@ class OrganizationController extends Controller
                 }
 
                 if (!in_array($user->role_id, [User::USER_ROLE['SUPER_ADMIN']])) {
-                    return $this->sendError('You not rights to create a organization.');
+                    return $this->sendError('You have not rights to create a organization.');
                 }
-                die;
+
                 // Create new website
                 $website = new Website;
                 $website->uuid = Organization::generateUuid($request->org_domain);
