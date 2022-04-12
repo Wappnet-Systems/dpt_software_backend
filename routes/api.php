@@ -32,6 +32,7 @@ use App\Http\Controllers\Tenant\Api\Project\MachineryAllocationController;
 use App\Http\Controllers\Tenant\Api\Project\ManforcesAllocationController;
 use App\Http\Controllers\Tenant\Api\Project\InspectionController;
 use App\Http\Controllers\Tenant\Api\Project\MethodStatementController;
+use App\Http\Controllers\Tenant\Api\Project\ManforceProductivityController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -242,6 +243,9 @@ Route::middleware('auth:sanctum')->group(function () {
 
     /* Activity Manpower Routes */
     Route::get('project/activity/manpower/get/lists', [ManforcesAllocationController::class, 'getActivityManpower']);
+    
+    /* Manforce Productivity Routes */
+    Route::get('project/manforce/productivity/get/lists', [ManforceProductivityController::class, 'getManforceProductivity']);
 
     /* Project Inspection Routes */
     Route::get('project/inspection/get/lists', [InspectionController::class, 'getProjectInspection']);
