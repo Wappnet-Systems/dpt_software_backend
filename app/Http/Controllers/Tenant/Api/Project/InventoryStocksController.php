@@ -95,7 +95,7 @@ class InventoryStocksController extends Controller
     public function updateMinimunQuntity(Request $request, $projectInventoryId = null)
     {
         $validator = Validator::make($request->all(), [
-            'minimum_quantity' => 'required',
+            'minimum_quantity' => 'required|numeric|gt:0',
         ]);
 
         if ($validator->fails()) {

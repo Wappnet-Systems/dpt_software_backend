@@ -108,7 +108,7 @@ class MachineryAllocationController extends Controller
             if (isset($user) && !empty($user)) {
                 $validator = Validator::make($request->all(), [
                     'project_activity_id' => 'required|exists:projects_activities,id',
-                    'project_machinery_id' => 'required',
+                    'project_machinery_id' => 'required|exists:projects_machineries,id',
                     'time_slots' => 'required',
                     'date' => 'required|date_format:Y-m-d',
                 ]);
