@@ -137,16 +137,16 @@ class RoleController extends Controller
                 }
 
                 // Assign sub module permission to role of organization
-                foreach ($request->sub_module_permission as $subModuleId => $permissionId) {
+                foreach ($request->sub_module_permission as $key => $value) {
                     $roleHasSubModule = new RoleHasSubModule();
                     $roleHasSubModule->role_id = $request->role_id;
-                    $roleHasSubModule->sub_module_id = $subModuleId;
-                    $roleHasSubModule->is_list = isset($permissionId['is_list']) ? $permissionId['is_list'] : false;
-                    $roleHasSubModule->is_create = isset($permissionId['is_create']) ? $permissionId['is_create'] : false;
-                    $roleHasSubModule->is_edit = isset($permissionId['is_edit']) ? $permissionId['is_edit'] : false;
-                    $roleHasSubModule->is_delete = isset($permissionId['is_delete']) ? $permissionId['is_delete'] : false;
-                    $roleHasSubModule->is_view = isset($permissionId['is_view']) ? $permissionId['is_view'] : false;
-                    $roleHasSubModule->is_comment = isset($permissionId['is_comment']) ? $permissionId['is_comment'] : false;
+                    $roleHasSubModule->sub_module_id = $value['sub_module_id'];
+                    $roleHasSubModule->is_list = isset($value['is_list']) ? $value['is_list'] : false;
+                    $roleHasSubModule->is_create = isset($value['is_create']) ? $value['is_create'] : false;
+                    $roleHasSubModule->is_edit = isset($value['is_edit']) ? $value['is_edit'] : false;
+                    $roleHasSubModule->is_delete = isset($value['is_delete']) ? $value['is_delete'] : false;
+                    $roleHasSubModule->is_view = isset($value['is_view']) ? $value['is_view'] : false;
+                    $roleHasSubModule->is_comment = isset($value['is_comment']) ? $value['is_comment'] : false;
                     $roleHasSubModule->save();
                 }
 
