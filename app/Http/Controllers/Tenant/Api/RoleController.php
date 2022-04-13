@@ -73,6 +73,17 @@ class RoleController extends Controller
                         ->whereRoleId($request->roleId)
                         ->whereSubModuleId($subValue['id'])
                         ->first();
+
+                    if (empty($roles['data'][$key]['sub_module'][$subKey]['role_has_sub_modules'])) {
+                        $roles['data'][$key]['sub_module'][$subKey]['role_has_sub_modules'] = [
+                            "is_list" => 0,
+                            "is_create" => 0,
+                            "is_edit" => 0,
+                            "is_delete" => 0,
+                            "is_view" => 0,
+                            "is_comment" => 0
+                        ];
+                    }
                 }
             }
 
