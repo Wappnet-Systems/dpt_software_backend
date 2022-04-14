@@ -120,15 +120,15 @@ class RoleController extends Controller
                     }
                 }
 
-                if (in_array($request->role_id, [User::USER_ROLE['SUPER_ADMIN'], User::USER_ROLE['COMPANY_ADMIN'], User::USER_ROLE['CONSTRUCATION_SITE_ADMIN']])) {
+                if (in_array($request->role_id, [User::USER_ROLE['SUPER_ADMIN'], User::USER_ROLE['COMPANY_ADMIN']])) {
                     return $this->sendError('You have no rights to add User.');
                 }
 
                 $request->merge(['sub_module_permission' => json_decode($request->sub_module_permission, true)]);
 
-                if (!isset($request->sub_module_permission) || empty($request->sub_module_permission)) {
+                /* if (!isset($request->sub_module_permission) || empty($request->sub_module_permission)) {
                     return $this->sendError('Please choose permissions.');
-                }
+                } */
 
                 $assignPerQuery = RoleHasSubModule::whereRoleId($request->role_id);
 
