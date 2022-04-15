@@ -23,9 +23,9 @@ class RoleController extends Controller
             $user = $request->user();
 
             if (isset($user) && !empty($user)) {
-                if ($user->role_id == User::USER_ROLE['SUPER_ADMIN']) {
+                /* if ($user->role_id == User::USER_ROLE['SUPER_ADMIN']) {
                     return $this->sendError('You have no rights to access this module.', [], 401);
-                }
+                } */
 
                 $hostnameId = Organization::whereId($user->organization_id)->value('hostname_id');
 
