@@ -42,8 +42,12 @@ class ModuleSubModuleSeeder extends Seeder
             [
                 'name' => 'Planning and Scheduling',
                 'sub_module' => [
+                    ['name' => 'Non Working Day'],
+                    ['name' => 'Manforce Management'],
+                    ['name' => 'Material Management'],
+                    ['name' => 'Stock Management'],
+                    ['name' => 'Activity Document Management'],
                     ['name' => 'Gant Chart'],
-                    ['name' => 'Non working day'],
                     ['name' => 'Activity Settings'],
                     ['name' => 'Planned Manpower'],
                     ['name' => 'Material Sheet'],
