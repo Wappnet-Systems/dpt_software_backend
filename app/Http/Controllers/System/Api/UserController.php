@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use App\Models\System\Role;
+use App\Models\System\SubModule;
 use App\Models\System\User;
 use App\Models\System\UserLoginLog;
 
@@ -40,7 +41,8 @@ class UserController extends Controller
                     $data = [
                         'user' => $user,
                         'modules' => Module::pluck('name', 'id'),
-                        'assign_modules' => Module::isAssigned($user->organization_id ?? null)->get()->toArray()
+                        'assign_modules' => Module::isAssigned($user->organization_id ?? null)->get()->toArray(),
+                        'sub_modules' => SubModule::pluck('name', 'id'),
                     ];
         
                     return $this->sendResponse($data, 'User login successfully.');
