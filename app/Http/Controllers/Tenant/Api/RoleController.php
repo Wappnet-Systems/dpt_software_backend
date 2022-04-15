@@ -13,6 +13,7 @@ use App\Models\System\SubModule;
 use App\Models\Tenant\RoleHasSubModule;
 use App\Helpers\AppHelper;
 use App\Models\System\Module;
+use App\Models\System\RoleHasModule;
 
 class RoleController extends Controller
 {
@@ -46,12 +47,17 @@ class RoleController extends Controller
 
     public function getRoleSubModulePermissions(Request $request, $roleId = null)
     {
+        $user = $request->user();
+        
         $limit = !empty($request->limit) ? $request->limit : config('constants.default_per_page_limit');
         $orderBy = !empty($request->orderby) ? $request->orderby : config('constants.default_orderby');
 
         AppHelper::setDefaultDBConnection(true);
 
+        $assignModuleIds = RoleHasModule::whereOrganizationId($user->organization_id)->pluck('module_id');
+
         $query = Module::with('subModule')
+            ->whereIn('id', $assignModuleIds)
             ->orderBy('id', $orderBy);
 
         AppHelper::setDefaultDBConnection();
