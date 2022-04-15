@@ -16,12 +16,22 @@ class RoleController extends Controller
 {
     public function getRoles(Request $request)
     {
+        $user = $request->user();
+
         $limit = !empty($request->limit) ? $request->limit : config('constants.default_per_page_limit');
         $orderBy = !empty($request->orderby) ? $request->orderby : config('constants.default_orderby');
 
         $query = Role::where('status', Role::STATUS['Active'])
             ->where('id', '!=', User::USER_ROLE['SUPER_ADMIN'])
             ->orderBy('id', $orderBy);
+
+        if ($user->role_id == User::USER_ROLE['COMPANY_ADMIN']) {
+            $query->whereNotIn('id', [User::USER_ROLE['COMPANY_ADMIN']]);
+        }
+
+        if ($user->role_id == User::USER_ROLE['CONSTRUCATION_SITE_ADMIN']) {
+            $query->whereNotIn('id', [User::USER_ROLE['COMPANY_ADMIN'], User::USER_ROLE['CONSTRUCATION_SITE_ADMIN']]);
+        }
 
         if (isset($request->search) && !empty($request->search)) {
             $search = trim(strtolower($request->search));
