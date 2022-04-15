@@ -80,6 +80,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     /* Assign Sub Modules Permission to Roles Routes */
     Route::get('role/sub-module/permissions/get/{roleId}', [OrganizationRoleController::class, 'getRoleSubModulePermissions']);
+    Route::get('role/sub-module/permissions/by/user/get', [OrganizationRoleController::class, 'getAssignSubModulesByLoginUser']);
     Route::post('role/sub-module/permissions/change', [OrganizationRoleController::class, 'changeRoleSubModulePermissions']);
 
     /** User Management Routes */
