@@ -13,6 +13,7 @@ use App\Models\System\SubModule;
 use App\Models\Tenant\RoleHasSubModule;
 use App\Helpers\AppHelper;
 use App\Models\System\Module;
+use App\Models\System\RoleHasModule;
 
 class RoleController extends Controller
 {
@@ -46,12 +47,17 @@ class RoleController extends Controller
 
     public function getRoleSubModulePermissions(Request $request, $roleId = null)
     {
+        $user = $request->user();
+        
         $limit = !empty($request->limit) ? $request->limit : config('constants.default_per_page_limit');
         $orderBy = !empty($request->orderby) ? $request->orderby : config('constants.default_orderby');
 
         AppHelper::setDefaultDBConnection(true);
 
+        $assignModuleIds = RoleHasModule::whereOrganizationId($user->organization_id)->pluck('module_id');
+
         $query = Module::with('subModule')
+            ->whereIn('id', $assignModuleIds)
             ->orderBy('id', $orderBy);
 
         AppHelper::setDefaultDBConnection();
@@ -73,6 +79,17 @@ class RoleController extends Controller
                         ->whereRoleId($request->roleId)
                         ->whereSubModuleId($subValue['id'])
                         ->first();
+
+                    if (empty($roles['data'][$key]['sub_module'][$subKey]['role_has_sub_modules'])) {
+                        $roles['data'][$key]['sub_module'][$subKey]['role_has_sub_modules'] = [
+                            "is_list" => 0,
+                            "is_create" => 0,
+                            "is_edit" => 0,
+                            "is_delete" => 0,
+                            "is_view" => 0,
+                            "is_comment" => 0
+                        ];
+                    }
                 }
             }
 
@@ -109,15 +126,15 @@ class RoleController extends Controller
                     }
                 }
 
-                if (in_array($request->role_id, [User::USER_ROLE['SUPER_ADMIN'], User::USER_ROLE['COMPANY_ADMIN'], User::USER_ROLE['CONSTRUCATION_SITE_ADMIN']])) {
+                if (in_array($request->role_id, [User::USER_ROLE['SUPER_ADMIN'], User::USER_ROLE['COMPANY_ADMIN']])) {
                     return $this->sendError('You have no rights to add User.');
                 }
 
                 $request->merge(['sub_module_permission' => json_decode($request->sub_module_permission, true)]);
 
-                if (!isset($request->sub_module_permission) || empty($request->sub_module_permission)) {
+                /* if (!isset($request->sub_module_permission) || empty($request->sub_module_permission)) {
                     return $this->sendError('Please choose permissions.');
-                }
+                } */
 
                 $assignPerQuery = RoleHasSubModule::whereRoleId($request->role_id);
 
@@ -126,16 +143,16 @@ class RoleController extends Controller
                 }
 
                 // Assign sub module permission to role of organization
-                foreach ($request->sub_module_permission as $subModuleId => $permissionId) {
+                foreach ($request->sub_module_permission as $key => $value) {
                     $roleHasSubModule = new RoleHasSubModule();
                     $roleHasSubModule->role_id = $request->role_id;
-                    $roleHasSubModule->sub_module_id = $subModuleId;
-                    $roleHasSubModule->is_list = isset($permissionId['is_list']) ? $permissionId['is_list'] : false;
-                    $roleHasSubModule->is_create = isset($permissionId['is_create']) ? $permissionId['is_create'] : false;
-                    $roleHasSubModule->is_edit = isset($permissionId['is_edit']) ? $permissionId['is_edit'] : false;
-                    $roleHasSubModule->is_delete = isset($permissionId['is_delete']) ? $permissionId['is_delete'] : false;
-                    $roleHasSubModule->is_view = isset($permissionId['is_view']) ? $permissionId['is_view'] : false;
-                    $roleHasSubModule->is_comment = isset($permissionId['is_comment']) ? $permissionId['is_comment'] : false;
+                    $roleHasSubModule->sub_module_id = $value['sub_module_id'];
+                    $roleHasSubModule->is_list = isset($value['is_list']) ? $value['is_list'] : false;
+                    $roleHasSubModule->is_create = isset($value['is_create']) ? $value['is_create'] : false;
+                    $roleHasSubModule->is_edit = isset($value['is_edit']) ? $value['is_edit'] : false;
+                    $roleHasSubModule->is_delete = isset($value['is_delete']) ? $value['is_delete'] : false;
+                    $roleHasSubModule->is_view = isset($value['is_view']) ? $value['is_view'] : false;
+                    $roleHasSubModule->is_comment = isset($value['is_comment']) ? $value['is_comment'] : false;
                     $roleHasSubModule->save();
                 }
 
