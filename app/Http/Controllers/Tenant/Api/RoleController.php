@@ -164,4 +164,16 @@ class RoleController extends Controller
             return $this->sendError($e->getMessage());
         }
     }
+
+    public function getAssignSubModulesByLoginUser(Request $request)
+    {
+        $user = $request->user();
+
+        $assSubModule = RoleHasSubModule::with('subModule')
+            ->whereRoleId($user->role_id ?? null)
+            ->get()
+            ->toArray();
+
+        return $this->sendResponse($assSubModule, 'Sub module permissions list');
+    }
 }

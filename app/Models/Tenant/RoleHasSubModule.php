@@ -21,4 +21,9 @@ class RoleHasSubModule extends Model
         'view' => 'is_view',
         'comment' => 'is_comment',
     ];
+
+    public function subModule()
+    {
+        return $this->belongsTo('App\Models\System\SubModule', 'sub_module_id', 'id');
+    }
 }
