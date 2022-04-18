@@ -19,7 +19,7 @@ jobs:
 
           host: ${{ secrets.WAPPNET_SERVER }}
 
-          password: ${{ secrets.WAPPNET_KEY }}
+          key: ${{ secrets.WAPPNET_KEY }}
 
           username: ${{ secrets.WAPPNET_USER }}
 
