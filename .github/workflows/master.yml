@@ -17,41 +17,41 @@ jobs:
         uses: appleboy/ssh-action@master
         with:
 
-          host: ${{ secrets.SSH_HOST }}
+          host: ${{ secrets.WAPPNET_SERVER }}
 
-          password: ${{ secrets.SSH_PRIVATE_KEY }}
+          key: ${{ secrets.WAPPNET_KEY }}
 
-          username: ${{ secrets.SSH_USERNAME }}
+          username: ${{ secrets.WAPPNET_USER }}
 
           script: |
             
             cd /var/www/html/dpt_software_backend/
             
-            (sudo php artisan down --message 'The app is being (quickly!) updated. Please try again in a minute.') || true
+            (php artisan down --message 'The app is being (quickly!) updated. Please try again in a minute.') || true
                 # Update codebase
-                sudo git fetch origin master
-                sudo git reset --hard origin/master
+                git fetch origin master
+                git reset --hard origin/master
                 # Install dependencies based on lock file
-                sudo composer install --no-interaction --prefer-dist --optimize-autoloader
+                composer install --no-interaction --prefer-dist --optimize-autoloader
                
                 # Migrate database
-                sudo php artisan migrate
-                sudo php artisan tenancy:migrate
+                php artisan migrate
+                php artisan tenancy:migrate
                 
                 if [ -e deploy.sh ]
                 then
-                        sudo chmod 777 deploy.sh
+                        chmod 777 deploy.sh
                     ./deploy.sh
                 fi
                 
                 # Note: If you're using queue workers, this is the place to restart them.
                 # ...
                 # Clear cache
-                sudo php artisan optimize:clear
-                sudo php artisan cache:clear
-                # sudo php artisan optimize
+                php artisan optimize:clear
+                php artisan cache:clear
+                # php artisan optimize
                 # Reload PHP to update opcache
-                #echo "" | sudo -S service php7.4-fpm reload
+                #echo "" | -S service php7.4-fpm reload
             # Exit maintenance mode
-            sudo php artisan up
+            php artisan up
             echo "Application deployed!"
