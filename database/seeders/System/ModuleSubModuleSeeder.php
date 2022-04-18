@@ -45,6 +45,7 @@ class ModuleSubModuleSeeder extends Seeder
                     ['name' => 'Non Working Day'],
                     ['name' => 'Manforce Management'],
                     ['name' => 'Material Management'],
+                    ['name' => 'Machinery Management'],
                     ['name' => 'Stock Management'],
                     ['name' => 'Activity Document Management'],
                     ['name' => 'Gant Chart'],
