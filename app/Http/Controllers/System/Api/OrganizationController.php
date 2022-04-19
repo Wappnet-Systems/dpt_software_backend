@@ -94,10 +94,10 @@ class OrganizationController extends Controller
                 $validator = Validator::make($request->all(), [
                     'name' => 'required',
                     'org_admin_name' => 'required',
-                    'email' => 'required',
+                    'email' => 'required|exists:organizations,email',
                     'logo' => sprintf('mimes:%s|max:%s', config('constants.upload_image_types'), config('constants.upload_image_max_size')),
                     'phone_no' => 'required',
-                    'org_domain' => 'required',
+                    'org_domain' => 'required|exists:hostnames,fqdn',
                     'address' => 'required',
                     'city' => 'required',
                     'state' => 'required',
@@ -287,6 +287,12 @@ class OrganizationController extends Controller
 
                 if ($organization->status == Organization::STATUS['Deleted']) {
                     $organization->delete();
+
+                    User::whereOrganizationId($organization->id)->update([
+                        'status' => $request->status
+                    ]);
+
+                    User::whereOrganizationId($organization->id)->delete();
                 }
 
                 return $this->sendResponse($organization, 'Status changed successfully.');

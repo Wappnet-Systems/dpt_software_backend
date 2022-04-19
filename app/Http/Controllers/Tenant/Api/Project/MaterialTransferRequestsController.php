@@ -145,10 +145,10 @@ class MaterialTransferRequestsController extends Controller
                 $transferReq->updated_ip = $request->ip();
 
                 if (!$transferReq->save()) {
-                    return $this->sendError('Something went wrong while creating the material raising request.');
+                    return $this->sendError('Something went wrong while creating the material transfer request.');
                 }
 
-                return $this->sendResponse($transferReq, 'Material raising requested successfully.');
+                return $this->sendResponse($transferReq, 'Material transfer requested successfully.');
             } else {
                 return $this->sendError('User not exists.');
             }
@@ -213,10 +213,10 @@ class MaterialTransferRequestsController extends Controller
                 $transferReq->updated_ip = $request->ip();
 
                 if (!$transferReq->save()) {
-                    return $this->sendError('Something went wrong while creating the material raising request.');
+                    return $this->sendError('Something went wrong while creating the material transfer request.');
                 }
 
-                return $this->sendResponse($transferReq, 'Material raising request updated successfully.');
+                return $this->sendResponse($transferReq, 'Material transfer request updated successfully.');
             } else {
                 return $this->sendError('User not exists.');
             }
@@ -243,7 +243,7 @@ class MaterialTransferRequestsController extends Controller
 
                 $transferReq->delete();
 
-                return $this->sendResponse([], 'Material raising request deleted successfully.');
+                return $this->sendResponse([], 'Material transfer request deleted successfully.');
             } else {
                 return $this->sendError('User not exists.');
             }
@@ -272,7 +272,7 @@ class MaterialTransferRequestsController extends Controller
             $transferReq = ProjectMaterialTransferRequest::whereId($request->id)->first();
 
             if (!isset($transferReq) || empty($transferReq)) {
-                return $this->sendError('Project material raising request does not exists.');
+                return $this->sendError('Project material transfer request does not exists.');
             }
 
             if (!in_array($transferReq->status, [ProjectMaterialTransferRequest::STATUS['Pending'], ProjectMaterialTransferRequest::STATUS['Rejected']])) {

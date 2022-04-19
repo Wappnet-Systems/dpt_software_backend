@@ -65,29 +65,31 @@ class MachineryAllocationController extends Controller
 
             $machineriesIds = explode(',', $request->project_machinery_ids);
 
+            $begin = new \DateTime($request->start_date);
+            $end = new \DateTime($request->end_date);
+
             $timeSlotMachinery = [];
-            foreach ($timeSlots as $timeSlotKey => $timeSlotVal) {
-                $timeSlotMachinery[$timeSlotVal->id]['time_slot'] = [
-                    'id' => $timeSlotVal->id,
-                    'start_time' => $timeSlotVal->start_time,
-                    'end_time' => $timeSlotVal->end_time
-                ];
+            for ($i = $begin; $i <= $end; $i->modify('+1 day')) {
+                $currDate = $i->format("Y-m-d");
 
-                $allocatedMachinery = ProjectActivityAllocateMachinery::with('projectActivity', 'projectMachineries')
-                    ->select('id', 'project_activity_id', 'project_machinery_id', 'date', 'time_slots');
+                foreach ($timeSlots as $timeSlotKey => $timeSlotVal) {
+                    $timeSlotMachinery[$currDate][$timeSlotVal->id]['time_slot'] = [
+                        'id' => $timeSlotVal->id,
+                        'start_time' => $timeSlotVal->start_time,
+                        'end_time' => $timeSlotVal->end_time
+                    ];
 
-                if (isset($request->project_activity_id) && !empty($request->project_activity_id)) {
-                    $allocatedMachinery = $allocatedMachinery->whereProjectActivityId($request->project_activity_id);
+                    $allocatedMachinery = ProjectActivityAllocateMachinery::with('projectActivity', 'projectMachineries')
+                        ->select('id', 'project_activity_id', 'project_machinery_id', 'date', 'time_slots');
+
+                    $allocatedMachinery = $allocatedMachinery->whereRaw('FIND_IN_SET(' . $timeSlotVal->id . ',time_slots)')
+                        ->whereDate('date', '=', $currDate)
+                        ->whereIn('project_machinery_id', $machineriesIds)
+                        ->get()
+                        ->toArray();
+
+                    $timeSlotMachinery[$currDate][$timeSlotVal->id]['allocated_machinery'] = $allocatedMachinery;
                 }
-
-                $allocatedMachinery = $allocatedMachinery->whereRaw('FIND_IN_SET(' . $timeSlotVal->id . ',time_slots)')
-                    ->whereDate('date', '>=', date('Y-m-d', strtotime($request->start_date)))
-                    ->whereDate('date', '<=', date('Y-m-d', strtotime($request->end_date)))
-                    ->whereIn('project_machinery_id', $machineriesIds)
-                    ->get()
-                    ->toArray();
-
-                $timeSlotMachinery[$timeSlotVal->id]['allocated_machinery'] = $allocatedMachinery;
             }
 
             return $this->sendResponse($timeSlotMachinery, 'Allocated project machinery list.');
