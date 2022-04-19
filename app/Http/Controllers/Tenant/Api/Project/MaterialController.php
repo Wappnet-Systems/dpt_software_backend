@@ -337,7 +337,7 @@ class MaterialController extends Controller
                 if ($request->hasFile('upload_materials')) {
                     Excel::import(new MaterialImport, $request->file('upload_materials'));
 
-                    return $this->sendResponse('Project Material import successfully.');
+                    return $this->sendResponse([], 'Project Material import successfully.');
                 }
             } else {
                 return $this->sendError('User not exists.');
