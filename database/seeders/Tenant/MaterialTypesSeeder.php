@@ -14,7 +14,7 @@ class MaterialTypesSeeder extends Seeder
      */
     public function run()
     {
-        MaterialType::truncate();
+        // MaterialType::truncate();
 
         $materialTypeArray = ['cement', 'steel', 'sand', 'concrete', 'screws'];
 

@@ -16,7 +16,7 @@ class ActivitySubActivityCategorySeeder extends Seeder
      */
     public function run()
     {
-        ActivityCategory::truncate();
+        // ActivityCategory::truncate();
 
         $activityCategoryArr = [
             'Formwork' => [

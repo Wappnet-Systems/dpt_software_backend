@@ -14,7 +14,7 @@ class TimeSlotsSeeder extends Seeder
      */
     public function run()
     {
-        TimeSlot::truncate();
+        // TimeSlot::truncate();
 
         $timeSlotArr = [
             [
