@@ -94,10 +94,10 @@ class OrganizationController extends Controller
                 $validator = Validator::make($request->all(), [
                     'name' => 'required',
                     'org_admin_name' => 'required',
-                    'email' => 'required|exists:organizations,email',
+                    'email' => 'required', // |exists:organizations,email
                     'logo' => sprintf('mimes:%s|max:%s', config('constants.upload_image_types'), config('constants.upload_image_max_size')),
                     'phone_no' => 'required',
-                    'org_domain' => 'required|exists:hostnames,fqdn',
+                    'org_domain' => 'required', // |exists:hostnames,fqdn
                     'address' => 'required',
                     'city' => 'required',
                     'state' => 'required',
@@ -198,7 +198,8 @@ class OrganizationController extends Controller
                 return $this->sendError('User not exists.');
             }
         } catch (\Exception $e) {
-            return $this->sendError($e->getMessage());
+            // return $this->sendError($e->getMessage());
+            return $this->sendError('Something went wrong!');
         }
     }
 
@@ -267,7 +268,8 @@ class OrganizationController extends Controller
                 return $this->sendError('User not exists.');
             }
         } catch (\Exception $e) {
-            return $this->sendError($e->getMessage());
+            return $this->sendError('Something went wrong!');
+            // return $this->sendError($e->getMessage());
         }
     }
 
@@ -300,7 +302,8 @@ class OrganizationController extends Controller
 
             return $this->sendError('Organization does not exists.');
         } catch (\Exception $e) {
-            return $this->sendError($e->getMessage());
+            return $this->sendError('Something went wrong!');
+            // return $this->sendError($e->getMessage());
         }
     }
 }
