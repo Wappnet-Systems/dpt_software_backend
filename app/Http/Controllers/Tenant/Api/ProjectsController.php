@@ -387,6 +387,10 @@ class ProjectsController extends Controller
 
                 $request->user_ids = explode(',', $request->user_ids);
 
+                $projExistAssignUser = ProjectAssignedUser::whereProjectId($request->project_id)
+                    ->whereCreatedBy($user->id)
+                    ->delete();
+
                 // Assign users to project
                 foreach ($request->user_ids as $userId) {
                     $projAssignUser = ProjectAssignedUser::whereProjectId($request->project_id)

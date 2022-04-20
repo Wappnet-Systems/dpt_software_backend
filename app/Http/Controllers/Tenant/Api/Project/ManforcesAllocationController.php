@@ -256,6 +256,7 @@ class ManforcesAllocationController extends Controller
                 if (!isset($allocatedManforces) || empty($allocatedManforces)) {
                     return $this->sendError('Manforce not allocated to the activity.');
                 }
+                
                 if (date('Y-m-d') == date('Y-m-d', strtotime($allocatedManforces->date))) {
                     if (date('H:i:s', strtotime($allocatedManforces->start_time)) > date('H:i:s')) {
                         $allocatedManforces->delete();
