@@ -14,6 +14,8 @@ class UnitTypesSeeder extends Seeder
      */
     public function run()
     {
+        UnitType::truncate();
+
         $unitTypeArray = ['m2', 'm3', 'kg', 'lmorno', 'lm'];
         
         foreach ($unitTypeArray as $value) {

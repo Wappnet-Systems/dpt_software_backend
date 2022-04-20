@@ -16,6 +16,8 @@ class ActivitySubActivityCategorySeeder extends Seeder
      */
     public function run()
     {
+        ActivityCategory::truncate();
+
         $activityCategoryArr = [
             'Formwork' => [
                 'm2' => ['Stab Docking', 'Foundating shuttering', 'Column shuttering', 'Shear wall', 'Retaining wall', 'Upstand', 'Core wall', 'Grade slab', 'DownStand']
