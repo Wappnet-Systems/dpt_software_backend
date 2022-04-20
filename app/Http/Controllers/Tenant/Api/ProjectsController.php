@@ -319,7 +319,9 @@ class ProjectsController extends Controller
 
         try {
             if (isset($user) && !empty($user)) {
-                $assignedUserIds = ProjectAssignedUser::whereProjectId($request->project_id ?? null)->pluck('user_id');
+                $assignedUserIds = ProjectAssignedUser::whereProjectId($request->project_id ?? null)
+                    // ->whereCreatedBy($user->id)
+                    ->pluck('user_id');
 
                 AppHelper::setDefaultDBConnection(true);
 

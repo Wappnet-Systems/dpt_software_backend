@@ -48,6 +48,8 @@ class ModuleSubModuleSeeder extends Seeder
                     ['name' => 'Machinery Management'],
                     ['name' => 'Stock Management'],
                     ['name' => 'Activity Document Management'],
+                    ['name' => 'Material Transfer Request'],
+                    ['name' => 'Machinery Allocation'],
                     ['name' => 'Gant Chart'],
                     ['name' => 'Activity Settings'],
                     ['name' => 'Planned Manpower'],
