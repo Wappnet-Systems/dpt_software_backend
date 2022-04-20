@@ -18,9 +18,9 @@ class TenantDatabaseSeeder extends Seeder
     public function run()
     {
         $this->call([
-            // UnitTypesSeeder::class,
-            // MaterialTypesSeeder::class,
-            // ActivitySubActivityCategorySeeder::class,
+            UnitTypesSeeder::class,
+            MaterialTypesSeeder::class,
+            ActivitySubActivityCategorySeeder::class,
             TimeSlotsSeeder::class,
         ]);
     }

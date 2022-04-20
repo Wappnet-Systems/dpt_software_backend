@@ -14,7 +14,6 @@ class TimeSlotsSeeder extends Seeder
      */
     public function run()
     {
-        // DB::table('vcp_eligibilities')->truncate();
         TimeSlot::truncate();
 
         $timeSlotArr = [
