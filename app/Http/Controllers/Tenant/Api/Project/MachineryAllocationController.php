@@ -82,6 +82,12 @@ class MachineryAllocationController extends Controller
                     $allocatedMachinery = ProjectActivityAllocateMachinery::with('projectActivity', 'projectMachineries')
                         ->select('id', 'project_activity_id', 'project_machinery_id', 'date', 'time_slots');
 
+                    if (isset($request->project_id) && !empty($request->project_id)) {
+                        $allocatedMachinery = $allocatedMachinery->whereHas('projectActivity', function ($query) use ($request) {
+                            $query->where('project_id', $request->project_id);
+                        });
+                    }
+
                     $allocatedMachinery = $allocatedMachinery->whereRaw('FIND_IN_SET(' . $timeSlotVal->id . ',time_slots)')
                         ->whereDate('date', '=', $currDate)
                         ->whereIn('project_machinery_id', $machineriesIds)
