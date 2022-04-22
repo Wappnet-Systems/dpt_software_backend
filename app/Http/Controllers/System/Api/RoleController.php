@@ -23,14 +23,15 @@ class RoleController extends Controller
 
         $query = Role::where('status', Role::STATUS['Active'])
             ->where('id', '!=', User::USER_ROLE['SUPER_ADMIN'])
+            ->where('id', '!=', $user->role_id)
             ->orderBy('id', $orderBy);
 
-        if ($user->role_id == User::USER_ROLE['COMPANY_ADMIN']) {
+        if ($user->role_id == User::USER_ROLE['CONSTRUCATION_SITE_ADMIN']) {
             $query->whereNotIn('id', [User::USER_ROLE['COMPANY_ADMIN']]);
         }
 
-        if ($user->role_id == User::USER_ROLE['CONSTRUCATION_SITE_ADMIN']) {
-            $query->whereNotIn('id', [User::USER_ROLE['COMPANY_ADMIN'], User::USER_ROLE['CONSTRUCATION_SITE_ADMIN']]);
+        if (!in_array($user->role_id, [User::USER_ROLE['COMPANY_ADMIN'], User::USER_ROLE['CONSTRUCATION_SITE_ADMIN']])) {
+            $query->where('id', '>', $user->role_id);
         }
 
         if (isset($request->search) && !empty($request->search)) {
