@@ -104,7 +104,7 @@ class ActivitiesController extends Controller
                     'project_id' => 'required|exists:projects,id',
                     'activity_sub_category_id' => 'required|exists:activity_sub_categories,id',
                     'name' => 'required',
-                    'scaffold_number' => 'required',
+                    // 'scaffold_number' => 'required',
                     'start_date' => 'required|date_format:Y-m-d H:i:s',
                     'end_date' => 'required|date_format:Y-m-d H:i:s',
                     'location' => 'required',

@@ -118,6 +118,10 @@ class OrganizationController extends Controller
                     return $this->sendError('You have not rights to create a organization.');
                 }
 
+                if (Organization::whereEmail(strtolower($request->email))->withTrashed()->exists()) {
+                    return $this->sendError('Organization already exists please try using another one.');
+                }
+
                 // Create new website
                 $website = new Website;
                 $website->uuid = Organization::generateUuid($request->org_domain);
@@ -139,7 +143,7 @@ class OrganizationController extends Controller
                 $organization = new Organization();
                 $organization->hostname_id = $hostname->id;
                 $organization->name = $request->name;
-                $organization->email = $request->email;
+                $organization->email = strtolower($request->email);
                 $organization->phone_no = $request->phone_no;
                 $organization->address = $request->address;
                 $organization->city = $request->city;
