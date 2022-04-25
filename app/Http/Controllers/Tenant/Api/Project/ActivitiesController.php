@@ -232,7 +232,7 @@ class ActivitiesController extends Controller
                 } else if ($proActivity->status != 1) {
                     return $this->sendError('You can not delete the activity.');
                 } else {
-                    // $proActivity->delete();
+                    $proActivity->delete();
 
                     return $this->sendResponse([], 'Activity deleted Successfully.');
                 }
