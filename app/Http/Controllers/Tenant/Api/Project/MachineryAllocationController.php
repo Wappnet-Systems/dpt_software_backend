@@ -100,7 +100,7 @@ class MachineryAllocationController extends Controller
 
             return $this->sendResponse($timeSlotMachinery, 'Allocated project machinery list.');
         } catch (\Exception $e) {
-            return $this->sendError($e->getMessage());
+            return $this->sendError('Something went wrong!');
         }
     }
 
@@ -174,7 +174,7 @@ class MachineryAllocationController extends Controller
                 return $this->sendError('User not exists.');
             }
         } catch (\Exception $e) {
-            return $this->sendError($e->getMessage());
+            return $this->sendError('Something went wrong!');
         }
     }
 
@@ -233,7 +233,36 @@ class MachineryAllocationController extends Controller
                 return $this->sendError('User not exists.');
             }
         } catch (\Exception $e) {
-            return $this->sendError($e->getMessage());
+            return $this->sendError('Something went wrong!');
+        }
+    }
+
+    public function getAllocateMachineryTimeSlots(Request $request) {
+        try {
+            $user = $request->user();
+
+            $allocatedMachinery = ProjectActivityAllocateMachinery::select('id', 'project_activity_id', 'project_machinery_id', 'date', 'time_slots');
+
+            if (isset($request->project_id) && !empty($request->project_id)) {
+                $allocatedMachinery = $allocatedMachinery->whereHas('projectActivity', function ($query) use ($request) {
+                    $query->where('project_id', $request->project_id);
+                });
+            }
+
+            $allocatedMachinery = $allocatedMachinery->whereDate('date', '=', $request->date)
+                ->where('project_machinery_id', $request->project_machinery_id)
+                ->get()
+                ->toArray();
+
+            foreach ($allocatedMachinery as $key => $value) {
+                $timeSlotIds = !empty($value['time_slots']) ? explode(',', $value['time_slots']) : [];
+                
+                $allocatedMachinery[$key]['time_slots'] = TimeSlot::select('id', 'start_time', 'end_time')->whereIn('id', $timeSlotIds)->get();
+            }
+
+            return $this->sendResponse($allocatedMachinery, 'Allocated project machinery time slots list.');
+        } catch (\Exception $e) {
+            return $this->sendError('Something went wrong!');
         }
     }
 }
