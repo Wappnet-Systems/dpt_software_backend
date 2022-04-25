@@ -227,10 +227,12 @@ class ActivitiesController extends Controller
 
                 if (!isset($proActivity) || empty($proActivity)) {
                     return $this->sendError('Activity dose not exists.');
-                } else if (!in_array($user->role_id, [User::USER_ROLE['COMPANY_ADMIN']])) {
+                } else if (!in_array($user->role_id, [User::USER_ROLE['MANAGER']])) {
                     return $this->sendError('You have no rights to delete project activity.');
+                } else if ($proActivity->status != 1) {
+                    return $this->sendError('You can not delete the activity.');
                 } else {
-                    $proActivity->delete();
+                    // $proActivity->delete();
 
                     return $this->sendResponse([], 'Activity deleted Successfully.');
                 }
