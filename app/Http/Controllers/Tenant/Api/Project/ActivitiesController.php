@@ -11,6 +11,7 @@ use App\Models\System\Organization;
 use App\Models\System\User;
 use App\Helpers\AppHelper;
 use App\Models\Tenant\ActivitySubCategory;
+use App\Models\Tenant\Project;
 use App\Models\Tenant\ProjectActivity;
 use App\Models\Tenant\RoleHasSubModule;
 
@@ -55,6 +56,10 @@ class ActivitiesController extends Controller
         // if (!AppHelper::roleHasSubModulePermission('Activity Settings', RoleHasSubModule::ACTIONS['list'], $user)) {
         //     return $this->sendError('You have no rights to access this action.');
         // }
+
+        $request->merge([
+            'project_id' => Project::whereUuid($request->project_id ?? '')->value('id')
+        ]);
 
         $subActivityIds = ProjectActivity::whereProjectId($request->project_id ?? '')
             ->pluck('activity_sub_category_id')
