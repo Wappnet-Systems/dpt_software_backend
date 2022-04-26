@@ -22,16 +22,12 @@ class RoleController extends Controller
         $orderBy = !empty($request->orderby) ? $request->orderby : config('constants.default_orderby');
 
         $query = Role::where('status', Role::STATUS['Active'])
-            ->where('id', '!=', User::USER_ROLE['SUPER_ADMIN'])
-            ->where('id', '!=', $user->role_id)
+            // ->where('id', '!=', User::USER_ROLE['SUPER_ADMIN'])
+            // ->where('id', '!=', $user->role_id)
             ->orderBy('id', $orderBy);
-
-        if ($user->role_id == User::USER_ROLE['CONSTRUCATION_SITE_ADMIN']) {
-            $query->whereNotIn('id', [User::USER_ROLE['COMPANY_ADMIN']]);
-        }
-
-        if (!in_array($user->role_id, [User::USER_ROLE['COMPANY_ADMIN'], User::USER_ROLE['CONSTRUCATION_SITE_ADMIN']])) {
-            $query->where('id', '>', $user->role_id);
+            
+        if (isset(USER::USER_ROLE_GROUP[$user->role_id])) {
+            $query->whereIn('id', USER::USER_ROLE_GROUP[$user->role_id]);
         }
 
         if (isset($request->search) && !empty($request->search)) {
