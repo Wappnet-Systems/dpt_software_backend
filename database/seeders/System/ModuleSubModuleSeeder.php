@@ -57,6 +57,10 @@ class ModuleSubModuleSeeder extends Seeder
                     ['name' => 'Actual Manpower'],
                     ['name' => 'Planned Machinerry'],
                     ['name' => 'Actual Work Completed'],
+                    ['name' => 'Material Transfer Request'],
+                    ['name' => 'Machinery Allocation'],
+                    ['name' => 'Material Allocation'],
+                    ['name' => 'Manforce  Allocation'],
                 ]
             ],
             [
