@@ -63,7 +63,7 @@ class MachineryAllocationController extends Controller
                 return $this->sendError('Time slot not available.');
             }
 
-            $machineriesIds = explode(',', $request->project_machinery_ids);
+            $machineriesIds = !empty($request->project_machinery_ids) ? explode(',', $request->project_machinery_ids) : [];
 
             $begin = new \DateTime($request->start_date);
             $end = new \DateTime($request->end_date);
@@ -89,10 +89,13 @@ class MachineryAllocationController extends Controller
                     }
 
                     $allocatedMachinery = $allocatedMachinery->whereRaw('FIND_IN_SET(' . $timeSlotVal->id . ',time_slots)')
-                        ->whereDate('date', '=', $currDate)
-                        ->whereIn('project_machinery_id', $machineriesIds)
-                        ->get()
-                        ->toArray();
+                        ->where('date', '=', $currDate);
+
+                    if (isset($machineriesIds) && !empty($machineriesIds)) {
+                        $allocatedMachinery->whereIn('project_machinery_id', $machineriesIds);
+                    }
+
+                    $allocatedMachinery = $allocatedMachinery->get()->toArray();
 
                     $timeSlotMachinery[$currDate][$timeSlotVal->id]['allocated_machinery'] = $allocatedMachinery;
                 }
