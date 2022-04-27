@@ -110,8 +110,8 @@ class ActivitiesController extends Controller
                     'activity_sub_category_id' => 'required|exists:activity_sub_categories,id',
                     'name' => 'required',
                     // 'scaffold_number' => 'required',
-                    'start_date' => 'required|date_format:Y-m-d H:i:s',
-                    'end_date' => 'required|date_format:Y-m-d H:i:s',
+                    'start_date' => 'required|date_format:Y-m-d',
+                    'end_date' => 'required|date_format:Y-m-d',
                     'location' => 'required',
                     'level' => 'required',
                     'actual_area' => 'required',
@@ -167,8 +167,8 @@ class ActivitiesController extends Controller
             if (isset($user) && !empty($user)) {
                 $validator = Validator::make($request->all(), [
                     'activity_sub_category_id' => 'exists:activity_sub_categories,id',
-                    'start_date' => 'date_format:Y-m-d H:i:s',
-                    'end_date' => 'date_format:Y-m-d H:i:s',
+                    'start_date' => 'date_format:Y-m-d',
+                    'end_date' => 'date_format:Y-m-d',
                     /* 'name' => 'required',
                     'scaffold_number' => 'required',
                     'location' => 'required',
@@ -192,8 +192,8 @@ class ActivitiesController extends Controller
                 if ($request->filled('scaffold_number')) $proActivity->scaffold_number = $request->scaffold_number;
                 if ($request->filled('start_date')) $proActivity->start_date = !empty($request->start_date) ? date('Y-m-d H:i:s', strtotime($request->start_date)) : NULL;
                 if ($request->filled('end_date')) $proActivity->end_date = !empty($request->end_date) ? date('Y-m-d H:i:s', strtotime($request->end_date)) : NULL;
-                if ($request->filled('actual_start_date')) $proActivity->actual_start_date = !empty($request->start_date) ? date('Y-m-d H:i:s', strtotime($request->start_date)) : NULL;
-                if ($request->filled('actual_end_date')) $proActivity->actual_end_date = !empty($request->end_date) ? date('Y-m-d H:i:s', strtotime($request->end_date)) : NULL;
+                if ($request->filled('start_date')) $proActivity->actual_start_date = !empty($request->start_date) ? date('Y-m-d H:i:s', strtotime($request->start_date)) : NULL;
+                if ($request->filled('end_date')) $proActivity->actual_end_date = !empty($request->end_date) ? date('Y-m-d H:i:s', strtotime($request->end_date)) : NULL;
                 if ($request->filled('location')) $proActivity->location = $request->location;
                 if ($request->filled('level')) $proActivity->level = $request->level;
                 if ($request->filled('actual_area')) $proActivity->actual_area = $request->actual_area;
