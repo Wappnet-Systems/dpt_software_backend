@@ -189,7 +189,8 @@ class RoleController extends Controller
         $limit = !empty($request->limit) ? $request->limit : config('constants.default_per_page_limit');
         $orderBy = !empty($request->orderby) ? $request->orderby : config('constants.default_orderby');
 
-        $query = Module::orderBy('id', 'desc')
+        $query = Module::with('subModule')
+            ->orderBy('id', 'desc')
             ->isAssigned($request->orgId);
 
         if ($request->exists('cursor')) {

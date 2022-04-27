@@ -132,9 +132,7 @@ class MachineryAllocationController extends Controller
 
                 $timeSlotsIds = explode(',', $request->time_slots);
 
-                $existSlotsCnt = TimeSlot::whereIn('id', $timeSlotsIds)->count();
-
-                if ($existSlotsCnt < count($timeSlotsIds)) {
+                if (!TimeSlot::whereIn('id', $timeSlotsIds)->exists()) {
                     return $this->sendError('Invalid slots.');
                 }
 
@@ -143,16 +141,18 @@ class MachineryAllocationController extends Controller
                 }
 
                 $allocateMachinery = ProjectActivityAllocateMachinery::whereProjectActivityId($request->project_activity_id)
-                    ->where('project_machinery_id',$request->project_machinery_id)
+                    ->where('project_machinery_id', $request->project_machinery_id)
                     ->whereDate('date', date('Y-m-d', strtotime($request->date)))
                     ->first();
 
                 if (isset($allocateMachinery) && !empty($allocateMachinery)) {
-                    $existSlots = explode(',', $allocateMachinery->time_slots);
-                    $newSlots = explode(',', $request->time_slots);
-                    $slots = array_unique(array_merge($existSlots, $newSlots));
+                    // $existSlots = explode(',', $allocateMachinery->time_slots);
+                    // $newSlots = explode(',', $request->time_slots);
+                    // $slots = array_unique(array_merge($existSlots, $newSlots));
 
-                    $allocateMachinery->time_slots = !empty($slots) ? implode(',', $slots) : null;
+                    // $allocateMachinery->time_slots = !empty($slots) ? implode(',', $slots) : null;
+
+                    $allocateMachinery->time_slots = !empty($request->time_slots) ? $request->time_slots : null;
                     $allocateMachinery->assign_by = $user->id;
                     $allocateMachinery->updated_ip = $request->ip();
                     $allocateMachinery->save();
@@ -203,9 +203,7 @@ class MachineryAllocationController extends Controller
 
                 $timeSlotsIds = explode(',', $request->time_slots);
 
-                $existSlotsCnt = TimeSlot::whereIn('id', $timeSlotsIds)->count();
-
-                if ($existSlotsCnt < count($timeSlotsIds)) {
+                if (!TimeSlot::whereIn('id', $timeSlotsIds)->exists()) {
                     return $this->sendError('Invalid slots.');
                 }
 
