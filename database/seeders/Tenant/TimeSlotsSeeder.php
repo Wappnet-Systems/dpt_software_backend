@@ -111,7 +111,7 @@ class TimeSlotsSeeder extends Seeder
             ],
             [
                 'slot_start_time' => '23:00',
-                'slot_end_time' => '00:00'
+                'slot_end_time' => '24:00'
             ],
         ];
 
