@@ -377,7 +377,7 @@ class ProjectsController extends Controller
 
             if (isset($user) && !empty($user)) {
                 $validator = Validator::make($request->all(), [
-                    'user_ids' => 'required',
+                    // 'user_ids' => 'required',
                     'project_id' => 'required|exists:projects,id',
                 ]);
 
@@ -387,32 +387,34 @@ class ProjectsController extends Controller
                     }
                 }
 
-                $request->user_ids = explode(',', $request->user_ids);
-
-                $projExistAssignUser = ProjectAssignedUser::whereProjectId($request->project_id)
-                    ->whereCreatedBy($user->id)
-                    ->delete();
+                $request->user_ids = !empty($request->user_ids) ? explode(',', $request->user_ids) : [];
 
                 // Assign users to project
-                foreach ($request->user_ids as $userId) {
+                if (empty($request->user_ids)) {
                     $projAssignUser = ProjectAssignedUser::whereProjectId($request->project_id)
-                        ->whereUserId($userId)
-                        ->first();
-
-                    if (isset($projAssignUser) && !empty($projAssignUser)) {
-                        $projAssignUser->updated_ip = $request->ip();
-                        $projAssignUser->save();
-                    } else {
-                        $projAssignUser = new ProjectAssignedUser();
-                        $projAssignUser->user_id = $userId;
-                        $projAssignUser->project_id = $request->project_id;
-                        $projAssignUser->created_by = $user->id;
-                        $projAssignUser->created_ip = $request->ip();
-                        $projAssignUser->updated_ip = $request->ip();
-                        $projAssignUser->save();
+                        ->where('user_id', '!=', $user->id)
+                        ->delete();
+                } else {
+                    foreach ($request->user_ids as $userId) {
+                        $projAssignUser = ProjectAssignedUser::whereProjectId($request->project_id)
+                            ->whereUserId($userId)
+                            ->first();
+    
+                        if (isset($projAssignUser) && !empty($projAssignUser)) {
+                            $projAssignUser->updated_ip = $request->ip();
+                            $projAssignUser->save();
+                        } else {
+                            $projAssignUser = new ProjectAssignedUser();
+                            $projAssignUser->user_id = $userId;
+                            $projAssignUser->project_id = $request->project_id;
+                            $projAssignUser->created_by = $user->id;
+                            $projAssignUser->created_ip = $request->ip();
+                            $projAssignUser->updated_ip = $request->ip();
+                            $projAssignUser->save();
+                        }
                     }
                 }
-
+                
                 return $this->sendResponse([], 'Users assigned to project successfully.');
             } else {
                 return $this->sendError('User not exists.');
