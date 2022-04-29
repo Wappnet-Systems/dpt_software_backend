@@ -18,7 +18,8 @@ class CreateRoleHasSubModulesTable extends Migration
             $table->collation = 'utf8_general_ci';
 
             $table->id();
-            $table->unsignedBigInteger('role_id');
+            $table->foreignId('role_id')->constrained('roles')->cascadeOnUpdate()->cascadeOnDelete();
+            // $table->unsignedBigInteger('role_id');
             $table->unsignedBigInteger('sub_module_id');
             $table->boolean('is_list')->default(false);
             $table->boolean('is_create')->default(false);

@@ -24,10 +24,10 @@ class OrganizationUserController extends Controller
 
     public function getUsers(Request $request)
     {
+        $user = $request->user();
+
         $limit = !empty($request->limit) ? $request->limit : config('constants.default_per_page_limit');
         $orderBy = !empty($request->orderby) ? $request->orderby : config('constants.default_orderby');
-
-        $user = $request->user();
 
         $query = User::with('role', 'organization')
             ->where('role_id', '!=', User::USER_ROLE['SUPER_ADMIN'])
@@ -44,6 +44,8 @@ class OrganizationUserController extends Controller
 
                 if (isset(USER::USER_ROLE_GROUP[$user->role_id])) {
                     $query->whereIn('role_id', USER::USER_ROLE_GROUP[$user->role_id]);
+                } else {
+                    $query->where('id', null);
                 }
 
                 /* if (in_array($user->role_id, [User::USER_ROLE['SUPER_ADMIN']])) {
@@ -118,9 +120,9 @@ class OrganizationUserController extends Controller
 
             if (isset($user) && !empty($user)) {
                 if (!isset(USER::USER_ROLE_GROUP[$user->role_id])) {
-                    return $this->sendError('You have no rights to add User.');
+                    return $this->sendError('You have no rights to add User.', [], 401);
                 } else if (!in_array($request->role_id, USER::USER_ROLE_GROUP[$user->role_id])) {
-                    return $this->sendError('You have no rights to add User.');
+                    return $this->sendError('You have no rights to add User.', [], 401);
                 } else {
 
                 /* if (!in_array($user->role_id, [User::USER_ROLE['SUPER_ADMIN'], User::USER_ROLE['COMPANY_ADMIN'], User::USER_ROLE['CONSTRUCATION_SITE_ADMIN'], User::USER_ROLE['MANAGER']])) {
@@ -225,11 +227,11 @@ class OrganizationUserController extends Controller
                 if (!isset($orgUser) || empty($orgUser)) {
                     return $this->sendError('User dose not exists.');
                 } else if (!isset(USER::USER_ROLE_GROUP[$user->role_id])) {
-                    return $this->sendError('You have no rights to add User.');
+                    return $this->sendError('You have no rights to update User.', [], 401);
                 } else if (!in_array($request->role_id, USER::USER_ROLE_GROUP[$user->role_id])) {
-                    return $this->sendError('You have no rights to add User.');
+                    return $this->sendError('You have no rights to update User.', [], 401);
                 }  else if ($user->role_id != User::USER_ROLE['SUPER_ADMIN'] && $user->organization_id != $orgUser->organization_id) {
-                    return $this->sendError('You have no rights to update User.');
+                    return $this->sendError('You have no rights to update User.', [], 401);
                 } else {
 
                 /* if (!isset($orgUser) || empty($orgUser)) {
@@ -323,11 +325,11 @@ class OrganizationUserController extends Controller
                 if (!isset($orgUser) || empty($orgUser)) {
                     return $this->sendError('User dose not exists.');
                 } else if (!isset(USER::USER_ROLE_GROUP[$user->role_id])) {
-                    return $this->sendError('You have no rights to add User.');
-                } else if (!in_array($request->role_id, USER::USER_ROLE_GROUP[$user->role_id])) {
-                    return $this->sendError('You have no rights to add User.');
+                    return $this->sendError('You have no rights to change the user status.', [], 401);
+                } else if (!in_array($orgUser->role_id, USER::USER_ROLE_GROUP[$user->role_id])) {
+                    return $this->sendError('You have no rights to change the user status.', [], 401);
                 }  else if ($user->role_id != User::USER_ROLE['SUPER_ADMIN'] && $user->organization_id != $orgUser->organization_id) {
-                    return $this->sendError('You have no rights to update User.');
+                    return $this->sendError('You have no rights to change the user status.', [], 401);
                 } else {
                     
                 /* if (!isset($orgUser) || empty($orgUser)) {
