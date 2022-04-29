@@ -10,6 +10,7 @@ use Hyn\Tenancy\Models\Website;
 use App\Models\System\Organization;
 use App\Models\System\User;
 use App\Models\System\SubModule;
+use App\Models\Tenant\Role;
 use App\Models\Tenant\RoleHasSubModule;
 use App\Helpers\AppHelper;
 use App\Models\System\Module;
@@ -43,6 +44,199 @@ class RoleController extends Controller
 
             return $next($request);
         });
+    }
+
+    public function getRoles(Request $request)
+    {
+        $user = $request->user();
+
+        if (!in_array($user->role_id, [User::USER_ROLE['COMPANY_ADMIN'], User::USER_ROLE['CONSTRUCATION_SITE_ADMIN'], User::USER_ROLE['MANAGER']])) {
+            return $this->sendError('You have no rights to access this module.', [], 401);
+        }
+
+        $limit = !empty($request->limit) ? $request->limit : config('constants.default_per_page_limit');
+        $orderBy = !empty($request->orderby) ? $request->orderby : config('constants.default_orderby');
+
+        $query = Role::where('status', Role::STATUS['Active'])
+            ->orderBy('id', $orderBy);
+            
+        if (isset(USER::MANAGE_ROLE_GROUP[$user->role_id])) {
+            $query->whereIn('id', USER::MANAGE_ROLE_GROUP[$user->role_id]);
+        }
+
+        if (isset($request->search) && !empty($request->search)) {
+            $search = trim(strtolower($request->search));
+
+            $query = $query->whereRaw('LOWER(CONCAT(`name`)) LIKE ?', ['%' . $search . '%']);
+        }
+
+        $totalQuery = $query;
+        $totalQuery = $totalQuery->count();
+
+        if ($request->exists('cursor')) {
+            $roles = $query->cursorPaginate($limit)->toArray();
+        } else {
+            $roles['data'] = $query->get()->toArray();
+        }
+
+        $results = [];
+        if (!empty($roles['data'])) {
+            $results = $roles['data'];
+        }
+
+        if ($request->exists('cursor')) {
+            return $this->sendResponse([
+                'lists' => $results,
+                'total' => $totalQuery,
+                'per_page' => $roles['per_page'],
+                'next_page_url' => ltrim(str_replace($roles['path'], "", $roles['next_page_url']), "?cursor="),
+                'prev_page_url' => ltrim(str_replace($roles['path'], "", $roles['prev_page_url']), "?cursor=")
+            ], 'Roles List');
+        } else {
+            return $this->sendResponse($results, 'Roles List');
+        }
+    }
+
+    public function getRoleDetails(Request $request)
+    {
+        $role = Role::select('id', 'name', 'status')
+            ->where('id', '!=', User::USER_ROLE['SUPER_ADMIN'])
+            ->whereId($request->id)
+            ->first();
+
+        if (!isset($role) || empty($role)) {
+            return $this->sendError('Role does not exists.');
+        }
+
+        return $this->sendResponse($role, 'Role details get successfully.');
+    }
+
+    public function addRole(Request $request)
+    {
+        try {
+            $user = $request->user();
+
+            if (isset($user) && !empty($user)) {
+                if (!in_array($user->role_id, [User::USER_ROLE['COMPANY_ADMIN']])) {
+                    return $this->sendError('You have no rights to add role.', [], 401);
+                }
+
+                $validator = Validator::make($request->all(), [
+                    'name' => 'required',
+                ]);
+
+                if ($validator->fails()) {
+                    foreach ($validator->errors()->messages() as $key => $value) {
+                        return $this->sendError('Validation Error.', [$key => $value[0]]);
+                    }
+                }
+
+                // Create new organization
+                $role = new Role();
+                $role->name = $request->name;
+
+                if (!$role->save()) {
+                    return $this->sendError('Something went wrong while creating the role.');
+                }
+
+                return $this->sendResponse($role, 'Role added successfully');
+            } else {
+                return $this->sendError('User not exists.');
+            }
+        } catch (\Exception $e) {
+            return $this->sendError($e->getMessage());
+        }
+    }
+
+    public function updateRole(Request $request, $id = null)
+    {
+        try {
+            $user = $request->user();
+
+            if (isset($user) && !empty($user)) {
+                if (!in_array($user->role_id, [User::USER_ROLE['COMPANY_ADMIN']])) {
+                    return $this->sendError('You have no rights to update role.', [], 401);
+                }
+
+                $validator = Validator::make($request->all(), [
+                    'name' => 'required',
+                ]);
+
+                if ($validator->fails()) {
+                    foreach ($validator->errors()->messages() as $key => $value) {
+                        return $this->sendError('Validation Error.', [$key => $value[0]]);
+                    }
+                }
+
+                $role = Role::whereId($request->id)
+                    ->where('id', '!=', User::USER_ROLE['SUPER_ADMIN'])
+                    ->first();
+
+                if (!isset($role) || empty($role)) {
+                    return $this->sendError('Role does not exists.');
+                }
+
+                $role->name = $request->name;
+
+                if (!$role->save()) {
+                    return $this->sendError('Something went wrong while creating the role.');
+                }
+
+                return $this->sendResponse($role, 'Role details updated successfully.');
+            } else {
+                return $this->sendError('User not exists.');
+            }
+        } catch (\Exception $e) {
+            return $this->sendError($e->getMessage());
+        }
+    }
+
+    public function changeRoleStatus(Request $request, $id = null)
+    {
+        try {
+            $user = $request->user();
+
+            if (isset($user) && !empty($user)) {
+                if (!in_array($user->role_id, [User::USER_ROLE['COMPANY_ADMIN']])) {
+                    return $this->sendError('You have no rights to update role.', [], 401);
+                }
+
+                $role = Role::whereId($request->id)
+                    ->where('id', '!=', User::USER_ROLE['SUPER_ADMIN'])
+                    ->first();
+
+                if (isset($role) && !empty($role)) {
+                    if (!in_array($request->status, Role::STATUS)) {
+                        return $this->sendError('Invalid status requested.');
+                    }
+
+                    if ($request->status == Role::STATUS['Deleted']) {
+                        AppHelper::setDefaultDBConnection(true);
+
+                        if (User::whereRoleId($request->id)->exists()) {
+                            return $this->sendError('You can not delete this role because this role has been assigned to many user.');
+                        }
+
+                        AppHelper::setDefaultDBConnection(false);
+
+                        // $role->delete();
+                    } else {
+                        $role->deleted_at = null;
+                    }
+
+                    $role->status = $request->status;
+                    $role->save();
+
+                    return $this->sendResponse($role, 'Status changed successfully.');
+                }
+
+                return $this->sendError('Role does not exists.');
+            } else {
+                return $this->sendError('User not exists.');
+            }
+        } catch (\Exception $e) {
+            return $this->sendError($e->getMessage());
+        }
     }
 
     public function getRoleSubModulePermissions(Request $request, $roleId = null)

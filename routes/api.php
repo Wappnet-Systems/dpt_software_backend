@@ -68,17 +68,22 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::patch('organization/status/change/{orgId}', [OrganizationController::class, 'changeOrganizationStatus']);
 
     /** Organizations Management Routes */
-    Route::get('role/get/lists', [RoleController::class, 'getRoles']);
-    Route::get('role/get/{id}', [RoleController::class, 'getRoleDetails']);
-    Route::post('role/add', [RoleController::class, 'addRole']);
-    Route::put('role/update/{id}', [RoleController::class, 'updateRole']);
-    Route::patch('role/status/change/{id}', [RoleController::class, 'changeRoleStatus']);
+    // Route::get('role/get/lists', [RoleController::class, 'getRoles']);
+    // Route::get('role/get/{id}', [RoleController::class, 'getRoleDetails']);
+    // Route::post('role/add', [RoleController::class, 'addRole']);
+    // Route::put('role/update/{id}', [RoleController::class, 'updateRole']);
+    // Route::patch('role/status/change/{id}', [RoleController::class, 'changeRoleStatus']);
 
     /* Assign Modules Permission to Roles Routes */
     Route::get('role/module/permissions/get/{orgId?}', [RoleController::class, 'getRoleModulePermissions']);
     Route::post('role/module/permissions/change', [RoleController::class, 'changeRoleModulePermissions']);
 
     /* Assign Sub Modules Permission to Roles Routes */
+    Route::get('role/get/lists', [OrganizationRoleController::class, 'getRoles']);
+    Route::get('role/get/{id}', [OrganizationRoleController::class, 'getRoleDetails']);
+    Route::post('role/add', [OrganizationRoleController::class, 'addRole']);
+    Route::put('role/update/{id}', [OrganizationRoleController::class, 'updateRole']);
+    Route::patch('role/status/change/{id}', [OrganizationRoleController::class, 'changeRoleStatus']);
     Route::get('role/sub-module/permissions/get/{roleId}', [OrganizationRoleController::class, 'getRoleSubModulePermissions']);
     Route::get('role/sub-module/permissions/by/user/get', [OrganizationRoleController::class, 'getAssignSubModulesByLoginUser']);
     Route::post('role/sub-module/permissions/change', [OrganizationRoleController::class, 'changeRoleSubModulePermissions']);
