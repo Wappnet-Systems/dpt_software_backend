@@ -110,7 +110,7 @@ class ManforcesController extends Controller
                 }
             }
 
-            if (!in_array($request->cost_type, [ProjectManforce::COST_TYPE])) {
+            if (!in_array($request->cost_type, ProjectManforce::COST_TYPE)) {
                 return $this->sendError('Invalid cost type request.');
             }
 
