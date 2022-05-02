@@ -102,7 +102,7 @@ class MaterialRaisingRequestsController extends Controller
                     'project_id' => 'required|exists:projects,id',
                     'material_type_id' => 'required|exists:material_types,id',
                     'unit_type_id' => 'required|exists:unit_types,id',
-                    'quantity' => 'required|gt:0'
+                    'quantity' => 'required|numeric|gt:0'
                 ]);
 
                 if ($validator->fails()) {
@@ -142,7 +142,7 @@ class MaterialRaisingRequestsController extends Controller
                 $validator = Validator::make($request->all(), [
                     'material_type_id' => 'required|exists:material_types,id',
                     'unit_type_id' => 'required|exists:unit_types,id',
-                    'quantity' => 'required|gt:0'
+                    'quantity' => 'required|numeric|gt:0'
                 ]);
 
                 if ($validator->fails()) {
