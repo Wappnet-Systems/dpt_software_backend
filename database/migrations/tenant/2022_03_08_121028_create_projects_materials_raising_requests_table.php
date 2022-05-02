@@ -27,6 +27,7 @@ class CreateProjectsMaterialsRaisingRequestsTable extends Migration
             $table->unsignedBigInteger('created_by')->nullable();
             $table->ipAddress('created_ip')->nullable();
             $table->ipAddress('updated_ip')->nullable();
+            $table->softDeletes()->nullable();
             $table->timestamps();
         });
     }

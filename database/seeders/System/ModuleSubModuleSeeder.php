@@ -48,9 +48,6 @@ class ModuleSubModuleSeeder extends Seeder
                     ['name' => 'Material Management'],
                     ['name' => 'Machinery Management'],
                     ['name' => 'Stock Management'],
-                    ['name' => 'Activity Document Management'],
-                    ['name' => 'Material Transfer Request'],
-                    ['name' => 'Machinery Allocation'],
                     ['name' => 'Gant Chart'],
                     ['name' => 'Activity Settings'],
                     ['name' => 'Planned Manpower'],
@@ -68,10 +65,10 @@ class ModuleSubModuleSeeder extends Seeder
                 'name' => 'Qa/Qc',
                 'sub_module' => [
                     ['name' => 'Inspection'],
-                    ['name' => 'Material Approval Log'],
+                    // ['name' => 'Material Approval Log'],
                     ['name' => 'NCR/SOR'],
-                    ['name' => 'Method Statement Log'],
-                    ['name' => 'MSRA'],
+                    // ['name' => 'Method Statement Log'],
+                    // ['name' => 'MSRA'],
                 ]
             ],
             [
@@ -85,7 +82,7 @@ class ModuleSubModuleSeeder extends Seeder
             [
                 'name' => 'Design Team',
                 'sub_module' => [
-                    ['name' => 'Upload Drawings'],
+                    ['name' => 'Activity Document Management'],
                 ]
             ],
             [

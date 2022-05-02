@@ -22,16 +22,12 @@ class RoleController extends Controller
         $orderBy = !empty($request->orderby) ? $request->orderby : config('constants.default_orderby');
 
         $query = Role::where('status', Role::STATUS['Active'])
-            ->where('id', '!=', User::USER_ROLE['SUPER_ADMIN'])
-            ->where('id', '!=', $user->role_id)
+            // ->where('id', '!=', User::USER_ROLE['SUPER_ADMIN'])
+            // ->where('id', '!=', $user->role_id)
             ->orderBy('id', $orderBy);
-
-        if ($user->role_id == User::USER_ROLE['CONSTRUCATION_SITE_ADMIN']) {
-            $query->whereNotIn('id', [User::USER_ROLE['COMPANY_ADMIN']]);
-        }
-
-        if (!in_array($user->role_id, [User::USER_ROLE['COMPANY_ADMIN'], User::USER_ROLE['CONSTRUCATION_SITE_ADMIN']])) {
-            $query->where('id', '>', $user->role_id);
+            
+        if (isset(USER::USER_ROLE_GROUP[$user->role_id])) {
+            $query->whereIn('id', USER::USER_ROLE_GROUP[$user->role_id]);
         }
 
         if (isset($request->search) && !empty($request->search)) {
@@ -165,15 +161,16 @@ class RoleController extends Controller
                     return $this->sendError('Invalid status requested.');
                 }
 
-                if ($role->status == Role::STATUS['Deleted']) {
+                if ($request->status == Role::STATUS['Deleted']) {
                     if (User::whereRoleId($request->id)->exists()) {
                         return $this->sendError('You can not delete this role because this role has been assigned to many user.');
                     }
 
                     $role->delete();
+                } else {
+                    $role->deleted_at = null;
                 }
 
-                $role->deleted_at = null;
                 $role->status = $request->status;
                 $role->save();
 
@@ -193,7 +190,8 @@ class RoleController extends Controller
         $limit = !empty($request->limit) ? $request->limit : config('constants.default_per_page_limit');
         $orderBy = !empty($request->orderby) ? $request->orderby : config('constants.default_orderby');
 
-        $query = Module::orderBy('id', 'desc')
+        $query = Module::with('subModule')
+            ->orderBy('id', 'desc')
             ->isAssigned($request->orgId);
 
         if ($request->exists('cursor')) {

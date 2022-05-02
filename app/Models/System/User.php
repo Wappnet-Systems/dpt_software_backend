@@ -73,6 +73,23 @@ class User extends Authenticatable
         'COMPANY_ADMIN' => 2,
         'CONSTRUCATION_SITE_ADMIN' => 3,
         'MANAGER' => 4,
+        'PROJECT_ENGINEER' => 5,
+        'ENGINEER' => 10
+    ];
+
+    const USER_ROLE_GROUP = [
+        SELF::USER_ROLE['SUPER_ADMIN'] => [2],
+        SELF::USER_ROLE['COMPANY_ADMIN'] => [3],
+        SELF::USER_ROLE['CONSTRUCATION_SITE_ADMIN'] => [4,5,6,7,8,9,10,11,12,13,14],
+        SELF::USER_ROLE['MANAGER'] => [5,6,7,8,9,10,11,12,13,14],
+        SELF::USER_ROLE['PROJECT_ENGINEER'] => [10,11,12],
+        SELF::USER_ROLE['ENGINEER'] => [13,14]
+    ];
+
+    const MANAGE_ROLE_GROUP = [
+        SELF::USER_ROLE['COMPANY_ADMIN'] => [2,3,4,5,6,7,8,9,10,11,12,13,14],
+        SELF::USER_ROLE['CONSTRUCATION_SITE_ADMIN'] => [4,5,6,7,8,9,10,11,12,13,14],
+        SELF::USER_ROLE['MANAGER'] => [5,6,7,8,9,10,11,12,13,14],
     ];
 
     /* const TYPE = [

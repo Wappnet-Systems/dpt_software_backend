@@ -114,8 +114,8 @@ class NonWorkingDaysController extends Controller
                 $validator = Validator::make($request->all(), [
                     'project_id' => 'required|exists:projects,id',
                     'name' => 'required',
-                    'start_date_time' => 'required|date_format:Y-m-d H:i:s',
-                    'end_date_time' => 'required|date_format:Y-m-d H:i:s',
+                    'start_date_time' => 'required|date_format:Y-m-d',
+                    'end_date_time' => 'required|date_format:Y-m-d',
                 ]);
 
                 if ($validator->fails()) {
@@ -151,8 +151,8 @@ class NonWorkingDaysController extends Controller
         try {
             $validator = Validator::make($request->all(), [
                 'name' => 'required',
-                'start_date_time' => 'date_format:Y-m-d H:i:s',
-                'end_date_time' => 'date_format:Y-m-d H:i:s',
+                'start_date_time' => 'date_format:Y-m-d',
+                'end_date_time' => 'date_format:Y-m-d',
             ]);
 
             if ($validator->fails()) {
