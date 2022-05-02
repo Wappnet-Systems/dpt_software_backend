@@ -53,15 +53,15 @@ class InventoryStocksController extends Controller
             ->whereStatus(ProjectInventory::STATUS['Active'])
             ->orderby('id', $orderBy);
 
-        if (isset($request->search) && !empty($request->search)) {
-            $search = trim(strtolower($request->search));
-
-            $query = $query->whereHas('materialType', function ($query) use ($search) {
-                $query->whereRaw('LOWER(`name`) LIKE ?', ['%' . $search . '%']);
+        if (isset($request->material_type_id) && !empty($request->material_type_id)) {
+            $query = $query->whereHas('materialType', function ($query) use ($request) {
+                $query->whereId($request->material_type_id ?? '');
             });
+        }
 
-            $query = $query->orWhereHas('unitType', function ($query) use ($search) {
-                $query->whereRaw('LOWER(`name`) LIKE ?', ['%' . $search . '%']);
+        if (isset($request->unit_type_id) && !empty($request->unit_type_id)) {
+            $query = $query->orWhereHas('unitType', function ($query) use ($request) {
+                $query->whereId($request->unit_type_id ?? '');
             });
         }
 
