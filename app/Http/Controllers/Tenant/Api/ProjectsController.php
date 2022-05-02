@@ -58,10 +58,10 @@ class ProjectsController extends Controller
         try {
             if (isset($user) && !empty($user)) {
                 $query = Project::orderBy('id', $orderBy);
-                
+
                 if ($user->role_id != User::USER_ROLE['COMPANY_ADMIN']) {
                     $assignedProIds = ProjectAssignedUser::whereUserId($user->id ?? null)->pluck('project_id');
-                    
+
                     if (isset($assignedProIds) && !empty($assignedProIds)) {
                         $query->whereIn('id', $assignedProIds);
                     }
@@ -126,7 +126,7 @@ class ProjectsController extends Controller
 
             if (isset($user) && !empty($user)) {
                 if (!in_array($user->role_id, [User::USER_ROLE['COMPANY_ADMIN']])) {
-                    return $this->sendError('You have no rights to add User.');
+                    return $this->sendError('You have no rights to add project.', [], 401);
                 } else {
                     $validator = Validator::make($request->all(), [
                         'name' => 'required',
@@ -195,7 +195,7 @@ class ProjectsController extends Controller
                 if (!isset($project) || empty($project)) {
                     return $this->sendError('Project dose not exists.');
                 } else if (!in_array($user->role_id, [User::USER_ROLE['COMPANY_ADMIN']])) {
-                    return $this->sendError('You have no rights to update User.');
+                    return $this->sendError('You have no rights to update project.', [], 401);
                 } else {
                     $validator = Validator::make($request->all(), [
                         'name' => 'required',
@@ -266,7 +266,7 @@ class ProjectsController extends Controller
                 }
 
                 if (!in_array($user->role_id, [User::USER_ROLE['MANAGER']])) {
-                    return $this->sendError('You have no rights to delete project.');
+                    return $this->sendError('You have no rights to delete project.', [], 401);
                 }
 
                 $project->delete();
@@ -294,8 +294,8 @@ class ProjectsController extends Controller
 
                 if (!isset($project) || empty($project)) {
                     return $this->sendError('Project dose not exists.');
-                } else if (!in_array($user->role_id, [User::USER_ROLE['COMPANY_ADMIN'],User::USER_ROLE['CONSTRUCATION_SITE_ADMIN'], User::USER_ROLE['MANAGER']])) {
-                    return $this->sendError('You have no rights to change status of project.');
+                } else if (!in_array($user->role_id, [User::USER_ROLE['COMPANY_ADMIN'], User::USER_ROLE['CONSTRUCATION_SITE_ADMIN'], User::USER_ROLE['MANAGER']])) {
+                    return $this->sendError('You have no rights to change status of project.', [], 401);
                 } else {
                     $project->status = $request->status;
                     $project->save();
@@ -399,7 +399,7 @@ class ProjectsController extends Controller
                         $projAssignUser = ProjectAssignedUser::whereProjectId($request->project_id)
                             ->whereUserId($userId)
                             ->first();
-    
+
                         if (isset($projAssignUser) && !empty($projAssignUser)) {
                             $projAssignUser->updated_ip = $request->ip();
                             $projAssignUser->save();
@@ -414,7 +414,7 @@ class ProjectsController extends Controller
                         }
                     }
                 }
-                
+
                 return $this->sendResponse([], 'Users assigned to project successfully.');
             } else {
                 return $this->sendError('User not exists.');
