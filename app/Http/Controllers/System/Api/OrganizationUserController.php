@@ -125,7 +125,7 @@ class OrganizationUserController extends Controller
                     return $this->sendError('You have no rights to add User.', [], 401);
                 } else {
 
-                /* if (!in_array($user->role_id, [User::USER_ROLE['SUPER_ADMIN'], User::USER_ROLE['COMPANY_ADMIN'], User::USER_ROLE['CONSTRUCATION_SITE_ADMIN'], User::USER_ROLE['MANAGER']])) {
+                    /* if (!in_array($user->role_id, [User::USER_ROLE['SUPER_ADMIN'], User::USER_ROLE['COMPANY_ADMIN'], User::USER_ROLE['CONSTRUCATION_SITE_ADMIN'], User::USER_ROLE['MANAGER']])) {
                     return $this->sendError('You have no rights to add User.');
                 } else if ($user->role_id == User::USER_ROLE['SUPER_ADMIN'] && !in_array($request->role_id, [User::USER_ROLE['COMPANY_ADMIN']])) {
                     return $this->sendError('You have no rights to add User.');
@@ -153,7 +153,7 @@ class OrganizationUserController extends Controller
                     }
 
                     if (User::where('email', strtolower($request->email))->whereStatus(User::STATUS['Active'])->exists()) {
-                        return $this->sendError('Email already register. Please try again.');
+                        return $this->sendError('Email already register. Please try again.', [], 400);
                     }
 
                     if ($user->role_id != User::USER_ROLE['SUPER_ADMIN']) {
@@ -230,11 +230,11 @@ class OrganizationUserController extends Controller
                     return $this->sendError('You have no rights to update User.', [], 401);
                 } else if (!in_array($request->role_id, USER::USER_ROLE_GROUP[$user->role_id])) {
                     return $this->sendError('You have no rights to update User.', [], 401);
-                }  else if ($user->role_id != User::USER_ROLE['SUPER_ADMIN'] && $user->organization_id != $orgUser->organization_id) {
+                } else if ($user->role_id != User::USER_ROLE['SUPER_ADMIN'] && $user->organization_id != $orgUser->organization_id) {
                     return $this->sendError('You have no rights to update User.', [], 401);
                 } else {
 
-                /* if (!isset($orgUser) || empty($orgUser)) {
+                    /* if (!isset($orgUser) || empty($orgUser)) {
                     return $this->sendError('User dose not exists.');
                 } else if (!in_array($user->role_id, [User::USER_ROLE['SUPER_ADMIN'], User::USER_ROLE['COMPANY_ADMIN'], User::USER_ROLE['CONSTRUCATION_SITE_ADMIN'], User::USER_ROLE['MANAGER']])) {
                     return $this->sendError('You have no rights to update User.');
@@ -328,11 +328,11 @@ class OrganizationUserController extends Controller
                     return $this->sendError('You have no rights to change the user status.', [], 401);
                 } else if (!in_array($orgUser->role_id, USER::USER_ROLE_GROUP[$user->role_id])) {
                     return $this->sendError('You have no rights to change the user status.', [], 401);
-                }  else if ($user->role_id != User::USER_ROLE['SUPER_ADMIN'] && $user->organization_id != $orgUser->organization_id) {
+                } else if ($user->role_id != User::USER_ROLE['SUPER_ADMIN'] && $user->organization_id != $orgUser->organization_id) {
                     return $this->sendError('You have no rights to change the user status.', [], 401);
                 } else {
-                    
-                /* if (!isset($orgUser) || empty($orgUser)) {
+
+                    /* if (!isset($orgUser) || empty($orgUser)) {
                     return $this->sendError('User dose not exists.');
                 } else if (!in_array($user->role_id, [User::USER_ROLE['SUPER_ADMIN'], User::USER_ROLE['COMPANY_ADMIN'], User::USER_ROLE['CONSTRUCATION_SITE_ADMIN'], User::USER_ROLE['MANAGER']])) {
                     return $this->sendError('You have no rights to update User.');

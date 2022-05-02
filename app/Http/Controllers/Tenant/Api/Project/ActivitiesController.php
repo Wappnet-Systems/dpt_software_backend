@@ -228,7 +228,7 @@ class ActivitiesController extends Controller
                 if (!isset($proActivity) || empty($proActivity)) {
                     return $this->sendError('Activity dose not exists.');
                 } else if (!in_array($user->role_id, [User::USER_ROLE['MANAGER']])) {
-                    return $this->sendError('You have no rights to delete project activity.');
+                    return $this->sendError('You have no rights to delete project activity.', [], 401);
                 } else if ($proActivity->status != 1) {
                     return $this->sendError('You can not delete the activity.');
                 } else {
@@ -260,7 +260,7 @@ class ActivitiesController extends Controller
             }
 
             if (!in_array($user->role_id, [User::USER_ROLE['COMPANY_ADMIN']])) {
-                return $this->sendError('You have no rights to update User.');
+                return $this->sendError('You have no rights to change activity status.', [], 401);
             }
 
             $proActivity = ProjectActivity::whereId($request->id)->first();
