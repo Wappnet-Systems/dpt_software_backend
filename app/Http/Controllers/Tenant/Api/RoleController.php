@@ -59,7 +59,7 @@ class RoleController extends Controller
 
         $query = Role::where('status', Role::STATUS['Active'])
             ->orderBy('id', $orderBy);
-            
+
         if (isset(USER::MANAGE_ROLE_GROUP[$user->role_id])) {
             $query->whereIn('id', USER::MANAGE_ROLE_GROUP[$user->role_id]);
         }
@@ -242,7 +242,7 @@ class RoleController extends Controller
     public function getRoleSubModulePermissions(Request $request, $roleId = null)
     {
         $user = $request->user();
-        
+
         $limit = !empty($request->limit) ? $request->limit : config('constants.default_per_page_limit');
         $orderBy = !empty($request->orderby) ? $request->orderby : config('constants.default_orderby');
 
@@ -321,7 +321,7 @@ class RoleController extends Controller
                 }
 
                 if (in_array($request->role_id, [User::USER_ROLE['SUPER_ADMIN'], User::USER_ROLE['COMPANY_ADMIN']])) {
-                    return $this->sendError('You have no rights to add User.');
+                    return $this->sendError('You have no rights to add role.', [], 401);
                 }
 
                 $request->merge(['sub_module_permission' => json_decode($request->sub_module_permission, true)]);

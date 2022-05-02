@@ -115,11 +115,11 @@ class OrganizationController extends Controller
                 }
 
                 if (!in_array($user->role_id, [User::USER_ROLE['SUPER_ADMIN']])) {
-                    return $this->sendError('You have not rights to create a organization.');
+                    return $this->sendError('You have not rights to create a organization.', [], 401);
                 }
 
                 if (Organization::whereEmail(strtolower($request->email))->withTrashed()->exists()) {
-                    return $this->sendError('Organization already exists please try using another one.');
+                    return $this->sendError('Organization already exists please try using another one.', [], 400);
                 }
 
                 // Create new website
