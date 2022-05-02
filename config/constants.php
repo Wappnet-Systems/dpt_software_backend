@@ -10,6 +10,9 @@ return [
     ],
     'organizations' => [
         'logo_path' => 'organizations/:uid:/logo',
+        'ncrsor' => [
+            'file_path' => 'organizations/:uid:/ncrsor'
+        ],
         'projects' => [
             'logo_path' => 'organizations/:uid:/project/:project_uuid:/logo',
             'activity_document' => [

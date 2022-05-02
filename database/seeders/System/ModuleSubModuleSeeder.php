@@ -37,6 +37,7 @@ class ModuleSubModuleSeeder extends Seeder
                     ['name' => 'Manforce Type Management'],
                     ['name' => 'Activity Category Management'],
                     ['name' => 'Activity Sub Category Management'],
+                    ['name' => 'NCR/SOR Management'],
                 ]
             ],
             [
@@ -57,8 +58,8 @@ class ModuleSubModuleSeeder extends Seeder
                     ['name' => 'Actual Manpower'],
                     ['name' => 'Planned Machinerry'],
                     ['name' => 'Actual Work Completed'],
-                    ['name' => 'Material Transfer Request'],
-                    ['name' => 'Machinery Allocation'],
+                    // ['name' => 'Material Transfer Request'],
+                    // ['name' => 'Machinery Allocation'],
                     ['name' => 'Material Allocation'],
                     ['name' => 'Manforce  Allocation'],
                 ]
