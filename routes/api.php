@@ -211,11 +211,12 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::patch('project/material/transfer/request/status/change/{id}', [MaterialTransferRequestsController::class, 'changeMaterialTransferRequestStatus']);
 
     /* Projects Material Raising Request Routes */
-    Route::post('project/material/raising/request/get/lists', [MaterialRaisingRequestsController::class, 'getMaterialRaisingRequests']);
-    Route::post('project/material/raising/request/get/{id}', [MaterialRaisingRequestsController::class, 'getMaterialRaisingRequestDetails']);
+    Route::get('project/material/raising/request/get/lists', [MaterialRaisingRequestsController::class, 'getMaterialRaisingRequests']);
+    Route::get('project/material/raising/request/get/{id}', [MaterialRaisingRequestsController::class, 'getMaterialRaisingRequestDetails']);
     Route::post('project/material/raising/request/add', [MaterialRaisingRequestsController::class, 'addMaterialRaisingRequest']);
-    Route::post('project/material/raising/request/update', [MaterialRaisingRequestsController::class, 'updateMaterialRaisingRequest']);
-    Route::post('project/material/raising/request/status/change', [MaterialRaisingRequestsController::class, 'changeMaterialRaisingRequestStatus']);
+    Route::put('project/material/raising/request/update/{id}', [MaterialRaisingRequestsController::class, 'updateMaterialRaisingRequest']);
+    Route::patch('project/material/raising/request/status/change/{id}', [MaterialRaisingRequestsController::class, 'changeMaterialRaisingRequestStatus']);
+    Route::delete('project/material/raising/request/delete/{id}', [MaterialRaisingRequestsController::class, 'deleteMaterialRaisingRequest']);
 
     /* Allocate Material to Project Activities Routes */
     Route::get('project/allocate/material/get/lists', [MaterialAllocationController::class, 'getAllocateMaterials']);
