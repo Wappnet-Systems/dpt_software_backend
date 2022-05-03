@@ -12,6 +12,7 @@ use App\Models\System\User;
 use App\Models\Tenant\ProjectManforce;
 use App\Models\Tenant\ProjectActivityAllocateManforce;
 use App\Helpers\AppHelper;
+use Illuminate\Support\Facades\Log;
 
 class ManforcesAllocationController extends Controller
 {
@@ -116,7 +117,7 @@ class ManforcesAllocationController extends Controller
 
                 if ($validator->fails()) {
                     foreach ($validator->errors()->messages() as $key => $value) {
-                        return $this->sendError('Validation Error.', [$key => $value[0]]);
+                        return $this->sendError('Validation Error.', [$key => $value[0]], 400);
                     }
                 }
 
@@ -173,7 +174,9 @@ class ManforcesAllocationController extends Controller
                 return $this->sendError('User not exists.');
             }
         } catch (\Exception $e) {
-            return $this->sendError($e->getMessage());
+            Log::error($e->getMessage());
+
+            return $this->sendError('Something went wrong!', [], 500);
         }
     }
 
@@ -193,7 +196,7 @@ class ManforcesAllocationController extends Controller
 
                 if ($validator->fails()) {
                     foreach ($validator->errors()->messages() as $key => $value) {
-                        return $this->sendError('Validation Error.', [$key => $value[0]]);
+                        return $this->sendError('Validation Error.', [$key => $value[0]], 400);
                     }
                 }
 
@@ -240,7 +243,9 @@ class ManforcesAllocationController extends Controller
                 return $this->sendError('User not exists.');
             }
         } catch (\Exception $e) {
-            return $this->sendError($e->getMessage());
+            Log::error($e->getMessage());
+
+            return $this->sendError('Something went wrong!', [], 500);
         }
     }
 
@@ -256,7 +261,7 @@ class ManforcesAllocationController extends Controller
                 if (!isset($allocatedManforces) || empty($allocatedManforces)) {
                     return $this->sendError('Manforce not allocated to the activity.');
                 }
-                
+
                 if (date('Y-m-d') == date('Y-m-d', strtotime($allocatedManforces->date))) {
                     if (date('H:i:s', strtotime($allocatedManforces->start_time)) > date('H:i:s')) {
                         $allocatedManforces->delete();
@@ -270,7 +275,9 @@ class ManforcesAllocationController extends Controller
                 return $this->sendError('User not exists.');
             }
         } catch (\Exception $e) {
-            return $this->sendError($e->getMessage());
+            Log::error($e->getMessage());
+
+            return $this->sendError('Something went wrong!', [], 500);
         }
     }
 
@@ -290,7 +297,7 @@ class ManforcesAllocationController extends Controller
 
                 if ($validator->fails()) {
                     foreach ($validator->errors()->messages() as $key => $value) {
-                        return $this->sendError('Validation Error.', [$key => $value[0]]);
+                        return $this->sendError('Validation Error.', [$key => $value[0]], 400);
                     }
                 }
 
@@ -341,7 +348,9 @@ class ManforcesAllocationController extends Controller
                 return $this->sendError('User not exists.');
             }
         } catch (\Exception $e) {
-            return $this->sendError($e->getMessage());
+            Log::error($e->getMessage());
+
+            return $this->sendError('Something went wrong!', [], 500);
         }
     }
 }

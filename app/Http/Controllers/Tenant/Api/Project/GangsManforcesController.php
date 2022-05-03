@@ -12,6 +12,7 @@ use App\Models\System\User;
 use App\Models\Tenant\ProjectGang;
 use App\Models\Tenant\ProjectGangManforce;
 use App\Helpers\AppHelper;
+use Illuminate\Support\Facades\Log;
 
 class GangsManforcesController extends Controller
 {
@@ -119,7 +120,9 @@ class GangsManforcesController extends Controller
 
             return $this->sendResponse($projectGangManforce, 'Project gang manforce created successfully.');
         } catch (\Exception $e) {
-            return $this->sendError($e->getMessage());
+            Log::error($e->getMessage());
+
+            return $this->sendError('Something went wrong!', [], 500);
         }
     }
 
@@ -154,7 +157,9 @@ class GangsManforcesController extends Controller
 
             return $this->sendResponse($projectGangManforce, 'Project gang manforce updated successfully.');
         } catch (\Exception $e) {
-            return $this->sendError($e->getMessage());
+            Log::error($e->getMessage());
+
+            return $this->sendError('Something went wrong!', [], 500);
         }
     }
 
@@ -171,7 +176,9 @@ class GangsManforcesController extends Controller
 
             return $this->sendresponse([], 'Project gang manforce deleted Successfully.');
         } catch (\Exception $e) {
-            return $this->sendError($e->getMessage());
+            Log::error($e->getMessage());
+
+            return $this->sendError('Something went wrong!', [], 500);
         }
     }
 }

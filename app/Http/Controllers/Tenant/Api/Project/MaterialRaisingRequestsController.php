@@ -12,6 +12,7 @@ use App\Models\System\User;
 use App\Models\Tenant\ProjectInventory;
 use App\Models\Tenant\ProjectMaterialRaisingRequest;
 use App\Helpers\AppHelper;
+use Illuminate\Support\Facades\Log;
 
 class MaterialRaisingRequestsController extends Controller
 {
@@ -107,7 +108,7 @@ class MaterialRaisingRequestsController extends Controller
 
                 if ($validator->fails()) {
                     foreach ($validator->errors()->messages() as $key => $value) {
-                        return $this->sendError('Validation Error.', [$key => $value[0]]);
+                        return $this->sendError('Validation Error.', [$key => $value[0]], 400);
                     }
                 }
 
@@ -129,7 +130,9 @@ class MaterialRaisingRequestsController extends Controller
                 return $this->sendError('User does not exist');
             }
         } catch (\Exception $e) {
-            return $this->sendError($e->getMessage());
+            Log::error($e->getMessage());
+
+            return $this->sendError('Something went wrong!', [], 500);
         }
     }
 
@@ -147,7 +150,7 @@ class MaterialRaisingRequestsController extends Controller
 
                 if ($validator->fails()) {
                     foreach ($validator->errors()->messages() as $key => $value) {
-                        return $this->sendError('Validation Error.', [$key => $value[0]]);
+                        return $this->sendError('Validation Error.', [$key => $value[0]], 400);
                     }
                 }
 
@@ -172,7 +175,9 @@ class MaterialRaisingRequestsController extends Controller
                 return $this->sendError('User does not exist');
             }
         } catch (\Exception $e) {
-            return $this->sendError($e->getMessage());
+            Log::error($e->getMessage());
+
+            return $this->sendError('Something went wrong!', [], 500);
         }
     }
 
@@ -199,7 +204,9 @@ class MaterialRaisingRequestsController extends Controller
                 return $this->sendError('User does not exists.');
             }
         } catch (\Exception $e) {
-            return $this->sendError($e->getMessage());
+            Log::error($e->getMessage());
+
+            return $this->sendError('Something went wrong!', [], 500);
         }
     }
 
@@ -214,7 +221,7 @@ class MaterialRaisingRequestsController extends Controller
 
                 if ($validator->fails()) {
                     foreach ($validator->errors()->messages() as $key => $value) {
-                        return $this->sendError('Validation Error.', [$key => $value[0]]);
+                        return $this->sendError('Validation Error.', [$key => $value[0]], 400);
                     }
                 }
 
@@ -251,7 +258,9 @@ class MaterialRaisingRequestsController extends Controller
                 return $this->sendError('User does not exists.');
             }
         } catch (\Exception $e) {
-            return $this->sendError($e->getMessage());
+            Log::error($e->getMessage());
+
+            return $this->sendError('Something went wrong!', [], 500);
         }
     }
 }
