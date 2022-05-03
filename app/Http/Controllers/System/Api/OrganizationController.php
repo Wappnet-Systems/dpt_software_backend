@@ -282,6 +282,8 @@ class OrganizationController extends Controller
     public function changeOrganizationStatus(Request $request, $orgId = null)
     {
         try {
+            $user = $request->user();
+
             $organization = Organization::whereId($request->orgId)->first();
 
             if (!in_array($request->status, Organization::STATUS)) {
@@ -294,6 +296,10 @@ class OrganizationController extends Controller
                 $organization->save();
 
                 if ($organization->status == Organization::STATUS['Deleted']) {
+                    if (!in_array($user->role_id, [User::USER_ROLE['SUPER_ADMIN']])) {
+                        return $this->sendError('You have not rights to delete a organization.', [], 401);
+                    }
+
                     $organization->delete();
 
                     User::whereOrganizationId($organization->id)->update([
