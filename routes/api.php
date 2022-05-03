@@ -34,6 +34,7 @@ use App\Http\Controllers\Tenant\Api\Project\InspectionController;
 use App\Http\Controllers\Tenant\Api\Project\MethodStatementController;
 use App\Http\Controllers\Tenant\Api\Project\ManforceProductivityController;
 use App\Http\Controllers\Tenant\Api\NcrSorController;
+use App\Http\Controllers\Tenant\Api\Project\NcrSorRequestController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -282,4 +283,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('ncr-sor/conver-to-blob-document', [NcrSorController::class, 'converToBlobNcrSorDocument']);
     Route::post('ncr-sor/add-update-request', [NcrSorController::class, 'addUpdateRequest']);
     
+    /* Project Activity NCR/SOR Documents Route */
+    Route::get('project/ncr-sor-request/lists', [NcrSorRequestController::class, 'getNcrSorRequest']);
+    Route::get('project/ncr-sor-request/get-by-id/{id}', [NcrSorRequestController::class, 'getNcrSorRequestDetails']);
+    Route::post('project/ncr-sor-request/add', [NcrSorRequestController::class, 'addNcrSorRequest']);
+    Route::put('project/ncr-sor-request/update/{id}', [NcrSorRequestController::class, 'updateNcrSorRequest']);
+    Route::patch('project/ncr-sor-request/status/change/{id}', [NcrSorRequestController::class, 'changeNcrSorRequestStatus']);
 });
