@@ -11,6 +11,7 @@ use App\Models\System\Organization;
 use App\Models\System\User;
 use App\Models\Tenant\UnitType;
 use App\Helpers\AppHelper;
+use Illuminate\Support\Facades\Log;
 
 class UnitTypesController extends Controller
 {
@@ -118,7 +119,9 @@ class UnitTypesController extends Controller
 
             return $this->sendResponse($unitType, 'unit Type created successfully.');
         } catch (\Exception $e) {
-            return $this->sendError($e->getMessage());
+            Log::error($e->getMessage());
+
+            return $this->sendError('Something went wrong!', [], 500);
         }
     }
 
@@ -150,7 +153,9 @@ class UnitTypesController extends Controller
 
             return $this->sendResponse($unitTypes, 'unit Type details updated successfully.');
         } catch (\Exception $e) {
-            return $this->sendError($e->getMessage());
+            Log::error($e->getMessage());
+
+            return $this->sendError('Something went wrong!', [], 500);
         }
     }
 
@@ -177,7 +182,9 @@ class UnitTypesController extends Controller
 
             return $this->sendResponse($unitTypes, 'Status changed successfully.');
         } catch (\Exception $e) {
-            return $this->sendError($e->getMessage());
+            Log::error($e->getMessage());
+
+            return $this->sendError('Something went wrong!', [], 500);
         }
     }
 }

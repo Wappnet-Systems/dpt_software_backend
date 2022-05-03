@@ -11,6 +11,7 @@ use Hyn\Tenancy\Models\Website;
 use App\Models\System\Organization;
 use App\Models\System\User;
 use App\Helpers\AppHelper;
+use Illuminate\Support\Facades\Log;
 
 class NonWorkingDaysController extends Controller
 {
@@ -120,7 +121,7 @@ class NonWorkingDaysController extends Controller
 
                 if ($validator->fails()) {
                     foreach ($validator->errors()->messages() as $key => $value) {
-                        return $this->sendError('Validation Error.', [$key => $value[0]]);
+                        return $this->sendError('Validation Error.', [$key => $value[0]], 400);
                     }
                 }
 
@@ -142,7 +143,9 @@ class NonWorkingDaysController extends Controller
                 return $this->sendError('User not exists.');
             }
         } catch (\Exception $e) {
-            return $this->sendError($e->getMessage());
+            Log::error($e->getMessage());
+
+            return $this->sendError('Something went wrong!', [], 500);
         }
     }
 
@@ -157,7 +160,7 @@ class NonWorkingDaysController extends Controller
 
             if ($validator->fails()) {
                 foreach ($validator->errors()->messages() as $key => $value) {
-                    return $this->sendError('Validation Error.', [$key => $value[0]]);
+                    return $this->sendError('Validation Error.', [$key => $value[0]], 400);
                 }
             }
 
@@ -178,7 +181,9 @@ class NonWorkingDaysController extends Controller
 
             return $this->sendResponse($nonWorkingDays, 'Non working day updated successfully.');
         } catch (\Exception $e) {
-            return $this->sendError($e->getMessage());
+            Log::error($e->getMessage());
+
+            return $this->sendError('Something went wrong!', [], 500);
         }
     }
 
@@ -191,7 +196,7 @@ class NonWorkingDaysController extends Controller
 
             if ($validator->fails()) {
                 foreach ($validator->errors()->messages() as $key => $value) {
-                    return $this->sendError('Validation Error.', [$key => $value[0]]);
+                    return $this->sendError('Validation Error.', [$key => $value[0]], 400);
                 }
             }
 
@@ -211,7 +216,9 @@ class NonWorkingDaysController extends Controller
 
             return $this->sendResponse($nonWorkingDays, 'Status changed successfully.');
         } catch (\Exception $e) {
-            return $this->sendError($e->getMessage());
+            Log::error($e->getMessage());
+
+            return $this->sendError('Something went wrong!', [], 500);
         }
     }
 }

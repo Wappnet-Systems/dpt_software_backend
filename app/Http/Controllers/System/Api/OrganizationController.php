@@ -13,6 +13,7 @@ use App\Models\System\Organization;
 use App\Models\System\User;
 use App\Helpers\AppHelper;
 use App\Helpers\UploadFile;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Password;
 
 class OrganizationController extends Controller
@@ -202,8 +203,9 @@ class OrganizationController extends Controller
                 return $this->sendError('User not exists.');
             }
         } catch (\Exception $e) {
-            // return $this->sendError($e->getMessage());
-            return $this->sendError('Something went wrong!');
+            Log::error($e->getMessage());
+
+            return $this->sendError('Something went wrong!', [], 500);
         }
     }
 
@@ -272,8 +274,9 @@ class OrganizationController extends Controller
                 return $this->sendError('User not exists.');
             }
         } catch (\Exception $e) {
-            return $this->sendError('Something went wrong!');
-            // return $this->sendError($e->getMessage());
+            Log::error($e->getMessage());
+
+            return $this->sendError('Something went wrong!', [], 500);
         }
     }
 
@@ -306,8 +309,9 @@ class OrganizationController extends Controller
 
             return $this->sendError('Organization does not exists.');
         } catch (\Exception $e) {
-            return $this->sendError('Something went wrong!');
-            // return $this->sendError($e->getMessage());
+            Log::error($e->getMessage());
+
+            return $this->sendError('Something went wrong!', [], 500);
         }
     }
 }

@@ -12,6 +12,7 @@ use App\Models\System\User;
 use App\Models\Tenant\ProjectManforce;
 use App\Models\Tenant\ProjectActivityAllocateManforce;
 use App\Helpers\AppHelper;
+use Illuminate\Support\Facades\Log;
 
 class ManforcesController extends Controller
 {
@@ -106,7 +107,7 @@ class ManforcesController extends Controller
 
             if ($validator->fails()) {
                 foreach ($validator->errors()->messages() as $key => $value) {
-                    return $this->sendError('Validation Error.', [$key => $value[0]]);
+                    return $this->sendError('Validation Error.', [$key => $value[0]], 400);
                 }
             }
 
@@ -129,7 +130,9 @@ class ManforcesController extends Controller
 
             return $this->sendResponse($projectManforce, 'Project manforce created successfully.');
         } catch (\Exception $e) {
-            return $this->sendError($e->getMessage());
+            Log::error($e->getMessage());
+
+            return $this->sendError('Something went wrong!', [], 500);
         }
     }
 
@@ -144,7 +147,7 @@ class ManforcesController extends Controller
 
             if ($validator->fails()) {
                 foreach ($validator->errors()->messages() as $key => $value) {
-                    return $this->sendError('Validation Error.', [$key => $value[0]]);
+                    return $this->sendError('Validation Error.', [$key => $value[0]], 400);
                 }
             }
 
@@ -170,7 +173,9 @@ class ManforcesController extends Controller
 
             return $this->sendResponse($projectManforce, 'Project manforce updated successfully.');
         } catch (\Exception $e) {
-            return $this->sendError($e->getMessage());
+            Log::error($e->getMessage());
+
+            return $this->sendError('Something went wrong!', [], 500);
         }
     }
 
@@ -194,7 +199,9 @@ class ManforcesController extends Controller
 
             return $this->sendResponse([], 'Allocated manforce remove from activity successfully.');
         } catch (\Exception $e) {
-            return $this->sendError($e->getMessage());
+            Log::error($e->getMessage());
+
+            return $this->sendError('Something went wrong!', [], 500);
         }
     }
 }

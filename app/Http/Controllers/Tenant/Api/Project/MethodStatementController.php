@@ -12,6 +12,7 @@ use App\Models\System\User;
 use App\Models\Tenant\MethodStatement;
 use App\Helpers\AppHelper;
 use App\Helpers\UploadFile;
+use Illuminate\Support\Facades\Log;
 
 class MethodStatementController extends Controller
 {
@@ -87,7 +88,9 @@ class MethodStatementController extends Controller
                 return $this->sendResponse($results, 'Method statement List.');
             }
         } catch (\Exception $e) {
-            return $this->sendError($e->getMessage());
+            Log::error($e->getMessage());
+
+            return $this->sendError('Something went wrong!', [], 500);
         }
     }
 
@@ -119,7 +122,7 @@ class MethodStatementController extends Controller
 
                 if ($validator->fails()) {
                     foreach ($validator->errors()->messages() as $key => $value) {
-                        return $this->sendError('Validation Error.', [$key => $value[0]]);
+                        return $this->sendError('Validation Error.', [$key => $value[0]], 400);
                     }
                 }
 
@@ -143,7 +146,9 @@ class MethodStatementController extends Controller
                 return $this->sendError('User not exists.');
             }
         } catch (\Exception $e) {
-            return $this->sendError($e->getMessage());
+            Log::error($e->getMessage());
+
+            return $this->sendError('Something went wrong!', [], 500);
         }
     }
 
@@ -161,7 +166,7 @@ class MethodStatementController extends Controller
 
                 if ($validator->fails()) {
                     foreach ($validator->errors()->messages() as $key => $value) {
-                        return $this->sendError('Validation Error.', [$key => $value[0]]);
+                        return $this->sendError('Validation Error.', [$key => $value[0]], 400);
                     }
                 }
 
@@ -194,7 +199,9 @@ class MethodStatementController extends Controller
                 return $this->sendError('User not exists.');
             }
         } catch (\Exception $e) {
-            return $this->sendError($e->getMessage());
+            Log::error($e->getMessage());
+
+            return $this->sendError('Something went wrong!', [], 500);
         }
     }
 
@@ -219,7 +226,9 @@ class MethodStatementController extends Controller
                 return $this->sendError('User not exists.');
             }
         } catch (\Exception $e) {
-            return $this->sendError($e->getMessage());
+            Log::error($e->getMessage());
+
+            return $this->sendError('Something went wrong!', [], 500);
         }
     }
 
@@ -236,7 +245,7 @@ class MethodStatementController extends Controller
 
                 if ($validator->fails()) {
                     foreach ($validator->errors()->messages() as $key => $value) {
-                        return $this->sendError('Validation Error.', [$key => $value[0]]);
+                        return $this->sendError('Validation Error.', [$key => $value[0]], 400);
                     }
                 }
 
@@ -259,12 +268,9 @@ class MethodStatementController extends Controller
                 return $this->sendError('User not exists.');
             }
         } catch (\Exception $e) {
-            return $this->sendError($e->getMessage());
-        }
-    }
+            Log::error($e->getMessage());
 
-    public function FunctionName1(Request $request)
-    {
-        # code...
+            return $this->sendError('Something went wrong!', [], 500);
+        }
     }
 }

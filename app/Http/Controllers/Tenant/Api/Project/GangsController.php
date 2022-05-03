@@ -11,6 +11,7 @@ use App\Models\System\Organization;
 use App\Models\System\User;
 use App\Models\Tenant\ProjectGang;
 use App\Helpers\AppHelper;
+use Illuminate\Support\Facades\Log;
 
 class GangsController extends Controller
 {
@@ -128,7 +129,9 @@ class GangsController extends Controller
                 return $this->sendError('User not exists.');
             }
         } catch (\Exception $e) {
-            return $this->sendError($e->getMessage());
+            Log::error($e->getMessage());
+
+            return $this->sendError('Something went wrong!', [], 500);
         }
     }
 
@@ -159,7 +162,9 @@ class GangsController extends Controller
 
             return $this->sendResponse($projectGangs, 'Project gang updated successfully.');
         } catch (\Exception $e) {
-            return $this->sendError($e->getMessage());
+            Log::error($e->getMessage());
+
+            return $this->sendError('Something went wrong!', [], 500);
         }
     }
 
@@ -196,7 +201,9 @@ class GangsController extends Controller
 
             return $this->sendResponse($projectGangs, 'Status changed successfully.');
         } catch (\Exception $e) {
-            return $this->sendError($e->getMessage());
+            Log::error($e->getMessage());
+
+            return $this->sendError('Something went wrong!', [], 500);
         }
     }
 }
