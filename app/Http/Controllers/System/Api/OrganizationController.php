@@ -31,7 +31,6 @@ class OrganizationController extends Controller
         $orderBy = !empty($request->orderby) ? $request->orderby : config('constants.default_orderby');
 
         $query = Organization::with('user', 'hostname')
-            ->where('status', Organization::STATUS['Active'])
             ->orderBy('id', $orderBy);
 
         if (isset($request->search) && !empty($request->search)) {
