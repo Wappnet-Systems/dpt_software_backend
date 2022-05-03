@@ -251,8 +251,12 @@ class RoleController extends Controller
         $assignModuleIds = RoleHasModule::whereOrganizationId($user->organization_id)->pluck('module_id');
 
         $query = Module::with('subModule')
+            /* ->whereHas('subModule', function ($qy) {
+                $qy->where('id', '!=', 1);
+            }) */
             ->whereIn('id', $assignModuleIds)
-            ->orderBy('id', $orderBy);
+            // ->orderBy('id', $orderBy)
+            ;
 
         AppHelper::setDefaultDBConnection();
 
@@ -269,20 +273,46 @@ class RoleController extends Controller
         if (!empty($roles['data'])) {
             foreach ($roles['data'] as $key => $value) {
                 foreach ($value['sub_module'] as $subKey => $subValue) {
-                    $roles['data'][$key]['sub_module'][$subKey]['role_has_sub_modules'] = RoleHasSubModule::select('is_list', 'is_create', 'is_edit', 'is_delete', 'is_view', 'is_comment')
+                    $defultCols = ['is_list', 'is_create', 'is_edit', 'is_delete', 'is_view'];
+
+                    if (in_array($subValue['id'], RoleHasSubModule::ACTION_GROUP['list'])) {
+                        $defultCols = ['is_list'];
+                    }
+
+                    if (in_array($subValue['id'], RoleHasSubModule::ACTION_GROUP['comment'])) {
+                        array_push($defultCols, 'is_comment');
+                    }
+
+                    if (in_array($subValue['id'], RoleHasSubModule::ACTION_GROUP['assign'])) {
+                        array_push($defultCols, 'is_assign');
+                    }
+                    
+                    if (in_array($subValue['id'], RoleHasSubModule::ACTION_GROUP['approve_reject'])) {
+                        array_push($defultCols, 'is_approve_reject');
+                    }
+
+                    // $roles['data'][$key]['sub_module'][$subKey]['role_has_sub_modules'] = RoleHasSubModule::select('is_list', 'is_create', 'is_edit', 'is_delete', 'is_view', 'is_comment', 'is_assign', 'is_approve_reject')
+
+                    $roles['data'][$key]['sub_module'][$subKey]['role_has_sub_modules'] = RoleHasSubModule::select($defultCols)
                         ->whereRoleId($request->roleId)
                         ->whereSubModuleId($subValue['id'])
                         ->first();
 
                     if (empty($roles['data'][$key]['sub_module'][$subKey]['role_has_sub_modules'])) {
-                        $roles['data'][$key]['sub_module'][$subKey]['role_has_sub_modules'] = [
+                        $defultCols = array_flip($defultCols);
+
+                        $roles['data'][$key]['sub_module'][$subKey]['role_has_sub_modules'] = array_fill_keys(array_keys($defultCols), 0);
+                        
+                        /* $roles['data'][$key]['sub_module'][$subKey]['role_has_sub_modules'] = [
                             "is_list" => 0,
                             "is_create" => 0,
                             "is_edit" => 0,
                             "is_delete" => 0,
                             "is_view" => 0,
-                            "is_comment" => 0
-                        ];
+                            "is_comment" => 0,
+                            "is_assign" => 0,
+                            "is_approve_reject" => 0,
+                        ]; */
                     }
                 }
             }
@@ -347,6 +377,8 @@ class RoleController extends Controller
                     $roleHasSubModule->is_delete = isset($value['is_delete']) ? $value['is_delete'] : false;
                     $roleHasSubModule->is_view = isset($value['is_view']) ? $value['is_view'] : false;
                     $roleHasSubModule->is_comment = isset($value['is_comment']) ? $value['is_comment'] : false;
+                    $roleHasSubModule->is_assign = isset($value['is_assign']) ? $value['is_assign'] : false;
+                    $roleHasSubModule->is_approve_reject = isset($value['is_approve_reject']) ? $value['is_approve_reject'] : false;
                     $roleHasSubModule->save();
                 }
 

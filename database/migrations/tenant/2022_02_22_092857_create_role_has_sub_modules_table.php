@@ -27,6 +27,8 @@ class CreateRoleHasSubModulesTable extends Migration
             $table->boolean('is_delete')->default(false);
             $table->boolean('is_view')->default(false);
             $table->boolean('is_comment')->default(false);
+            $table->boolean('is_assign')->default(false);
+            $table->boolean('is_approve_reject')->default(false);
             $table->timestamps();
         });
     }

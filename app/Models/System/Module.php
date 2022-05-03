@@ -58,7 +58,8 @@ class Module extends Model
 
     public function subModule()
     {
-        return $this->hasMany(SubModule::class, 'module_id', 'id');
+        return $this->hasMany(SubModule::class, 'module_id', 'id')
+            ->where('id', '!=', 1);
     }
 
     public function roles()
