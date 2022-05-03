@@ -272,7 +272,7 @@ class ProjectsController extends Controller
                     return $this->sendError('Project dose not exists.');
                 }
 
-                if (!in_array($user->role_id, [User::USER_ROLE['MANAGER']])) {
+                if (!in_array($user->role_id, [User::USER_ROLE['COMPANY_ADMIN']])) {
                     return $this->sendError('You have no rights to delete project.', [], 401);
                 }
 
@@ -303,7 +303,7 @@ class ProjectsController extends Controller
 
                 if (!isset($project) || empty($project)) {
                     return $this->sendError('Project dose not exists.');
-                } else if (!in_array($user->role_id, [User::USER_ROLE['COMPANY_ADMIN'], User::USER_ROLE['CONSTRUCATION_SITE_ADMIN'], User::USER_ROLE['MANAGER']])) {
+                } else if (!in_array($user->role_id, [User::USER_ROLE['COMPANY_ADMIN']])) {
                     return $this->sendError('You have no rights to change status of project.', [], 401);
                 } else {
                     $project->status = $request->status;
