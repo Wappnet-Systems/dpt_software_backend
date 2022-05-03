@@ -209,6 +209,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('project/material/transfer/request/update/{id}', [MaterialTransferRequestsController::class, 'updateMaterialTransferRequest']);
     Route::delete('project/material/transfer/request/delete/{id}', [MaterialTransferRequestsController::class, 'deleteMaterialTransferRequest']);
     Route::patch('project/material/transfer/request/status/change/{id}', [MaterialTransferRequestsController::class, 'changeMaterialTransferRequestStatus']);
+    Route::patch('project/material/transfer/request/receiver-status/change/{id}', [MaterialTransferRequestsController::class, 'changeMaterialTransferRequestReceiverStatus']);
 
     /* Projects Material Raising Request Routes */
     Route::get('project/material/raising/request/get/lists', [MaterialRaisingRequestsController::class, 'getMaterialRaisingRequests']);

@@ -13,9 +13,15 @@ class ProjectMaterialTransferRequest extends Model
 
     protected $guarded = [];
 
-    protected $appends = ['status_name'];
+    protected $appends = ['status_name', 'receiver_status_name'];
 
     const STATUS = [
+        'Pending' => 1,
+        'Approved' => 2,
+        'Rejected' => 3,
+    ];
+
+    const RECEIVER_STATUS = [
         'Pending' => 1,
         'Approved' => 2,
         'Rejected' => 3,
@@ -37,12 +43,28 @@ class ProjectMaterialTransferRequest extends Model
         return null;
     }
 
+    /**
+     * Get the receiver status name.
+     *
+     * @return string
+     */
+    public function getReceiverStatusNameAttribute()
+    {
+        $flipStatus = array_flip(self::RECEIVER_STATUS);
+
+        if (isset($flipStatus[$this->receiver_status]) && !empty($flipStatus[$this->receiver_status])) {
+            return "{$flipStatus[$this->receiver_status]}";
+        }
+
+        return null;
+    }
+
     public function fromProject()
     {
         return $this->belongsTo(Project::class, 'from_project_id', 'id')
             ->select('id', 'name', 'logo', 'address', 'lat', 'long', 'city', 'state', 'country', 'zip_code', 'start_date', 'end_date', 'cost', 'status');
     }
-    
+
     public function toProject()
     {
         return $this->belongsTo(Project::class, 'to_project_id', 'id')

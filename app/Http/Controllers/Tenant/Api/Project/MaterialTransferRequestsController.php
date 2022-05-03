@@ -273,7 +273,7 @@ class MaterialTransferRequestsController extends Controller
             }
 
             if (!in_array($request->status, ProjectMaterialTransferRequest::STATUS)) {
-                return $this->sendError('Invalid status requested.');
+                return $this->sendError('Invalid status requested.', [], 400);
             }
 
             $transferReq = ProjectMaterialTransferRequest::whereId($request->id)->first();
@@ -295,6 +295,10 @@ class MaterialTransferRequestsController extends Controller
                 $transferReq->status = $request->status;
                 $transferReq->save();
             } else if ($request->status == ProjectMaterialTransferRequest::STATUS['Approved']) {
+                if ($transferReq->receiver_status != ProjectMaterialTransferRequest::RECEIVER_STATUS['Approved']) {
+                    return $this->sendError('Material transfer request receiver status not approved.', [], 400);
+                }
+
                 // Update inventory of from project
                 $fromProjectInventory = ProjectInventory::whereProjectId($transferReq->from_project_id)
                     ->whereMaterialTypeId($transferReq->material_type_id)
@@ -339,6 +343,54 @@ class MaterialTransferRequestsController extends Controller
                 $transferReq->save();
             } else {
                 $transferReq->status = $request->status;
+                $transferReq->save();
+            }
+
+            return $this->sendResponse($transferReq, 'Status changed successfully.');
+        } catch (\Exception $e) {
+            Log::error($e->getMessage());
+
+            return $this->sendError('Something went wrong!', [], 500);
+        }
+    }
+
+    public function changeMaterialTransferRequestReceiverStatus(Request $request, $id = null)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                'receiver_status' => 'required'
+            ]);
+
+            if ($validator->fails()) {
+                foreach ($validator->errors()->messages() as $key => $value) {
+                    return $this->sendError('Validation Error.', [$key => $value[0]], 400);
+                }
+            }
+
+            if (!in_array($request->receiver_status, ProjectMaterialTransferRequest::RECEIVER_STATUS)) {
+                return $this->sendError('Invalid receiver status requested.', [], 400);
+            }
+
+            $transferReq = ProjectMaterialTransferRequest::whereId($request->id)->first();
+
+            if (!in_array($transferReq->receiver_status, [ProjectMaterialTransferRequest::RECEIVER_STATUS['Pending'], ProjectMaterialTransferRequest::RECEIVER_STATUS['Rejected']])) {
+                return $this->sendError('Material transfer request already approved.');
+            }
+
+            if ($request->receiver_status == ProjectMaterialTransferRequest::RECEIVER_STATUS['Rejected']) {
+                if (!isset($request->reject_reasone) || empty($request->reject_reasone)) {
+                    return $this->sendError('Validation Error.', ['reject_reasone' => 'The reject reasone field is required.']);
+                }
+
+                $transferReq->reject_reasone = $request->reject_reasone;
+                $transferReq->receiver_status = $request->receiver_status;
+                $transferReq->save();
+            } elseif ($request->receiver_status == ProjectMaterialTransferRequest::RECEIVER_STATUS['Approved']) {
+                $transferReq->reject_reasone = NULL;
+                $transferReq->receiver_status = $request->receiver_status;
+                $transferReq->save();
+            } else {
+                $transferReq->receiver_status = $request->receiver_status;
                 $transferReq->save();
             }
 
