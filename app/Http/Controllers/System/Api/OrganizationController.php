@@ -96,13 +96,13 @@ class OrganizationController extends Controller
                     'org_admin_name' => 'required',
                     'email' => 'required', // |exists:organizations,email
                     'logo' => sprintf('mimes:%s|max:%s', config('constants.upload_image_types'), config('constants.upload_image_max_size')),
-                    'phone_no' => 'required|numeric|digits:15',
+                    'phone_no' => 'required|numeric|digits_between:10,15',
                     'org_domain' => 'required', // |exists:hostnames,fqdn
                     'address' => 'required',
                     'city' => 'required',
                     'state' => 'required',
                     'country' => 'required',
-                    'zip_code' => 'required|numeric|digits:10',
+                    'zip_code' => 'required|numeric|digits_between:5,10',
                 ], [
                     'org_admin_name.required' => 'The organization admin name is require.',
                     'logo.max' => 'The logo must not be greater than 8mb.'
