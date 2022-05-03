@@ -110,6 +110,10 @@ class ManforcesController extends Controller
                 }
             }
 
+            if (!in_array($request->cost_type, ProjectManforce::COST_TYPE)) {
+                return $this->sendError('Invalid cost type request.');
+            }
+
             $projectManforce = new ProjectManforce();
             $projectManforce->project_id = $request->project_id;
             $projectManforce->manforce_type_id = $request->manforce_type_id;
@@ -142,6 +146,10 @@ class ManforcesController extends Controller
                 foreach ($validator->errors()->messages() as $key => $value) {
                     return $this->sendError('Validation Error.', [$key => $value[0]]);
                 }
+            }
+
+            if (!in_array($request->cost_type, [ProjectManforce::COST_TYPE])) {
+                return $this->sendError('Invalid cost type request.');
             }
 
             $projectManforce = ProjectManforce::whereId($request->id)->first();
