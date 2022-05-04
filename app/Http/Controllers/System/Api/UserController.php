@@ -26,14 +26,15 @@ class UserController extends Controller
             } */ else if ($user->type != User::USER_ROLE['SUPER_ADMIN'] && $user->status != User::STATUS['Active']) {
                 return $this->sendError('This user has been inactivated by admin. Please contact to admin.');
             } else {
-                if (Auth::attempt(['email' => strtolower($request->email), 'password' => $request->password])) { 
+                if (Auth::attempt(['email' => strtolower($request->email), 'password' => $request->password])) {
                     $user = Auth::user();
-                    
+
                     $user->token = $user->createToken(env('APP_NAME'))->plainTextToken;
 
-                    if (isset($request->device_id) && !empty($request->device_id)) {
+                    if (isset($request->device_token) && !empty($request->device_token)) {
                         $req['deviceType']  = !empty($request->device_type) ? $request->device_type : '';
-                        $req['deviceId'] = $request->device_id;
+                        $req['deviceToken'] = $request->device_token;
+                        $req['browserName'] = $request->header('User-Agent');
 
                         $this->deviceLogin($req, $user->toArray());
                     }
@@ -44,7 +45,7 @@ class UserController extends Controller
                         'assign_modules' => Module::isAssigned($user->organization_id ?? null)->get()->toArray(),
                         'sub_modules' => SubModule::pluck('name', 'id'),
                     ];
-        
+
                     return $this->sendResponse($data, 'User login successfully.');
                 } else {
                     return $this->sendError('Invalid credentials.');
@@ -58,24 +59,37 @@ class UserController extends Controller
     private function deviceLogin($req = array(), $userData = null)
     {
         $deviceType = (isset($req['deviceType']) && $req['deviceType']) ? $req['deviceType'] : "";
-        $deviceId   = (isset($req['deviceId']) && $req['deviceId']) ? $req['deviceId'] : "";
+        $deviceToken   = (isset($req['deviceToken']) && $req['deviceToken']) ? $req['deviceToken'] : "";
+
+        $deviceMeta = json_encode([
+            'device_token' . '=>' . $req['deviceToken'],
+            'browser_name' . '=>' . $req['browserName'],
+            'device_type' . '=>' . $req['deviceType'],
+        ]);
 
         if (!empty($deviceType)) {
             $device = UserLoginLog::where('user_id', '=', $userData['id'])
                 ->where('device_type', $deviceType)
-                ->where('device_id', $deviceId)
+                ->where('device_token', $deviceToken)
                 ->first();
 
             if (!empty($device)) {
                 $device->update([
                     'device_type'   => $deviceType,
-                    'device_id'     => $deviceId
+                    'device_token'  => $deviceToken,
+                    'device_meta'=> $deviceMeta,
+                    'updated_ip' => request()->ip(),
+                    'updated_at' => date('Y-m-d h:i:s')
+
                 ]);
             } else {
                 $deviceData = [
                     'user_id'       => $userData['id'],
                     'device_type'   => $deviceType,
-                    'device_id'     => $deviceId,
+                    'device_token'  => $deviceToken,
+                    'device_meta'=> $deviceMeta,
+                    'created_ip' => request()->ip(),
+                    'created_at' => date('Y-m-d h:i:s')
                 ];
 
                 UserLoginLog::insert($deviceData);

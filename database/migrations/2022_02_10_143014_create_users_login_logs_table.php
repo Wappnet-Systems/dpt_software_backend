@@ -19,8 +19,11 @@ class CreateUsersLoginLogsTable extends Migration
             
             $table->id();
             $table->foreignId('user_id')->constrained('users')->cascadeOnUpdate()->cascadeOnDelete();
-            $table->tinyInteger('device_type')->comment('1 - Android, 2 - Apple')->nullable();
-            $table->string('device_id', 255)->nullable();
+            $table->enum('device_type', ['Android', 'IOS', 'WEB']);
+            $table->string('device_token', 255)->nullable();
+            $table->text('device_meta')->nullable();
+            $table->ipAddress('created_ip')->nullable();
+            $table->ipAddress('updated_ip')->nullable();
             $table->timestamps();
         });
     }
