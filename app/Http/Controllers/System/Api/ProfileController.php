@@ -102,7 +102,6 @@ class ProfileController extends Controller
                 return $this->sendError('Validation Error.', [$key => $value[0]], 400);
             }
         }
-        die('hello');
         
         $user = User::whereId($user->id)->first();
 
