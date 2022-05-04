@@ -88,8 +88,8 @@ class ProfileController extends Controller
 
         $validator = Validator::make($request->all(), [
             'name' => 'required',
-            'email' => 'email',
-            'personal_email' => 'email',
+            'email' => 'required|email|unique:users,email,' . $user->id,
+            'personal_email' => 'email|unique:users,personal_email,' . $user->id,
             'phone_number' => 'numeric|digits_between:10,15',
             'zip_code' => 'numeric|digits_between:5,10',
             'profile_image' => sprintf('mimes:%s|max:%s', config('constants.upload_image_types'), config('constants.upload_image_max_size'))
@@ -102,7 +102,7 @@ class ProfileController extends Controller
                 return $this->sendError('Validation Error.', [$key => $value[0]], 400);
             }
         }
-
+        
         $user = User::whereId($user->id)->first();
 
         if (!isset($user) || empty($user)) {
@@ -124,7 +124,7 @@ class ProfileController extends Controller
         if ($request->filled('name')) {
             $user->name = $request->name;
         }
-        
+
         if ($request->filled('email')) {
             $user->email = $request->email;
         }
