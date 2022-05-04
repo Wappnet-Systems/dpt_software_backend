@@ -61,11 +61,11 @@ class UserController extends Controller
         $deviceType = (isset($req['deviceType']) && $req['deviceType']) ? $req['deviceType'] : "";
         $deviceToken   = (isset($req['deviceToken']) && $req['deviceToken']) ? $req['deviceToken'] : "";
 
-        $deviceMeta = json_encode([
-            'device_token' . '=>' . $req['deviceToken'],
-            'browser_name' . '=>' . $req['browserName'],
-            'device_type' . '=>' . $req['deviceType'],
-        ]);
+        // $deviceMeta = json_encode([
+        //     'device_token' . '=>' . $req['deviceToken'],
+        //     'browser_name' . '=>' . $req['browserName'],
+        //     'device_type' . '=>' . $req['deviceType'],
+        // ]);
 
         if (!empty($deviceType)) {
             $device = UserLoginLog::where('user_id', '=', $userData['id'])
@@ -77,7 +77,7 @@ class UserController extends Controller
                 $device->update([
                     'device_type'   => $deviceType,
                     'device_token'  => $deviceToken,
-                    'device_meta'=> $deviceMeta,
+                    'device_meta'=> $req['deviceToken'],
                     'updated_ip' => request()->ip(),
                     'updated_at' => date('Y-m-d h:i:s')
 
@@ -87,7 +87,7 @@ class UserController extends Controller
                     'user_id'       => $userData['id'],
                     'device_type'   => $deviceType,
                     'device_token'  => $deviceToken,
-                    'device_meta'=> $deviceMeta,
+                    'device_meta'=> $req['deviceToken'],
                     'created_ip' => request()->ip(),
                     'created_at' => date('Y-m-d h:i:s')
                 ];
