@@ -88,6 +88,8 @@ class ProfileController extends Controller
 
         $validator = Validator::make($request->all(), [
             'name' => 'required',
+            'email' => 'email',
+            'personal_email' => 'email',
             'phone_number' => 'numeric|digits_between:10,15',
             'zip_code' => 'numeric|digits_between:5,10',
             'profile_image' => sprintf('mimes:%s|max:%s', config('constants.upload_image_types'), config('constants.upload_image_max_size'))
