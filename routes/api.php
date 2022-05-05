@@ -17,6 +17,7 @@ use App\Http\Controllers\Tenant\Api\ActivitySubCategoriesController;
 use App\Http\Controllers\Tenant\Api\ProjectsController;
 use App\Http\Controllers\Tenant\Api\TimeSlotsController;
 use App\Http\Controllers\Tenant\Api\Project\MachineriesController;
+use App\Http\Controllers\Tenant\Api\Project\MainActivitiesController;
 use App\Http\Controllers\Tenant\Api\Project\ActivitiesController;
 use App\Http\Controllers\Tenant\Api\Project\NonWorkingDaysController;
 use App\Http\Controllers\Tenant\Api\Project\ManforcesController;
@@ -193,6 +194,13 @@ Route::middleware('auth:sanctum')->group(function () {
 
     /* Projects Inventories Minimum Quantity Update Routes */
     Route::put('project/inventory/minimum-quantity/update/{projectInventoryId}', [InventoryStocksController::class, 'updateMinimunQuntity']);
+
+    /* Projects Main Activity Management Routes */
+    Route::get('project/main-activity/get/lists', [MainActivitiesController::class, 'getMainActivities']);
+    Route::get('project/main-activity/get/{id}', [MainActivitiesController::class, 'getMainActivityDetails']);
+    Route::post('project/main-activity/add', [MainActivitiesController::class, 'addMainActivity']);
+    Route::put('project/main-activity/update/{id}', [MainActivitiesController::class, 'updateMainActivity']);
+    Route::patch('project/main-activity/status/change/{id}', [MainActivitiesController::class, 'changeMainActivityStatus']);
 
     /* Projects Activity Management Routes */
     Route::get('project/activity/get/lists', [ActivitiesController::class, 'getActivities']);
