@@ -6,22 +6,21 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class ProjectActivity extends Model
+class ProjectMainActivity extends Model
 {
     use HasFactory;
     use SoftDeletes;
 
-    protected $table = "projects_activities";
+    protected $table = "projects_main_activities";
 
     protected $guarded = [];
 
     protected $appends = ['status_name'];
 
     const STATUS = [
-        'Pending' => 1,
-        'Start' => 2,
-        'Hold' => 3,
-        'Completed' => 4,
+        'Active' => 1,
+        'In Active' => 2,
+        'Deleted' => 3,
     ];
 
     /**
@@ -39,17 +38,23 @@ class ProjectActivity extends Model
 
         return null;
     }
-
+    
     public function project()
     {
         return $this->belongsTo(Project::class, 'project_id', 'id')
             ->select('id', 'name', 'logo', 'address', 'lat', 'long', 'city', 'state', 'country', 'zip_code', 'start_date', 'end_date', 'cost', 'status');
     }
 
-    public function mainActivity()
+    public function activitySubCategory()
     {
-        return $this->belongsTo(ProjectMainActivity::class, 'project_main_activity_id', 'id')
-            ->with('activitySubCategory')
-            ->select('id', 'activity_sub_category_id', 'project_id', 'name', 'status', 'created_by');
+        return $this->belongsTo(ActivitySubCategory::class, 'activity_sub_category_id', 'id')
+            ->with('activityCategory', 'unitType')
+            ->select('id', 'activity_category_id', 'unit_type_id', 'name', 'status');
+    }
+
+    public function projectActivities()
+    {
+        return $this->hasMany(ProjectActivity::class, 'project_main_activity_id', 'id')
+            ->select('id', 'project_id', 'project_main_activity_id', 'name', 'scaffold_number', 'start_date', 'end_date', 'actual_start_date', 'actual_end_date', 'location', 'level', 'actual_area', 'completed_area', 'cost', 'status', 'productivity_rate', 'created_by');
     }
 }

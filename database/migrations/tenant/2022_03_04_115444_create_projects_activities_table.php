@@ -19,7 +19,7 @@ class CreateProjectsActivitiesTable extends Migration
 
             $table->id();
             $table->foreignId('project_id')->constrained('projects')->cascadeOnUpdate()->cascadeOnDelete();
-            $table->foreignId('activity_sub_category_id')->constrained('activity_sub_categories')->cascadeOnUpdate()->cascadeOnDelete();
+            $table->foreignId('project_main_activity_id')->constrained('projects_main_activities')->cascadeOnUpdate()->cascadeOnDelete();
             $table->string('name', 50);
             $table->bigInteger('scaffold_number')->nullable();
             $table->timestamp('start_date')->nullable();
