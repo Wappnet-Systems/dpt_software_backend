@@ -13,6 +13,7 @@ use App\Models\Tenant\Project;
 use App\Models\Tenant\ProjectAssignedUser;
 use App\Helpers\AppHelper;
 use App\Helpers\UploadFile;
+use Illuminate\Support\Facades\Log;
 
 class ProjectsController extends Controller
 {
@@ -102,7 +103,9 @@ class ProjectsController extends Controller
                 return $this->sendError('User does not exists.');
             }
         } catch (\Exception $e) {
-            return $this->sendError($e->getMessage());
+            Log::error($e->getMessage());
+
+            return $this->sendError('Something went wrong!', [], 500);
         }
     }
 
@@ -180,7 +183,9 @@ class ProjectsController extends Controller
                 return $this->sendError('User not exists.');
             }
         } catch (\Exception $e) {
-            return $this->sendError($e->getMessage());
+            Log::error($e->getMessage());
+
+            return $this->sendError('Something went wrong!', [], 500);
         }
     }
 
@@ -249,7 +254,9 @@ class ProjectsController extends Controller
                 return $this->sendError('User does not exists.');
             }
         } catch (\Exception $e) {
-            return $this->sendError($e->getMessage());
+            Log::error($e->getMessage());
+
+            return $this->sendError('Something went wrong!', [], 500);
         }
     }
 
@@ -265,7 +272,7 @@ class ProjectsController extends Controller
                     return $this->sendError('Project dose not exists.');
                 }
 
-                if (!in_array($user->role_id, [User::USER_ROLE['MANAGER']])) {
+                if (!in_array($user->role_id, [User::USER_ROLE['COMPANY_ADMIN']])) {
                     return $this->sendError('You have no rights to delete project.', [], 401);
                 }
 
@@ -276,7 +283,9 @@ class ProjectsController extends Controller
                 return $this->sendError('User does not exists.');
             }
         } catch (\Exception $e) {
-            return $this->sendError($e->getMessage());
+            Log::error($e->getMessage());
+
+            return $this->sendError('Something went wrong!', [], 500);
         }
     }
 
@@ -294,7 +303,7 @@ class ProjectsController extends Controller
 
                 if (!isset($project) || empty($project)) {
                     return $this->sendError('Project dose not exists.');
-                } else if (!in_array($user->role_id, [User::USER_ROLE['COMPANY_ADMIN'], User::USER_ROLE['CONSTRUCATION_SITE_ADMIN'], User::USER_ROLE['MANAGER']])) {
+                } else if (!in_array($user->role_id, [User::USER_ROLE['COMPANY_ADMIN']])) {
                     return $this->sendError('You have no rights to change status of project.', [], 401);
                 } else {
                     $project->status = $request->status;
@@ -306,7 +315,9 @@ class ProjectsController extends Controller
                 return $this->sendError('User does not exists.');
             }
         } catch (\Exception $e) {
-            return $this->sendError($e->getMessage());
+            Log::error($e->getMessage());
+
+            return $this->sendError('Something went wrong!', [], 500);
         }
     }
 
@@ -366,7 +377,9 @@ class ProjectsController extends Controller
                 return $this->sendError('User does not exists.');
             }
         } catch (\Exception $e) {
-            return $this->sendError($e->getMessage());
+            Log::error($e->getMessage());
+
+            return $this->sendError('Something went wrong!', [], 500);
         }
     }
 
@@ -420,7 +433,9 @@ class ProjectsController extends Controller
                 return $this->sendError('User not exists.');
             }
         } catch (\Exception $e) {
-            return $this->sendError($e->getMessage());
+            Log::error($e->getMessage());
+
+            return $this->sendError('Something went wrong!', [], 500);
         }
     }
 
@@ -452,7 +467,9 @@ class ProjectsController extends Controller
                 return $this->sendError('User not exists.');
             }
         } catch (\Exception $e) {
-            return $this->sendError($e->getMessage());
+            Log::error($e->getMessage());
+
+            return $this->sendError('Something went wrong!', [], 500);
         }
     }
 }

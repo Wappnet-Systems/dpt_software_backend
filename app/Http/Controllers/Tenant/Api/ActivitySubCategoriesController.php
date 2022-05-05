@@ -12,6 +12,7 @@ use App\Models\System\User;
 use App\Models\Tenant\ActivityCategory;
 use App\Models\Tenant\ActivitySubCategory;
 use App\Helpers\AppHelper;
+use Illuminate\Support\Facades\Log;
 
 class ActivitySubCategoriesController extends Controller
 {
@@ -131,7 +132,9 @@ class ActivitySubCategoriesController extends Controller
 
             return $this->sendResponse($subActivityCategory, 'Sub activity category created successfully.');
         } catch (\Exception $e) {
-            return $this->sendError($e->getMessage());
+            Log::error($e->getMessage());
+
+            return $this->sendError('Something went wrong!', [], 500);
         }
     }
 
@@ -166,7 +169,9 @@ class ActivitySubCategoriesController extends Controller
 
             return $this->sendResponse($subActivityCategory, 'Sub activity category details updated successfully.');
         } catch (\Exception $e) {
-            return $this->sendError($e->getMessage());
+            Log::error($e->getMessage());
+
+            return $this->sendError('Something went wrong!', [], 500);
         }
     }
 
@@ -193,7 +198,9 @@ class ActivitySubCategoriesController extends Controller
 
             return $this->sendResponse($subActivityCategory, 'Status changed successfully.');
         } catch (\Exception $e) {
-            return $this->sendError($e->getMessage());
+            Log::error($e->getMessage());
+
+            return $this->sendError('Something went wrong!', [], 500);
         }
     }
 }

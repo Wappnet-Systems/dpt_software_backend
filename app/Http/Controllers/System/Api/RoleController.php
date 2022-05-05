@@ -11,6 +11,7 @@ use App\Models\System\Module;
 use App\Models\System\RoleHasModule;
 use App\Models\System\SubModule;
 use App\Models\Tenant\RoleHasSubModule;
+use Illuminate\Support\Facades\Log;
 
 class RoleController extends Controller
 {
@@ -25,7 +26,7 @@ class RoleController extends Controller
             // ->where('id', '!=', User::USER_ROLE['SUPER_ADMIN'])
             // ->where('id', '!=', $user->role_id)
             ->orderBy('id', $orderBy);
-            
+
         if (isset(USER::USER_ROLE_GROUP[$user->role_id])) {
             $query->whereIn('id', USER::USER_ROLE_GROUP[$user->role_id]);
         }
@@ -106,7 +107,9 @@ class RoleController extends Controller
                 return $this->sendError('User not exists.');
             }
         } catch (\Exception $e) {
-            return $this->sendError($e->getMessage());
+            Log::error($e->getMessage());
+
+            return $this->sendError('Something went wrong!', [], 500);
         }
     }
 
@@ -145,7 +148,9 @@ class RoleController extends Controller
                 return $this->sendError('User not exists.');
             }
         } catch (\Exception $e) {
-            return $this->sendError($e->getMessage());
+            Log::error($e->getMessage());
+
+            return $this->sendError('Something went wrong!', [], 500);
         }
     }
 
@@ -179,7 +184,9 @@ class RoleController extends Controller
 
             return $this->sendError('Role does not exists.');
         } catch (\Exception $e) {
-            return $this->sendError($e->getMessage());
+            Log::error($e->getMessage());
+
+            return $this->sendError('Something went wrong!', [], 500);
         }
     }
 
@@ -267,7 +274,9 @@ class RoleController extends Controller
                 return $this->sendError('User not exists.');
             }
         } catch (\Exception $e) {
-            return $this->sendError($e->getMessage());
+            Log::error($e->getMessage());
+
+            return $this->sendError('Something went wrong!', [], 500);
         }
     }
 }

@@ -15,6 +15,7 @@ use App\Helpers\AppHelper;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Imports\MaterialImport;
 use App\Helpers\UploadFile;
+use Illuminate\Support\Facades\Log;
 
 class MaterialController extends Controller
 {
@@ -116,7 +117,7 @@ class MaterialController extends Controller
 
                 if ($validator->fails()) {
                     foreach ($validator->errors()->messages() as $key => $value) {
-                        return $this->sendError('Validation Error.', [$key => $value[0]]);
+                        return $this->sendError('Validation Error.', [$key => $value[0]], 400);
                     }
                 }
 
@@ -165,7 +166,9 @@ class MaterialController extends Controller
                 return $this->sendError('User not exists.');
             }
         } catch (\Exception $e) {
-            return $this->sendError($e->getMessage());
+            Log::error($e->getMessage());
+
+            return $this->sendError('Something went wrong!', [], 500);
         }
     }
 
@@ -184,7 +187,7 @@ class MaterialController extends Controller
 
                 if ($validator->fails()) {
                     foreach ($validator->errors()->messages() as $key => $value) {
-                        return $this->sendError('Validation Error.', [$key => $value[0]]);
+                        return $this->sendError('Validation Error.', [$key => $value[0]], 400);
                     }
                 }
 
@@ -241,7 +244,9 @@ class MaterialController extends Controller
                 return $this->sendError('User not exists.');
             }
         } catch (\Exception $e) {
-            return $this->sendError($e->getMessage());
+            Log::error($e->getMessage());
+
+            return $this->sendError('Something went wrong!', [], 500);
         }
     }
 
@@ -275,7 +280,9 @@ class MaterialController extends Controller
 
             return $this->sendResponse([], 'Project material deleted successfully.');
         } catch (\Exception $e) {
-            return $this->sendError($e->getMessage());
+            Log::error($e->getMessage());
+
+            return $this->sendError('Something went wrong!', [], 500);
         }
     }
 
@@ -288,7 +295,7 @@ class MaterialController extends Controller
 
             if ($validator->fails()) {
                 foreach ($validator->errors()->messages() as $key => $value) {
-                    return $this->sendError('Validation Error.', [$key => $value[0]]);
+                    return $this->sendError('Validation Error.', [$key => $value[0]], 400);
                 }
             }
 
@@ -302,7 +309,9 @@ class MaterialController extends Controller
 
             return $this->sendResponse(['path' => $path], 'Upload material file successfully.');
         } catch (\Exception $e) {
-            return $this->sendError($e->getMessage());
+            Log::error($e->getMessage());
+
+            return $this->sendError('Something went wrong!', [], 500);
         }
     }
 
@@ -313,7 +322,9 @@ class MaterialController extends Controller
 
             return $this->sendResponse($this->uploadFile->getS3FilePath(null, $filePath), 'Material file download successfully.');
         } catch (\Exception $e) {
-            return $this->sendError($e->getMessage());
+            Log::error($e->getMessage());
+
+            return $this->sendError('Something went wrong!', [], 500);
         }
     }
 
@@ -330,7 +341,7 @@ class MaterialController extends Controller
 
                 if ($validator->fails()) {
                     foreach ($validator->errors()->messages() as $key => $value) {
-                        return $this->sendError('Validation Error.', [$key => $value[0]]);
+                        return $this->sendError('Validation Error.', [$key => $value[0]], 400);
                     }
                 }
 
@@ -343,7 +354,9 @@ class MaterialController extends Controller
                 return $this->sendError('User not exists.');
             }
         } catch (\Exception $e) {
-            return $this->sendError($e->getMessage());
+            Log::error($e->getMessage());
+
+            return $this->sendError('Something went wrong!', [], 500);
         }
     }
 }
