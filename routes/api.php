@@ -7,6 +7,7 @@ use App\Http\Controllers\System\Api\ForgotPasswordController;
 use App\Http\Controllers\System\Api\ResetPasswordController;
 use App\Http\Controllers\System\Api\OrganizationController;
 use App\Http\Controllers\System\Api\OrganizationUserController;
+use App\Http\Controllers\System\Api\PunchDetailController;
 use App\Http\Controllers\System\Api\RoleController;
 use App\Http\Controllers\Tenant\Api\RoleController as OrganizationRoleController;
 use App\Http\Controllers\Tenant\Api\UnitTypesController;
@@ -94,6 +95,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('user/add', [OrganizationUserController::class, 'addUser']);
     Route::put('user/update/{userUuid}', [OrganizationUserController::class, 'updateUser']);
     Route::patch('user/status/change/{userUuid}', [OrganizationUserController::class, 'changeUserStatus']);
+
+    /* Punch In-Out Routes */
+    Route::post('user/punch-in-out', [PunchDetailController::class, 'punchInOut']);
 
     /* Unit Types Routes */
     Route::get('unit-type/get/lists', [UnitTypesController::class, 'getUnitTypes']);
@@ -252,7 +256,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     /* Activity Manpower Routes */
     Route::get('project/activity/manpower/get/lists', [ManforcesAllocationController::class, 'getActivityManpower']);
-    
+
     /* Manforce Productivity Routes */
     Route::get('project/manforce/productivity/get/lists', [ManforceProductivityController::class, 'getManforceProductivity']);
 
