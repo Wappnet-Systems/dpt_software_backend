@@ -289,4 +289,5 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('project/ncr-sor-request/add', [NcrSorRequestController::class, 'addNcrSorRequest']);
     Route::put('project/ncr-sor-request/update/{id}', [NcrSorRequestController::class, 'updateNcrSorRequest']);
     Route::patch('project/ncr-sor-request/status/change/{id}', [NcrSorRequestController::class, 'changeNcrSorRequestStatus']);
+    Route::delete('project/ncr-sor-request/delete/{id}', [NcrSorRequestController::class, 'deleteNcrSorRequest']);
 });

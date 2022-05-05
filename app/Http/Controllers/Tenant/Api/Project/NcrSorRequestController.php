@@ -10,8 +10,6 @@ use Hyn\Tenancy\Models\Website;
 use App\Models\System\Organization;
 use App\Models\System\User;
 use App\Models\Tenant\ProjectNcrSorRequest;
-use App\Models\Tenant\ProjectActivity;
-use App\Models\Tenant\RoleHasSubModule;
 use App\Helpers\AppHelper;
 use App\Helpers\UploadFile;
 
@@ -65,13 +63,11 @@ class NcrSorRequestController extends Controller
         $orderBy = !empty($request->orderby) ? $request->orderby : config('constants.default_orderby');
 
         $query = ProjectNcrSorRequest::with('projectActivity')
-            ->whereProjectId($request->project_id ?? '')
+            ->whereProjectActivityId($request->project_activity_id ?? '')
             ->orderby('id', $orderBy);
 
         if (isset($request->search) && !empty($request->search)) {
             $search = trim(strtolower($request->search));
-
-            $query = $query->whereRaw('LOWER(CONCAT(`name`)) LIKE ?', ['%' . $search . '%']);
 
             $query = $query->orWhereHas('project', function ($query) use ($search) {
                 $query->whereRaw('LOWER(CONCAT(`name`)) LIKE ?', ['%' . $search . '%']);
@@ -103,9 +99,9 @@ class NcrSorRequestController extends Controller
                 'per_page' => $projectNcrSorRequest['per_page'],
                 'next_page_url' => ltrim(str_replace($projectNcrSorRequest['path'], "", $projectNcrSorRequest['next_page_url']), "?cursor="),
                 'prev_page_url' => ltrim(str_replace($projectNcrSorRequest['path'], "", $projectNcrSorRequest['prev_page_url']), "?cursor=")
-            ], 'Project Ncr/Sor Request list');
+            ], 'Project ncr/sor request list');
         } else {
-            return $this->sendResponse($results, 'Project Ncr/Sor Request list');
+            return $this->sendResponse($results, 'Project ncr/sor request list');
         }
     }
 
@@ -118,15 +114,15 @@ class NcrSorRequestController extends Controller
         // }
 
         $projectNcrSorRequest = ProjectNcrSorRequest::with('projectActivity')
-            ->select('id', 'project_id', 'name', 'path', 'location', 'area', 'file_type', 'type', 'status')
+            ->select('id', 'project_id', 'project_activity_id', 'path', 'type', 'status')
             ->whereId($request->id)
             ->first();
 
         if (!isset($projectNcrSorRequest) || empty($projectNcrSorRequest)) {
-            return $this->sendError('Project Ncr/Sor Request does not exist.');
+            return $this->sendError('Project ncr/sor request does not exist.');
         }
 
-        return $this->sendResponse($projectNcrSorRequest, 'Project Ncr/Sor Request details.');
+        return $this->sendResponse($projectNcrSorRequest, 'Project ncr/sor request details.');
     }
 
     public function addNcrSorRequest(Request $request)
@@ -134,20 +130,14 @@ class NcrSorRequestController extends Controller
         try {
             $user = $request->user();
 
-            // if (!AppHelper::roleHasSubModulePermission('Upload Drawings', RoleHasSubModule::ACTIONS['create'], $user)) {
-            //     return $this->sendError('You have no rights to access this action.');
-            // }
-
             if (isset($user) && !empty($user)) {
                 $validator = Validator::make($request->all(), [
-                    'project_id' => 'required|exists:projects,id',
-                    'name' => 'required',
-                    'path' => sprintf('required|mimes:%s|max:%s', 'pdf,jpeg,jpg,bmp,png', config('constants.organizations.projects.activity_document.upload_image_max_size')),
-                    'location' => 'required',
-                    'area' => 'required',
+                    'project_id' => 'required',
+                    'project_activity_id' => 'required',
                     'type' => 'required',
+                    'path' => sprintf('required|mimes:%s|max:%s', 'doc', config('constants.organizations.projects.ncrsor_request_document.upload_image_max_size'))
                 ], [
-                    'path.max' => 'The file must not be greater than 10mb.',
+                    'path.max' => 'The file must not be greater than 8mb.',
                 ]);
 
                 if ($validator->fails()) {
@@ -158,26 +148,23 @@ class NcrSorRequestController extends Controller
 
                 $projectNcrSorRequest = new ProjectNcrSorRequest();
                 $projectNcrSorRequest->project_id = $request->project_id;
-                $projectNcrSorRequest->name = $request->name;
-                $projectNcrSorRequest->location = $request->location;
-                $projectNcrSorRequest->area = $request->area;
+                $projectNcrSorRequest->project_activity_id = $request->project_activity_id;
                 $projectNcrSorRequest->type = $request->type;
                 $projectNcrSorRequest->created_by = $user->id;
                 $projectNcrSorRequest->created_ip = $request->ip();
                 $projectNcrSorRequest->updated_ip = $request->ip();
 
                 if ($request->hasFile('path')) {
-                    $dirPath = str_replace([':uid:', ':project_uuid:'], [$user->organization_id, $request->project_id], config('constants.organizations.projects.activity_document.file_path'));
+                    $dirPath = str_replace([':uid:', ':project_uuid:'], [$user->organization_id, $request->project_id], config('constants.organizations.projects.ncrsor_request_document.file_path'));
 
                     $projectNcrSorRequest->path = $this->uploadFile->uploadFileInS3($request, $dirPath, 'path');
-
                 }
 
                 if (!$projectNcrSorRequest->save()) {
-                    return $this->sendError('Something went wrong while creating the project activity document.');
+                    return $this->sendError('Something went wrong while creating the project ncr/sor request.');
                 }
 
-                return $this->sendResponse($projectNcrSorRequest, 'Project Ncr/Sor Request created successfully.');
+                return $this->sendResponse($projectNcrSorRequest, 'Project ncr/sor request created successfully.');
             } else {
                 return $this->sendError('User not exists.');
             }
@@ -197,13 +184,9 @@ class NcrSorRequestController extends Controller
 
             if (isset($user) && !empty($user)) {
                 $validator = Validator::make($request->all(), [
-                    'name' => 'required',
-                    'path' => sprintf('mimes:%s|max:%s', 'pdf,jpeg,jpg,bmp,png', config('constants.organizations.projects.activity_document.upload_image_max_size')),
-                    'location' => 'required',
-                    'area' => 'required',
-                    'type' => 'required',
+                    'path' => sprintf('mimes:%s|max:%s', 'doc', config('constants.organizations.projects.ncrsor_request_document.upload_image_max_size'))
                 ], [
-                    'path.max' => 'The file must not be greater than 10mb.',
+                    'path.max' => 'The file must not be greater than 8mb.',
                 ]);
 
                 if ($validator->fails()) {
@@ -216,31 +199,31 @@ class NcrSorRequestController extends Controller
                     ->first();
 
                 if (!isset($projectNcrSorRequest) || empty($projectNcrSorRequest)) {
-                    return $this->sendError('Project Ncr/Sor Request does not exist.');
+                    return $this->sendError('Project ncr/sor request does not exist.');
                 }
 
-                if ($request->filled('name')) $projectNcrSorRequest->name = $request->name;
-                if ($request->filled('location')) $projectNcrSorRequest->location = $request->location;
-                if ($request->filled('area')) $projectNcrSorRequest->area = $request->area;
-                if ($request->filled('type')) $projectNcrSorRequest->type = $request->type;
+
+                if ($projectNcrSorRequest->status != 1) {
+                    return $this->sendError('Unable to update project ncr/sor request.');
+                }
 
                 if ($request->hasFile('path')) {
                     if (isset($projectNcrSorRequest->path) && !empty($projectNcrSorRequest->path)) {
                         $this->uploadFile->deleteFileFromS3($projectNcrSorRequest->path);
                     }
 
-                    $dirPath = str_replace([':uid:', ':project_uuid:'], [$user->organization_id, $request->project_id], config('constants.organizations.projects.activity_document.file_path'));
+                    $dirPath = str_replace([':uid:', ':project_uuid:'], [$user->organization_id, $projectNcrSorRequest->project_id], config('constants.organizations.projects.ncrsor_request_document.file_path'));
 
                     $projectNcrSorRequest->path = $this->uploadFile->uploadFileInS3($request, $dirPath, 'path');
-
                 }
+
                 $projectNcrSorRequest->updated_ip = $request->ip();
 
                 if (!$projectNcrSorRequest->save()) {
-                    return $this->sendError('Something went wrong while updating the project activity document.');
+                    return $this->sendError('Something went wrong while updating the project ncr/sor request.');
                 }
 
-                return $this->sendResponse($projectNcrSorRequest, 'Project Ncr/Sor Request updated successfully.');
+                return $this->sendResponse($projectNcrSorRequest, 'Project ncr/sor request updated successfully.');
             } else {
                 return $this->sendError('User not exists.');
             }
@@ -273,28 +256,15 @@ class NcrSorRequestController extends Controller
                     ->first();
 
                 if (!isset($projectNcrSorRequest) || empty($projectNcrSorRequest)) {
-                    return $this->sendError('Project Ncr/Sor Request does not exist.');
+                    return $this->sendError('Project ncr/sor request does not exist.');
+                }
+                $projectNcrSorRequest->reject_reasone = null;
+                if($request->status == 3){
+                    $projectNcrSorRequest->reject_reasone = $request->reject_reasone;
                 }
 
-                if ($request->status == ProjectNcrSorRequest::STATUS['Deleted']) {
-                    // if (!AppHelper::roleHasSubModulePermission('Upload Drawings', RoleHasSubModule::ACTIONS['delete'], $user)) {
-                    //     return $this->sendError('You have no rights to access this action.');
-                    // }
-
-                    $projectNcrSorRequest = ProjectNcrSorRequest::whereId($request->id)
-                        ->whereNull('project_activity_id')
-                        ->first();
-
-                    if (!isset($projectNcrSorRequest) || empty($projectNcrSorRequest)) {
-                        return $this->sendError('You can not delete assigned project activity document.');
-                    }
-
-                    $projectNcrSorRequest->delete();
-                } else {
-                    $projectNcrSorRequest->deleted_at = null;
-                    $projectNcrSorRequest->status = $request->status;
-                    $projectNcrSorRequest->save();
-                }
+                $projectNcrSorRequest->status = $request->status;
+                $projectNcrSorRequest->save();
 
                 return $this->sendResponse($projectNcrSorRequest, 'Status changed successfully.');
             } else {
@@ -305,4 +275,24 @@ class NcrSorRequestController extends Controller
         }
     }
 
+    public function deleteNcrSorRequest(Request $request, $id = null)
+    {
+        $user = $request->user();
+
+        // if (!AppHelper::roleHasSubModulePermission('Upload Drawings', RoleHasSubModule::ACTIONS['view'], $user)) {
+        //     return $this->sendError('You have no rights to access this action.');
+        // }
+
+        $projectNcrSorRequest = ProjectNcrSorRequest::with('projectActivity')
+            ->select('id', 'project_id', 'project_activity_id', 'path', 'type', 'status')
+            ->whereId($request->id)
+            ->first();
+
+        if (!isset($projectNcrSorRequest) || empty($projectNcrSorRequest)) {
+            return $this->sendError('Project ncr/sor request does not exist.');
+        }
+
+        $projectNcrSorRequest->delete();
+        return $this->sendResponse([], 'Project ncr/sor request deleted Successfully.');
+    }
 }

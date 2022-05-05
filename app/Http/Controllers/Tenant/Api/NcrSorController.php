@@ -182,7 +182,7 @@ class NcrSorController extends Controller
                 $ncrsor = NcrSor::where("type", $request->type)
                     ->select('id', 'type', 'path')
                     ->first();
-
+                
                 if (!isset($ncrsor) || empty($ncrsor) || ($ncrsor && empty($ncrsor->file_path))) {
                     return $this->sendError('Ncr/Sor document does not exists.');
                 }
@@ -191,7 +191,6 @@ class NcrSorController extends Controller
 
                 $ch = curl_init($url);
                 $dir = public_path() . '/images/';
-
                 $file_name = basename($url);
                 $save_file_loc = $dir . $file_name;
                 $fp = fopen($save_file_loc, 'wb');
@@ -200,7 +199,7 @@ class NcrSorController extends Controller
                 curl_exec($ch);
                 curl_close($ch);
                 fclose($fp);
-
+                
                 $file = $dir . $file_name;
                 $data = fopen($file, 'rb');
                 $size = filesize($file);
