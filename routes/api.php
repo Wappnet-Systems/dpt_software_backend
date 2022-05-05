@@ -98,6 +98,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::patch('user/status/change/{userUuid}', [OrganizationUserController::class, 'changeUserStatus']);
 
     /* Punch In-Out Routes */
+    Route::get('user/get-punch-in-out', [PunchDetailController::class, 'getUserPunchDetails']);
     Route::post('user/punch-in-out', [PunchDetailController::class, 'punchInOut']);
 
     /* Unit Types Routes */
