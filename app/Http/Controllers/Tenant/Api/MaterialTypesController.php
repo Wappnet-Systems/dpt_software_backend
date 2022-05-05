@@ -11,6 +11,7 @@ use App\Models\System\Organization;
 use App\Models\System\User;
 use App\Models\Tenant\MaterialType;
 use App\Helpers\AppHelper;
+use Illuminate\Support\Facades\Log;
 
 class MaterialTypesController extends Controller
 {
@@ -103,7 +104,7 @@ class MaterialTypesController extends Controller
 
             if ($validator->fails()) {
                 foreach ($validator->errors()->messages() as $key => $value) {
-                    return $this->sendError('Validation Error.', [$key => $value[0]]);
+                    return $this->sendError('Validation Error.', [$key => $value[0]], 400);
                 }
             }
 
@@ -118,7 +119,9 @@ class MaterialTypesController extends Controller
 
             return $this->sendResponse($materialType, 'Material type created successfully.');
         } catch (\Exception $e) {
-            return $this->sendError($e->getMessage());
+            Log::error($e->getMessage());
+
+            return $this->sendError('Something went wrong!', [], 500);
         }
     }
 
@@ -131,7 +134,7 @@ class MaterialTypesController extends Controller
 
             if ($validator->fails()) {
                 foreach ($validator->errors()->messages() as $key => $value) {
-                    return $this->sendError('Validation Error.', [$key => $value[0]]);
+                    return $this->sendError('Validation Error.', [$key => $value[0]], 400);
                 }
             }
 
@@ -150,7 +153,9 @@ class MaterialTypesController extends Controller
 
             return $this->sendResponse($materialType, 'Material type details updated successfully.');
         } catch (\Exception $e) {
-            return $this->sendError($e->getMessage());
+            Log::error($e->getMessage());
+
+            return $this->sendError('Something went wrong!', [], 500);
         }
     }
 
@@ -177,7 +182,9 @@ class MaterialTypesController extends Controller
 
             return $this->sendResponse($materialType, 'Status changed successfully.');
         } catch (\Exception $e) {
-            return $this->sendError($e->getMessage());
+            Log::error($e->getMessage());
+
+            return $this->sendError('Something went wrong!', [], 500);
         }
     }
 }

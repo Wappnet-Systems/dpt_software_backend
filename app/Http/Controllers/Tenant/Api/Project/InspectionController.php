@@ -12,6 +12,7 @@ use App\Models\System\User;
 use App\Models\Tenant\ProjectInspection;
 use App\Helpers\AppHelper;
 use App\Helpers\UploadFile;
+use Illuminate\Support\Facades\Log;
 
 class InspectionController extends Controller
 {
@@ -87,7 +88,9 @@ class InspectionController extends Controller
                 return $this->sendResponse($results, 'Project inspection List.');
             }
         } catch (\Exception $e) {
-            return $this->sendError($e->getMessage());
+            Log::error($e->getMessage());
+
+            return $this->sendError('Something went wrong!', [], 500);
         }
     }
 
@@ -123,7 +126,7 @@ class InspectionController extends Controller
 
                 if ($validator->fails()) {
                     foreach ($validator->errors()->messages() as $key => $value) {
-                        return $this->sendError('Validation Error.', [$key => $value[0]]);
+                        return $this->sendError('Validation Error.', [$key => $value[0]], 400);
                     }
                 }
 
@@ -155,7 +158,9 @@ class InspectionController extends Controller
                 return $this->sendError('User not exists.');
             }
         } catch (\Exception $e) {
-            return $this->sendError($e->getMessage());
+            Log::error($e->getMessage());
+
+            return $this->sendError('Something went wrong!', [], 500);
         }
     }
 
@@ -177,7 +182,7 @@ class InspectionController extends Controller
 
                 if ($validator->fails()) {
                     foreach ($validator->errors()->messages() as $key => $value) {
-                        return $this->sendError('Validation Error.', [$key => $value[0]]);
+                        return $this->sendError('Validation Error.', [$key => $value[0]], 400);
                     }
                 }
 
@@ -217,7 +222,9 @@ class InspectionController extends Controller
                 return $this->sendError('User not exists.');
             }
         } catch (\Exception $e) {
-            return $this->sendError($e->getMessage());
+            Log::error($e->getMessage());
+
+            return $this->sendError('Something went wrong!', [], 500);
         }
     }
 
@@ -242,7 +249,9 @@ class InspectionController extends Controller
                 return $this->sendError('User does not exists.');
             }
         } catch (\Exception $e) {
-            return $this->sendError($e->getMessage());
+            Log::error($e->getMessage());
+
+            return $this->sendError('Something went wrong!', [], 500);
         }
     }
 
@@ -258,7 +267,7 @@ class InspectionController extends Controller
 
                 if ($validator->fails()) {
                     foreach ($validator->errors()->messages() as $key => $value) {
-                        return $this->sendError('Validation Error.', [$key => $value[0]]);
+                        return $this->sendError('Validation Error.', [$key => $value[0]], 400);
                     }
                 }
 
@@ -284,7 +293,9 @@ class InspectionController extends Controller
                 return $this->sendError('User not exists.');
             }
         } catch (\Exception $e) {
-            return $this->sendError($e->getMessage());
+            Log::error($e->getMessage());
+
+            return $this->sendError('Something went wrong!', [], 500);
         }
     }
 
@@ -300,7 +311,7 @@ class InspectionController extends Controller
 
                 if ($validator->fails()) {
                     foreach ($validator->errors()->messages() as $key => $value) {
-                        return $this->sendError('Validation Error.', [$key => $value[0]]);
+                        return $this->sendError('Validation Error.', [$key => $value[0]], 400);
                     }
                 }
 
@@ -323,7 +334,7 @@ class InspectionController extends Controller
 
                     if ($validator->fails()) {
                         foreach ($validator->errors()->messages() as $key => $value) {
-                            return $this->sendError('Validation Error.', [$key => $value[0]]);
+                            return $this->sendError('Validation Error.', [$key => $value[0]], 400);
                         }
                     }
                 }
@@ -346,7 +357,9 @@ class InspectionController extends Controller
                 return $this->sendError('User does not exists.');
             }
         } catch (\Exception $e) {
-            return $this->sendError($e->getMessage());
+            Log::error($e->getMessage());
+
+            return $this->sendError('Something went wrong!', [], 500);
         }
     }
 }

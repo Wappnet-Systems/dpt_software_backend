@@ -13,7 +13,9 @@ use App\Helpers\AppHelper;
 use App\Models\Tenant\ActivitySubCategory;
 use App\Models\Tenant\Project;
 use App\Models\Tenant\ProjectActivity;
+use App\Models\Tenant\ProjectMainActivity;
 use App\Models\Tenant\RoleHasSubModule;
+use Illuminate\Support\Facades\Log;
 
 class ActivitiesController extends Controller
 {
@@ -61,7 +63,7 @@ class ActivitiesController extends Controller
             'project_id' => Project::whereUuid($request->project_id ?? '')->value('id')
         ]);
 
-        $subActivityIds = ProjectActivity::whereProjectId($request->project_id ?? '')
+        /* $subActivityIds = ProjectActivity::whereProjectId($request->project_id ?? '')
             ->pluck('activity_sub_category_id')
             ->unique();
 
@@ -71,7 +73,12 @@ class ActivitiesController extends Controller
 
         $proActivities->load(['projectActivities' => function ($query) use ($request) {
             $query->where('project_id', $request->project_id ?? '');
-        }]);
+        }]); */
+
+        $proActivities = ProjectMainActivity::with('projectActivities', 'activitySubCategory')
+            ->where('project_id', $request->project_id ?? '')
+            ->select('id', 'project_id', 'activity_sub_category_id', 'name', 'status', 'created_by')
+            ->get();
 
         return $this->sendResponse($proActivities, 'Activities List');
     }
@@ -84,12 +91,16 @@ class ActivitiesController extends Controller
             return $this->sendError('You have no rights to access this action.');
         } */
 
-        $proActivity = ProjectActivity::with('project', 'activitySubCategory')
+        $request->merge([
+            'project_id' => Project::whereUuid($request->project_id ?? '')->value('id')
+        ]);
+
+        $proActivity = ProjectActivity::with('project', 'mainActivity')
             ->whereId($request->id)
             ->first();
 
         if (!isset($proActivity) || empty($proActivity)) {
-            return $this->sendError('Activity does not exists.');
+            return $this->sendError('Activity does not exists.', [], 404);
         }
 
         return $this->sendResponse($proActivity, 'Activity details updated successfully.');
@@ -106,8 +117,8 @@ class ActivitiesController extends Controller
 
             if (isset($user) && !empty($user)) {
                 $validator = Validator::make($request->all(), [
-                    'project_id' => 'required|exists:projects,id',
-                    'activity_sub_category_id' => 'required|exists:activity_sub_categories,id',
+                    'project_id' => 'exists:projects,id',
+                    'project_main_activity_id' => 'required|exists:projects_main_activities,id',
                     'name' => 'required',
                     // 'scaffold_number' => 'required',
                     'start_date' => 'required|date_format:Y-m-d',
@@ -120,14 +131,14 @@ class ActivitiesController extends Controller
 
                 if ($validator->fails()) {
                     foreach ($validator->errors()->messages() as $key => $value) {
-                        return $this->sendError('Validation Error.', [$key => $value[0]]);
+                        return $this->sendError('Validation Error.', [$key => $value[0]], 400);
                     }
                 }
 
                 // Create new project activity
                 $proActivity = new ProjectActivity();
                 $proActivity->project_id = $request->project_id;
-                $proActivity->activity_sub_category_id = $request->activity_sub_category_id;
+                $proActivity->project_main_activity_id = $request->project_main_activity_id;
                 $proActivity->name = $request->name;
                 $proActivity->scaffold_number = empty($request->scaffold_number) ? $request->scaffold_number : null;
                 $proActivity->start_date = !empty($request->start_date) ? date('Y-m-d H:i:s', strtotime($request->start_date)) : NULL;
@@ -143,15 +154,17 @@ class ActivitiesController extends Controller
                 $proActivity->updated_ip = $request->ip();
 
                 if (!$proActivity->save()) {
-                    return $this->sendError('Something went wrong while creating the activity.');
+                    return $this->sendError('Something went wrong while creating the activity.', [], 500);
                 }
 
                 return $this->sendResponse($proActivity, 'Activity created successfully.');
             } else {
-                return $this->sendError('User not exists.');
+                return $this->sendError('User not exists.', [], 404);
             }
         } catch (\Exception $e) {
-            return $this->sendError($e->getMessage());
+            Log::error($e->getMessage());
+
+            return $this->sendError('Something went wrong!', [], 500);
         }
     }
 
@@ -166,7 +179,7 @@ class ActivitiesController extends Controller
 
             if (isset($user) && !empty($user)) {
                 $validator = Validator::make($request->all(), [
-                    'activity_sub_category_id' => 'exists:activity_sub_categories,id',
+                    'project_main_activity_id' => 'exists:projects_main_activities,id',
                     'start_date' => 'date_format:Y-m-d',
                     'end_date' => 'date_format:Y-m-d',
                     /* 'name' => 'required',
@@ -177,17 +190,17 @@ class ActivitiesController extends Controller
 
                 if ($validator->fails()) {
                     foreach ($validator->errors()->messages() as $key => $value) {
-                        return $this->sendError('Validation Error.', [$key => $value[0]]);
+                        return $this->sendError('Validation Error.', [$key => $value[0]], 400);
                     }
                 }
 
                 $proActivity = ProjectActivity::whereId($request->id)->first();
 
                 if (!isset($proActivity) || empty($proActivity)) {
-                    return $this->sendError('Activity does not exists.');
+                    return $this->sendError('Activity does not exists.', [], 404);
                 }
 
-                if ($request->filled('activity_sub_category_id')) $proActivity->activity_sub_category_id = $request->activity_sub_category_id;
+                if ($request->filled('project_main_activity_id')) $proActivity->project_main_activity_id = $request->project_main_activity_id;
                 if ($request->filled('name')) $proActivity->name = $request->name;
                 if ($request->filled('scaffold_number')) $proActivity->scaffold_number = $request->scaffold_number;
                 if ($request->filled('start_date')) $proActivity->start_date = !empty($request->start_date) ? date('Y-m-d H:i:s', strtotime($request->start_date)) : NULL;
@@ -201,15 +214,17 @@ class ActivitiesController extends Controller
                 $proActivity->updated_ip = $request->ip();
 
                 if (!$proActivity->save()) {
-                    return $this->sendError('Something went wrong while creating the activity.');
+                    return $this->sendError('Something went wrong while creating the activity.', [], 500);
                 }
 
                 return $this->sendResponse($proActivity, 'Activity updated successfully.');
             } else {
-                return $this->sendError('User not exists.');
+                return $this->sendError('User not exists.', [], 404);
             }
         } catch (\Exception $e) {
-            return $this->sendError($e->getMessage());
+            Log::error($e->getMessage());
+
+            return $this->sendError('Something went wrong!', [], 500);
         }
     }
 
@@ -226,21 +241,23 @@ class ActivitiesController extends Controller
                 $proActivity = ProjectActivity::whereId($request->id)->first();
 
                 if (!isset($proActivity) || empty($proActivity)) {
-                    return $this->sendError('Activity dose not exists.');
-                } else if (!in_array($user->role_id, [User::USER_ROLE['MANAGER']])) {
+                    return $this->sendError('Activity dose not exists.', [], 404);
+                } /* else if (!in_array($user->role_id, [User::USER_ROLE['MANAGER']])) {
                     return $this->sendError('You have no rights to delete project activity.', [], 401);
-                } else if ($proActivity->status != 1) {
-                    return $this->sendError('You can not delete the activity.');
+                } */ else if ($proActivity->status != 1) {
+                    return $this->sendError('You can not delete the activity.', [], 400);
                 } else {
                     $proActivity->delete();
 
                     return $this->sendResponse([], 'Activity deleted Successfully.');
                 }
             } else {
-                return $this->sendError('User does not exists.');
+                return $this->sendError('User does not exists.', [], 404);
             }
         } catch (\Exception $e) {
-            return $this->sendError($e->getMessage());
+            Log::error($e->getMessage());
+
+            return $this->sendError('Something went wrong!', [], 500);
         }
     }
 
@@ -255,18 +272,18 @@ class ActivitiesController extends Controller
 
             if ($validator->fails()) {
                 foreach ($validator->errors()->messages() as $key => $value) {
-                    return $this->sendError('Validation Error.', [$key => $value[0]]);
+                    return $this->sendError('Validation Error.', [$key => $value[0]], 400);
                 }
             }
 
-            if (!in_array($user->role_id, [User::USER_ROLE['COMPANY_ADMIN']])) {
+            /* if (!in_array($user->role_id, [User::USER_ROLE['COMPANY_ADMIN']])) {
                 return $this->sendError('You have no rights to change activity status.', [], 401);
-            }
+            } */
 
             $proActivity = ProjectActivity::whereId($request->id)->first();
 
             if (!in_array($request->status, ProjectActivity::STATUS)) {
-                return $this->sendError('Invalid status requested.');
+                return $this->sendError('Invalid status requested.', [], 404);
             }
 
             if (isset($proActivity) && !empty($proActivity)) {
@@ -276,9 +293,11 @@ class ActivitiesController extends Controller
                 return $this->sendResponse($proActivity, 'Status changed successfully.');
             }
 
-            return $this->sendError('Activity does not exists.');
+            return $this->sendError('Activity does not exists.', [], 404);
         } catch (\Exception $e) {
-            return $this->sendError($e->getMessage());
+            Log::error($e->getMessage());
+
+            return $this->sendError('Something went wrong!', [], 500);
         }
     }
 }

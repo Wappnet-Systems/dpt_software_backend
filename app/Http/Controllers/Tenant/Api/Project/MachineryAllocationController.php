@@ -13,6 +13,7 @@ use App\Models\Tenant\ProjectActivityAllocateMachinery;
 use App\Models\Tenant\TimeSlot;
 use App\Models\Tenant\RoleHasSubModule;
 use App\Helpers\AppHelper;
+use Illuminate\Support\Facades\Log;
 
 class MachineryAllocationController extends Controller
 {
@@ -103,7 +104,9 @@ class MachineryAllocationController extends Controller
 
             return $this->sendResponse($timeSlotMachinery, 'Allocated project machinery list.');
         } catch (\Exception $e) {
-            return $this->sendError('Something went wrong!');
+            Log::error($e->getMessage());
+
+            return $this->sendError('Something went wrong!', [], 500);
         }
     }
 
@@ -126,7 +129,7 @@ class MachineryAllocationController extends Controller
 
                 if ($validator->fails()) {
                     foreach ($validator->errors()->messages() as $key => $value) {
-                        return $this->sendError('Validation Error.', [$key => $value[0]]);
+                        return $this->sendError('Validation Error.', [$key => $value[0]], 400);
                     }
                 }
 
@@ -177,7 +180,9 @@ class MachineryAllocationController extends Controller
                 return $this->sendError('User not exists.');
             }
         } catch (\Exception $e) {
-            return $this->sendError('Something went wrong!');
+            Log::error($e->getMessage());
+
+            return $this->sendError('Something went wrong!', [], 500);
         }
     }
 
@@ -197,7 +202,7 @@ class MachineryAllocationController extends Controller
 
                 if ($validator->fails()) {
                     foreach ($validator->errors()->messages() as $key => $value) {
-                        return $this->sendError('Validation Error.', [$key => $value[0]]);
+                        return $this->sendError('Validation Error.', [$key => $value[0]], 400);
                     }
                 }
 
@@ -234,11 +239,14 @@ class MachineryAllocationController extends Controller
                 return $this->sendError('User not exists.');
             }
         } catch (\Exception $e) {
-            return $this->sendError('Something went wrong!');
+            Log::error($e->getMessage());
+
+            return $this->sendError('Something went wrong!', [], 500);
         }
     }
 
-    public function getAllocateMachineryTimeSlots(Request $request) {
+    public function getAllocateMachineryTimeSlots(Request $request)
+    {
         try {
             $user = $request->user();
 
@@ -257,13 +265,15 @@ class MachineryAllocationController extends Controller
 
             foreach ($allocatedMachinery as $key => $value) {
                 $timeSlotIds = !empty($value['time_slots']) ? explode(',', $value['time_slots']) : [];
-                
+
                 $allocatedMachinery[$key]['time_slots'] = TimeSlot::select('id', 'start_time', 'end_time')->whereIn('id', $timeSlotIds)->get();
             }
 
             return $this->sendResponse($allocatedMachinery, 'Allocated project machinery time slots list.');
         } catch (\Exception $e) {
-            return $this->sendError('Something went wrong!');
+            Log::error($e->getMessage());
+
+            return $this->sendError('Something went wrong!', [], 500);
         }
     }
 }

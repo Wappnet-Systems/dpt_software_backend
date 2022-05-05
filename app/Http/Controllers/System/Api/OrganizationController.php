@@ -13,6 +13,7 @@ use App\Models\System\Organization;
 use App\Models\System\User;
 use App\Helpers\AppHelper;
 use App\Helpers\UploadFile;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Password;
 
 class OrganizationController extends Controller
@@ -30,7 +31,6 @@ class OrganizationController extends Controller
         $orderBy = !empty($request->orderby) ? $request->orderby : config('constants.default_orderby');
 
         $query = Organization::with('user', 'hostname')
-            ->where('status', Organization::STATUS['Active'])
             ->orderBy('id', $orderBy);
 
         if (isset($request->search) && !empty($request->search)) {
@@ -96,13 +96,13 @@ class OrganizationController extends Controller
                     'org_admin_name' => 'required',
                     'email' => 'required', // |exists:organizations,email
                     'logo' => sprintf('mimes:%s|max:%s', config('constants.upload_image_types'), config('constants.upload_image_max_size')),
-                    'phone_no' => 'required|numeric|digits:15',
+                    'phone_no' => 'required|numeric|digits_between:10,15',
                     'org_domain' => 'required', // |exists:hostnames,fqdn
                     'address' => 'required',
                     'city' => 'required',
                     'state' => 'required',
                     'country' => 'required',
-                    'zip_code' => 'required|numeric|digits:10',
+                    'zip_code' => 'required|numeric|digits_between:5,10',
                 ], [
                     'org_admin_name.required' => 'The organization admin name is require.',
                     'logo.max' => 'The logo must not be greater than 8mb.'
@@ -110,7 +110,7 @@ class OrganizationController extends Controller
 
                 if ($validator->fails()) {
                     foreach ($validator->errors()->messages() as $key => $value) {
-                        return $this->sendError('Validation Error.', [$key => $value[0]]);
+                        return $this->sendError('Validation Error.', [$key => $value[0]], 400);
                     }
                 }
 
@@ -202,8 +202,9 @@ class OrganizationController extends Controller
                 return $this->sendError('User not exists.');
             }
         } catch (\Exception $e) {
-            // return $this->sendError($e->getMessage());
-            return $this->sendError('Something went wrong!');
+            Log::error($e->getMessage());
+
+            return $this->sendError('Something went wrong!', [], 500);
         }
     }
 
@@ -224,7 +225,7 @@ class OrganizationController extends Controller
 
                 if ($validator->fails()) {
                     foreach ($validator->errors()->messages() as $key => $value) {
-                        return $this->sendError('Validation Error.', [$key => $value[0]]);
+                        return $this->sendError('Validation Error.', [$key => $value[0]], 400);
                     }
                 }
 
@@ -272,14 +273,17 @@ class OrganizationController extends Controller
                 return $this->sendError('User not exists.');
             }
         } catch (\Exception $e) {
-            return $this->sendError('Something went wrong!');
-            // return $this->sendError($e->getMessage());
+            Log::error($e->getMessage());
+
+            return $this->sendError('Something went wrong!', [], 500);
         }
     }
 
     public function changeOrganizationStatus(Request $request, $orgId = null)
     {
         try {
+            $user = $request->user();
+
             $organization = Organization::whereId($request->orgId)->first();
 
             if (!in_array($request->status, Organization::STATUS)) {
@@ -292,6 +296,10 @@ class OrganizationController extends Controller
                 $organization->save();
 
                 if ($organization->status == Organization::STATUS['Deleted']) {
+                    if (!in_array($user->role_id, [User::USER_ROLE['SUPER_ADMIN']])) {
+                        return $this->sendError('You have not rights to delete a organization.', [], 401);
+                    }
+
                     $organization->delete();
 
                     User::whereOrganizationId($organization->id)->update([
@@ -306,8 +314,9 @@ class OrganizationController extends Controller
 
             return $this->sendError('Organization does not exists.');
         } catch (\Exception $e) {
-            return $this->sendError('Something went wrong!');
-            // return $this->sendError($e->getMessage());
+            Log::error($e->getMessage());
+
+            return $this->sendError('Something went wrong!', [], 500);
         }
     }
 }

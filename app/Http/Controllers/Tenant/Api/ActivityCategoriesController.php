@@ -12,6 +12,7 @@ use App\Models\System\User;
 use App\Models\Tenant\ActivityCategory;
 use App\Models\Tenant\ActivitySubCategory;
 use App\Helpers\AppHelper;
+use Illuminate\Support\Facades\Log;
 
 class ActivityCategoriesController extends Controller
 {
@@ -109,7 +110,7 @@ class ActivityCategoriesController extends Controller
 
             if ($validator->fails()) {
                 foreach ($validator->errors()->messages() as $key => $value) {
-                    return $this->sendError('Validation Error.', [$key => $value[0]]);
+                    return $this->sendError('Validation Error.', [$key => $value[0]], 400);
                 }
             }
 
@@ -124,7 +125,9 @@ class ActivityCategoriesController extends Controller
 
             return $this->sendResponse($activityCategory, 'Activity category created successfully.');
         } catch (\Exception $e) {
-            return $this->sendError($e->getMessage());
+            Log::error($e->getMessage());
+
+            return $this->sendError('Something went wrong!', [], 500);
         }
     }
 
@@ -138,7 +141,7 @@ class ActivityCategoriesController extends Controller
             if ($validator->fails()) {
 
                 foreach ($validator->errors()->messages() as $key => $value) {
-                    return $this->sendError('Validation Error.', [$key => $value[0]]);
+                    return $this->sendError('Validation Error.', [$key => $value[0]], 400);
                 }
             }
 
@@ -157,7 +160,9 @@ class ActivityCategoriesController extends Controller
 
             return $this->sendResponse($activityCategory, 'Activity category details updated successfully.');
         } catch (\Exception $e) {
-            return $this->sendError($e->getMessage());
+            Log::error($e->getMessage());
+
+            return $this->sendError('Something went wrong!', [], 500);
         }
     }
 
@@ -184,7 +189,9 @@ class ActivityCategoriesController extends Controller
 
             return $this->sendResponse($activityCategory, 'Status changed successfully.');
         } catch (\Exception $e) {
-            return $this->sendError($e->getMessage());
+            Log::error($e->getMessage());
+
+            return $this->sendError('Something went wrong!', [], 500);
         }
     }
 }

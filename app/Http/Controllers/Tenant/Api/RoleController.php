@@ -15,6 +15,7 @@ use App\Models\Tenant\RoleHasSubModule;
 use App\Helpers\AppHelper;
 use App\Models\System\Module;
 use App\Models\System\RoleHasModule;
+use Illuminate\Support\Facades\Log;
 
 class RoleController extends Controller
 {
@@ -127,7 +128,7 @@ class RoleController extends Controller
 
                 if ($validator->fails()) {
                     foreach ($validator->errors()->messages() as $key => $value) {
-                        return $this->sendError('Validation Error.', [$key => $value[0]]);
+                        return $this->sendError('Validation Error.', [$key => $value[0]], 400);
                     }
                 }
 
@@ -144,7 +145,9 @@ class RoleController extends Controller
                 return $this->sendError('User not exists.');
             }
         } catch (\Exception $e) {
-            return $this->sendError($e->getMessage());
+            Log::error($e->getMessage());
+
+            return $this->sendError('Something went wrong!', [], 500);
         }
     }
 
@@ -164,7 +167,7 @@ class RoleController extends Controller
 
                 if ($validator->fails()) {
                     foreach ($validator->errors()->messages() as $key => $value) {
-                        return $this->sendError('Validation Error.', [$key => $value[0]]);
+                        return $this->sendError('Validation Error.', [$key => $value[0]], 400);
                     }
                 }
 
@@ -187,7 +190,9 @@ class RoleController extends Controller
                 return $this->sendError('User not exists.');
             }
         } catch (\Exception $e) {
-            return $this->sendError($e->getMessage());
+            Log::error($e->getMessage());
+
+            return $this->sendError('Something went wrong!', [], 500);
         }
     }
 
@@ -235,7 +240,9 @@ class RoleController extends Controller
                 return $this->sendError('User not exists.');
             }
         } catch (\Exception $e) {
-            return $this->sendError($e->getMessage());
+            Log::error($e->getMessage());
+
+            return $this->sendError('Something went wrong!', [], 500);
         }
     }
 
@@ -256,7 +263,7 @@ class RoleController extends Controller
             }) */
             ->whereIn('id', $assignModuleIds)
             // ->orderBy('id', $orderBy)
-            ;
+        ;
 
         AppHelper::setDefaultDBConnection();
 
@@ -286,7 +293,7 @@ class RoleController extends Controller
                     if (in_array($subValue['id'], RoleHasSubModule::ACTION_GROUP['assign'])) {
                         array_push($defultCols, 'is_assign');
                     }
-                    
+
                     if (in_array($subValue['id'], RoleHasSubModule::ACTION_GROUP['approve_reject'])) {
                         array_push($defultCols, 'is_approve_reject');
                     }
@@ -302,7 +309,7 @@ class RoleController extends Controller
                         $defultCols = array_flip($defultCols);
 
                         $roles['data'][$key]['sub_module'][$subKey]['role_has_sub_modules'] = array_fill_keys(array_keys($defultCols), 0);
-                        
+
                         /* $roles['data'][$key]['sub_module'][$subKey]['role_has_sub_modules'] = [
                             "is_list" => 0,
                             "is_create" => 0,
@@ -346,7 +353,7 @@ class RoleController extends Controller
 
                 if ($validator->fails()) {
                     foreach ($validator->errors()->messages() as $key => $value) {
-                        return $this->sendError('Validation Error.', [$key => $value[0]]);
+                        return $this->sendError('Validation Error.', [$key => $value[0]], 400);
                     }
                 }
 
@@ -387,7 +394,9 @@ class RoleController extends Controller
                 return $this->sendError('User not exists.');
             }
         } catch (\Exception $e) {
-            return $this->sendError($e->getMessage());
+            Log::error($e->getMessage());
+
+            return $this->sendError('Something went wrong!', [], 500);
         }
     }
 
