@@ -295,6 +295,10 @@ class OrganizationController extends Controller
                 $organization->deleted_at = null;
                 $organization->save();
 
+                User::whereOrganizationId($organization->id)->update([
+                    'status' => $request->status
+                ]);
+
                 if ($organization->status == Organization::STATUS['Deleted']) {
                     if (!in_array($user->role_id, [User::USER_ROLE['SUPER_ADMIN']])) {
                         return $this->sendError('You have not rights to delete a organization.', [], 401);
