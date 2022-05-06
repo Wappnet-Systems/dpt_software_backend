@@ -10,7 +10,6 @@ use Hyn\Tenancy\Models\Website;
 use App\Models\System\Organization;
 use App\Models\System\User;
 use App\Models\Tenant\ProjectInventory;
-use App\Models\Tenant\ProjectRaisingMaterialRequest;
 use App\Helpers\AppHelper;
 
 class InventoryStocksController extends Controller
@@ -86,7 +85,7 @@ class InventoryStocksController extends Controller
                 'per_page' => $projectInventory['per_page'],
                 'next_page_url' => ltrim(str_replace($projectInventory['path'], "", $projectInventory['next_page_url']), "?cursor="),
                 'prev_page_url' => ltrim(str_replace($projectInventory['path'], "", $projectInventory['prev_page_url']), "?cursor=")
-            ], 'Project material List.');
+            ], 'Project inventory material List.');
         } else {
             return $this->sendResponse($results, 'Project inventory material List.');
         }
@@ -117,5 +116,41 @@ class InventoryStocksController extends Controller
         }
 
         return $this->sendResponse($projectInventory, 'Project inventory updated successfully.');
+    }
+
+    public function getMinimumQuantity(Request $request)
+    {
+        $limit = !empty($request->limit) ? $request->limit : config('constants.default_per_page_limit');
+        $orderBy = !empty($request->orderby) ? $request->orderby : config('constants.default_orderby');
+
+        $query = ProjectInventory::whereStatus(ProjectInventory::STATUS['Active'])
+            ->where('minimum_quantity', '>', 0)
+            ->orderby('id', $orderBy);
+
+        $totalQuery = $query;
+        $totalQuery = $totalQuery->count();
+
+        if ($request->exists('cursor')) {
+            $projectInventory = $query->cursorPaginate($limit)->toArray();
+        } else {
+            $projectInventory['data'] = $query->get()->toArray();
+        }
+
+        $results = [];
+        if (!empty($projectInventory['data'])) {
+            $results = $projectInventory['data'];
+        }
+
+        if ($request->exists('cursor')) {
+            return $this->sendResponse([
+                'lists' => $results,
+                'total' => $totalQuery,
+                'per_page' => $projectInventory['per_page'],
+                'next_page_url' => ltrim(str_replace($projectInventory['path'], "", $projectInventory['next_page_url']), "?cursor="),
+                'prev_page_url' => ltrim(str_replace($projectInventory['path'], "", $projectInventory['prev_page_url']), "?cursor=")
+            ], 'Project inventory minimum quantity List.');
+        } else {
+            return $this->sendResponse($results, 'Project inventory minimum quantity List.');
+        }
     }
 }
