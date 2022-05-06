@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers\System\Api;
 
+use App\Helpers\AppHelper;
 use App\Http\Controllers\Controller;
 use App\Models\System\Module;
+use App\Models\System\Organization;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
@@ -11,6 +13,9 @@ use App\Models\System\Role;
 use App\Models\System\SubModule;
 use App\Models\System\User;
 use App\Models\System\UserLoginLog;
+use App\Models\Tenant\ProjectInventory;
+use Hyn\Tenancy\Models\Hostname;
+use Hyn\Tenancy\Models\Website;
 
 class UserController extends Controller
 {
@@ -39,8 +44,27 @@ class UserController extends Controller
                         $this->deviceLogin($req, $user->toArray());
                     }
 
+                    if ($user->role_id != User::USER_ROLE['SUPER_ADMIN']) {
+                        $hostnameId = Organization::whereId($user->organization_id)->value('hostname_id');
+
+                        $hostname = Hostname::whereId($hostnameId)->first();
+                        $website = Website::whereId($hostname->website_id)->first();
+
+                        $environment = app(\Hyn\Tenancy\Environment::class);
+                        $hostname = Hostname::whereWebsiteId($website->id)->first();
+
+                        $environment->tenant($website);
+                        $environment->hostname($hostname);
+
+                        AppHelper::setDefaultDBConnection();
+
+                        $minimumQuantity = ProjectInventory::whereStatus(ProjectInventory::STATUS['Active'])
+                            ->where('minimum_quantity', '>', 0)->count();
+                    }
+
                     $data = [
                         'user' => $user,
+                        'minimum quantity' => isset($minimumQuantity) ? $minimumQuantity : 0,
                         'modules' => Module::pluck('name', 'id'),
                         'assign_modules' => Module::isAssigned($user->organization_id ?? null)->get()->toArray(),
                         'sub_modules' => SubModule::pluck('name', 'id'),
@@ -77,7 +101,7 @@ class UserController extends Controller
                 $device->update([
                     'device_type'   => $deviceType,
                     'device_token'  => $deviceToken,
-                    'device_meta'=> $req['deviceToken'],
+                    'device_meta' => $req['deviceToken'],
                     'updated_ip' => request()->ip(),
                     'updated_at' => date('Y-m-d h:i:s')
 
@@ -87,7 +111,7 @@ class UserController extends Controller
                     'user_id'       => $userData['id'],
                     'device_type'   => $deviceType,
                     'device_token'  => $deviceToken,
-                    'device_meta'=> $req['deviceToken'],
+                    'device_meta' => $req['deviceToken'],
                     'created_ip' => request()->ip(),
                     'created_at' => date('Y-m-d h:i:s')
                 ];
