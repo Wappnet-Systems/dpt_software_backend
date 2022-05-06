@@ -238,15 +238,18 @@ class MainActivitiesController extends Controller
             $proMainActivity = ProjectMainActivity::whereId($request->id ?? '')->first();
 
             if (isset($proMainActivity) && !empty($proMainActivity)) {
+                $proMainActivity->status = $request->status;
+
                 if ($proMainActivity->status == ProjectMainActivity::STATUS['Deleted']) {
                     if (ProjectActivity::whereProjectMainActivityId($request->id ?? '')->exists()) {
                         return $this->sendError('You can not delete this activity as its assign into sub activities.', [], 400);
                     }
 
                     $proMainActivity->delete();
+                } else {
+                    $proMainActivity->delete_at = null;
                 }
 
-                $proMainActivity->status = $request->status;
                 $proMainActivity->save();
 
                 return $this->sendResponse($proMainActivity, 'Status changed successfully.');
