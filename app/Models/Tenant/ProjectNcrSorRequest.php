@@ -22,6 +22,7 @@ class ProjectNcrSorRequest extends Model
         'Pending' => 1,
         'Approved' => 2,
         'Rejected' => 3,
+        'Closed' => 4
     ];
     
     const TYPE = [

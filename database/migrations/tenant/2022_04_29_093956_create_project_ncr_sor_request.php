@@ -22,7 +22,7 @@ class CreateProjectNcrSorRequest extends Migration
             $table->foreignId('project_activity_id')->nullable()->constrained('projects_activities')->cascadeOnUpdate()->cascadeOnDelete();
             $table->tinyInteger('type')->default(1)->comment('1 - NCR, 2 - SOR');
             $table->string('path', 200)->nullable();
-            $table->tinyInteger('status')->default(1)->comment('1 - Pending, 2 - Approved, 3 - Rejected');
+            $table->tinyInteger('status')->default(1)->comment('1 - Pending, 2 - Approved, 3 - Rejected, 3 - Closed');
             $table->longText('reject_reasone')->nullable();
             $table->unsignedBigInteger('created_by')->nullable();
             $table->ipAddress('created_ip')->nullable();

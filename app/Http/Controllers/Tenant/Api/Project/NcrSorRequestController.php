@@ -135,7 +135,7 @@ class NcrSorRequestController extends Controller
                     'project_id' => 'required',
                     'project_activity_id' => 'required',
                     'type' => 'required',
-                    'path' => sprintf('required|mimes:%s|max:%s', 'doc', config('constants.organizations.projects.ncrsor_request_document.upload_image_max_size'))
+                    // 'path' => sprintf('required|mimes:%s|max:%s', 'doc', config('constants.organizations.projects.ncrsor_request_document.upload_image_max_size'))
                 ], [
                     'path.max' => 'The file must not be greater than 8mb.',
                 ]);
@@ -145,7 +145,7 @@ class NcrSorRequestController extends Controller
                         return $this->sendError('Validation Error.', [$key => $value[0]]);
                     }
                 }
-
+                
                 $projectNcrSorRequest = new ProjectNcrSorRequest();
                 $projectNcrSorRequest->project_id = $request->project_id;
                 $projectNcrSorRequest->project_activity_id = $request->project_activity_id;
@@ -153,13 +153,15 @@ class NcrSorRequestController extends Controller
                 $projectNcrSorRequest->created_by = $user->id;
                 $projectNcrSorRequest->created_ip = $request->ip();
                 $projectNcrSorRequest->updated_ip = $request->ip();
-
                 if ($request->hasFile('path')) {
+                    $ext = "doc";
+                    $newname = time().".".$ext; 
                     $dirPath = str_replace([':uid:', ':project_uuid:'], [$user->organization_id, $request->project_id], config('constants.organizations.projects.ncrsor_request_document.file_path'));
-
+                    // return $this->sendResponse($request->file());
                     $projectNcrSorRequest->path = $this->uploadFile->uploadFileInS3($request, $dirPath, 'path');
                 }
-
+                // return $this->sendResponse($_FILES);
+                
                 if (!$projectNcrSorRequest->save()) {
                     return $this->sendError('Something went wrong while creating the project ncr/sor request.');
                 }
@@ -183,17 +185,17 @@ class NcrSorRequestController extends Controller
             // }
 
             if (isset($user) && !empty($user)) {
-                $validator = Validator::make($request->all(), [
-                    'path' => sprintf('mimes:%s|max:%s', 'doc', config('constants.organizations.projects.ncrsor_request_document.upload_image_max_size'))
-                ], [
-                    'path.max' => 'The file must not be greater than 8mb.',
-                ]);
+                // $validator = Validator::make($request->all(), [
+                //     'path' => sprintf('mimes:%s|max:%s', 'doc', config('constants.organizations.projects.ncrsor_request_document.upload_image_max_size'))
+                // ], [
+                //     'path.max' => 'The file must not be greater than 8mb.',
+                // ]);
 
-                if ($validator->fails()) {
-                    foreach ($validator->errors()->messages() as $key => $value) {
-                        return $this->sendError('Validation Error.', [$key => $value[0]]);
-                    }
-                }
+                // if ($validator->fails()) {
+                //     foreach ($validator->errors()->messages() as $key => $value) {
+                //         return $this->sendError('Validation Error.', [$key => $value[0]]);
+                //     }
+                // }
 
                 $projectNcrSorRequest = ProjectNcrSorRequest::whereId($request->id)
                     ->first();
@@ -206,23 +208,25 @@ class NcrSorRequestController extends Controller
                 if ($projectNcrSorRequest->status != 1) {
                     return $this->sendError('Unable to update project ncr/sor request.');
                 }
-
+                $oldPath = "";
                 if ($request->hasFile('path')) {
                     if (isset($projectNcrSorRequest->path) && !empty($projectNcrSorRequest->path)) {
-                        $this->uploadFile->deleteFileFromS3($projectNcrSorRequest->path);
+                        $oldPath = $projectNcrSorRequest->path;
                     }
-
+                    
                     $dirPath = str_replace([':uid:', ':project_uuid:'], [$user->organization_id, $projectNcrSorRequest->project_id], config('constants.organizations.projects.ncrsor_request_document.file_path'));
-
+                    
                     $projectNcrSorRequest->path = $this->uploadFile->uploadFileInS3($request, $dirPath, 'path');
                 }
-
+                
                 $projectNcrSorRequest->updated_ip = $request->ip();
-
+                
                 if (!$projectNcrSorRequest->save()) {
                     return $this->sendError('Something went wrong while updating the project ncr/sor request.');
                 }
-
+                if($oldPath){
+                    $this->uploadFile->deleteFileFromS3($oldPath);
+                }
                 return $this->sendResponse($projectNcrSorRequest, 'Project ncr/sor request updated successfully.');
             } else {
                 return $this->sendError('User not exists.');

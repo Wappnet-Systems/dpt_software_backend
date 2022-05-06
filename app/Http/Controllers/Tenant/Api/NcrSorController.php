@@ -10,6 +10,7 @@ use Hyn\Tenancy\Models\Website;
 use App\Models\System\Organization;
 use App\Models\System\User;
 use App\Models\Tenant\NcrSor;
+use App\Models\Tenant\ProjectNcrSorRequest;
 use App\Helpers\AppHelper;
 use App\Helpers\UploadFile;
 
@@ -179,15 +180,26 @@ class NcrSorController extends Controller
         try {
             $user = $request->user();
             if (isset($user) && !empty($user)) {
-                $ncrsor = NcrSor::where("type", $request->type)
+                $type= $request->type;
+                $id= !empty($request->id) ? $request->id : '';
+                if($id){
+                    $ncrsor = ProjectNcrSorRequest::where("id", $id)
+                        ->select('id', 'type', 'path')
+                        ->first();
+                }else{
+                    $ncrsor = NcrSor::where("type", $request->type)
                     ->select('id', 'type', 'path')
                     ->first();
+                }
                 
                 if (!isset($ncrsor) || empty($ncrsor) || ($ncrsor && empty($ncrsor->file_path))) {
                     return $this->sendError('Ncr/Sor document does not exists.');
                 }
                 $url = $ncrsor->file_path;
 
+                if (!file_exists(public_path() . '/images/')) {
+                    mkdir(public_path() . '/images/', 0755, true);
+                }
 
                 $ch = curl_init($url);
                 $dir = public_path() . '/images/';
@@ -205,7 +217,9 @@ class NcrSorController extends Controller
                 $size = filesize($file);
                 $contents = fread($data, $size);
                 fclose($data);
-                
+                if(file_exists($file)){
+                    unlink($file);
+                }
                 return response($contents, 200);
             } else {
                 return $this->sendError('User not exists.');
