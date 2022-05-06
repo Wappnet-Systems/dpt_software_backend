@@ -37,6 +37,7 @@ class ModuleSubModuleSeeder extends Seeder
                     ['name' => 'Manforce Type Management'],
                     ['name' => 'Activity Category Management'],
                     ['name' => 'Activity Sub Category Management'],
+                    ['name' => 'NCR/SOR Management'],
                 ]
             ],
             [
@@ -47,7 +48,7 @@ class ModuleSubModuleSeeder extends Seeder
                     ['name' => 'Material Management'],
                     ['name' => 'Machinery Management'],
                     ['name' => 'Stock Management'],
-                    ['name' => 'Gant Chart'],
+                    ['name' => 'Gantt Chart'],
                     ['name' => 'Activity Settings'],
                     ['name' => 'Planned Manpower'],
                     ['name' => 'Material Sheet'],
@@ -57,7 +58,7 @@ class ModuleSubModuleSeeder extends Seeder
                     ['name' => 'Material Transfer Request'],
                     ['name' => 'Machinery Allocation'],
                     ['name' => 'Material Allocation'],
-                    ['name' => 'Manforce  Allocation'],
+                    ['name' => 'Manforce Allocation'],
                     ['name' => 'Gangs Management'],
                     ['name' => 'Manforce Gang Management'],
                 ]
@@ -67,7 +68,7 @@ class ModuleSubModuleSeeder extends Seeder
                 'sub_module' => [
                     ['name' => 'Inspection'],
                     // ['name' => 'Material Approval Log'],
-                    ['name' => 'NCR/SOR'],
+                    ['name' => 'NCR/SOR Request'],
                     // ['name' => 'Method Statement Log'],
                     // ['name' => 'MSRA'],
                 ]

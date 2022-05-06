@@ -66,7 +66,7 @@ class UploadFile
 
         $file = $request->file($fileName);
 
-        $extension = $file->getClientOriginalExtension();
+        $extension = ($file->getClientOriginalExtension()) ? $file->getClientOriginalExtension() : "doc";
 
         $newFileName = sprintf('%s.%s', $fileName, $extension);
 
