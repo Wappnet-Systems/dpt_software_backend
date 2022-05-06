@@ -36,5 +36,6 @@ return [
             'path' => 'format-file',
             'name' => 'materials.csv'
         ]
-    ]
+    ],
+    'radius' => 0.5, //in miles
 ];
