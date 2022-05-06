@@ -54,4 +54,33 @@ class ProjectMaterial extends Model
         return $this->belongsTo(UnitType::class, 'unit_type_id', 'id')
             ->select('id', 'name', 'status');
     }
+
+    public static function projectInventoryCostCalculation($projectMaterial)
+    {
+        $projectInventory = ProjectInventory::whereProjectId($projectMaterial->project_id)
+            ->whereMaterialTypeId($projectMaterial->material_type_id)
+            ->whereUnitTypeId($projectMaterial->unit_type_id)
+            ->first();
+
+        if (isset($projectInventory) && !empty($projectInventory)) {
+            $projectInventory->average_cost = ProjectInventory::calcAverageCost($projectInventory->remaining_quantity, $projectInventory->average_cost, $projectMaterial->quantity, $projectMaterial->cost);
+            $projectInventory->total_quantity = $projectInventory->total_quantity + $projectMaterial->quantity;
+            $projectInventory->remaining_quantity = $projectInventory->remaining_quantity + $projectMaterial->quantity;
+            $projectInventory->updated_ip = request()->ip();
+            $projectInventory->save();
+        } else {
+            $projectInventory = new ProjectInventory();
+            $projectInventory->project_id = $projectMaterial->project_id;
+            $projectInventory->material_type_id = $projectMaterial->material_type_id;
+            $projectInventory->unit_type_id = $projectMaterial->unit_type_id;
+            $projectInventory->total_quantity = $projectMaterial->quantity;
+            $projectInventory->average_cost = $projectMaterial->cost;
+            $projectInventory->assigned_quantity = 0;
+            $projectInventory->remaining_quantity = $projectMaterial->quantity;
+            $projectInventory->minimum_quantity = 0;
+            $projectInventory->created_ip = request()->ip();
+            $projectInventory->updated_ip = request()->ip();
+            $projectInventory->save();
+        }
+    }
 }
