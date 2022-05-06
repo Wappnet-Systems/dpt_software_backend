@@ -107,10 +107,6 @@ class MainActivitiesController extends Controller
             return $this->sendError('You have no rights to access this action.');
         } */
 
-        $request->merge([
-            'id' => Project::whereUuid($request->id ?? '')->value('id')
-        ]);
-
         $proMainActivity = ProjectMainActivity::with('project', 'activitySubCategory')
             ->whereId($request->id ?? '')
             ->select('id', 'project_id', 'activity_sub_category_id', 'name', 'status', 'created_by')
