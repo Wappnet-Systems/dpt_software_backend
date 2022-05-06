@@ -18,8 +18,8 @@ class SystemDatabaseSeeder extends Seeder
     {
         $this->call([
             ModuleSubModuleSeeder::class,
-            RoleSeeder::class,
-            AdminUserSeeder::class
+            // RoleSeeder::class,
+            // AdminUserSeeder::class
         ]);
     }
 }

@@ -282,19 +282,19 @@ class RoleController extends Controller
                 foreach ($value['sub_module'] as $subKey => $subValue) {
                     $defultCols = ['is_list', 'is_create', 'is_edit', 'is_delete', 'is_view'];
 
-                    if (in_array($subValue['id'], RoleHasSubModule::ACTION_GROUP['list'])) {
+                    if (in_array($subValue['name'], RoleHasSubModule::ACTION_GROUP['list'])) {
                         $defultCols = ['is_list'];
                     }
 
-                    if (in_array($subValue['id'], RoleHasSubModule::ACTION_GROUP['comment'])) {
+                    if (in_array($subValue['name'], RoleHasSubModule::ACTION_GROUP['comment'])) {
                         array_push($defultCols, 'is_comment');
                     }
 
-                    if (in_array($subValue['id'], RoleHasSubModule::ACTION_GROUP['assign'])) {
+                    if (in_array($subValue['name'], RoleHasSubModule::ACTION_GROUP['assign'])) {
                         array_push($defultCols, 'is_assign');
                     }
 
-                    if (in_array($subValue['id'], RoleHasSubModule::ACTION_GROUP['approve_reject'])) {
+                    if (in_array($subValue['name'], RoleHasSubModule::ACTION_GROUP['approve_reject'])) {
                         array_push($defultCols, 'is_approve_reject');
                     }
 
