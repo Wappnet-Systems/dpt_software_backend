@@ -141,8 +141,8 @@ class OrganizationUserController extends Controller
                 } else { */
                     $validator = Validator::make($request->all(), [
                         'name' => 'required',
-                        'email' => 'required',
-                        'personal_email' => 'required',
+                        'email' => 'required|email|regex:/^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,4}$/|unique:users,email',
+                        'personal_email' => 'required|email|regex:/^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,4}$/|unique:users,email',
                         'profile_image' => sprintf('mimes:%s|max:%s', config('constants.upload_image_types'), config('constants.upload_image_max_size')),
                         'role_id' => 'required|exists:roles,id'
                     ], [
@@ -256,8 +256,8 @@ class OrganizationUserController extends Controller
                 } else { */
                     $validator = Validator::make($request->all(), [
                         'name' => 'required',
-                        'email' => 'required',
-                        'personal_email' => 'required',
+                        'email' => 'required|email|regex:/^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,4}$/|unique:users,email,' . $orgUser->id,
+                        'personal_email' => 'email|regex:/^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,4}$/|unique:users,personal_email,' . $orgUser->id,
                         'profile_image' => sprintf('mimes:%s|max:%s', config('constants.upload_image_types'), config('constants.upload_image_max_size')),
                     ], [
                         'profile_image.max' => 'The profile image must not be greater than 8mb.',
