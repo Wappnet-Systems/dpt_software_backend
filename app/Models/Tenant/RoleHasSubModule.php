@@ -23,10 +23,10 @@ class RoleHasSubModule extends Model
     ];
 
     const ACTION_GROUP = [
-        'list' => [2],
-        'comment' => [9],
-        'assign' => [19, 27, 32, 35, 36, 37],
-        'approve_reject' => [19, 22, 23, 34]
+        'list' => ['User Management'],
+        'comment' => ['Gantt Chart'],
+        'assign' => ['Method Statement','Activity Document Management','NCR/SOR Request','Machinery Allocation',' Material Allocation','Manforce Allocation'],
+        'approve_reject' => ['Raising Material Requisition','Raising Site Instruction','NCR/SOR Request','Material Transfer Request']
     ];
 
     public function subModule()
