@@ -4,7 +4,6 @@ namespace App\Http\Controllers\System\Api;
 
 use App\Helpers\AppHelper;
 use App\Http\Controllers\Controller;
-use App\Models\PunchDetail as ModelsPunchDetail;
 use App\Models\System\Organization;
 use Illuminate\Http\Request;
 use App\Models\System\PunchDetail;
@@ -119,15 +118,18 @@ class PunchDetailController extends Controller
                         if ($punchDetails->punch_type == PunchDetail::PUNCH_TYPE['In']) {
                             $punchDetails = new PunchDetail();
                             $punchDetails->user_id = $user->id;
+                            $punchDetails->punch_date_time = date('Y-m-d h:i:s');
                             $punchDetails->punch_type = PunchDetail::PUNCH_TYPE['Out'];
                         } elseif ($punchDetails->punch_type == PunchDetail::PUNCH_TYPE['Out']) {
                             $punchDetails = new PunchDetail();
                             $punchDetails->user_id = $user->id;
+                            $punchDetails->punch_date_time = date('Y-m-d h:i:s');
                             $punchDetails->punch_type = PunchDetail::PUNCH_TYPE['In'];
                         }
                     } else {
                         $punchDetails = new PunchDetail();
                         $punchDetails->user_id = $user->id;
+                        $punchDetails->punch_date_time = date('Y-m-d h:i:s');
                         $punchDetails->punch_type = PunchDetail::PUNCH_TYPE['In'];
                     }
                     $punchDetails->latitude = $request->latitude;
