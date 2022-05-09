@@ -285,6 +285,10 @@ class RoleController extends Controller
                     if (in_array($subValue['name'], RoleHasSubModule::ACTION_GROUP['list'])) {
                         $defultCols = ['is_list'];
                     }
+                    
+                    if (in_array($subValue['name'], RoleHasSubModule::ACTION_GROUP['edit'])) {
+                        $defultCols = ['is_list', 'is_edit', 'is_view'];
+                    }
 
                     if (in_array($subValue['name'], RoleHasSubModule::ACTION_GROUP['comment'])) {
                         array_push($defultCols, 'is_comment');

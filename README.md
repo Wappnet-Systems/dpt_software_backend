@@ -39,3 +39,17 @@
 	7) `git merge origin/master` (for merge master barach code into working branch code, if any files are conflict please resolved first)
 
 	8) `git push origin {working_branch}` (for commit the code and generate pr for master branch)
+
+## CMD for tenancy database seeding and migrations
+
+	1) Create migration for tenancy database
+
+		- php artisan make:migration create__table --path=/database/migrations/tenant
+
+	2) Run mgration for tenancy database
+
+		- php artisan tenancy:migrate
+
+	3) Run seeder for tenancy database
+
+		- php artisan tenancy:db:seed
