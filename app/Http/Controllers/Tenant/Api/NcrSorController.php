@@ -91,11 +91,10 @@ class NcrSorController extends Controller
     {
         try {
             $user = $request->user();
-
             if (isset($user) && !empty($user)) {
                 $validator = Validator::make($request->all(), [
                     'type' => 'required|numeric|min:1|max:2',
-                    'path' => 'required|mimes:doc',
+                    'path' => 'required|mimes:doc,docx',
                 ]);
 
                 if ($validator->fails()) {
@@ -197,12 +196,12 @@ class NcrSorController extends Controller
                 }
                 $url = $ncrsor->file_path;
 
-                if (!file_exists(public_path() . '/images/')) {
-                    mkdir(public_path() . '/images/', 0755, true);
+                if (!file_exists(public_path() . '/doc/')) {
+                    mkdir(public_path() . '/doc/', 0755, true);
                 }
 
                 $ch = curl_init($url);
-                $dir = public_path() . '/images/';
+                $dir = public_path() . '/doc/';
                 $file_name = basename($url);
                 $save_file_loc = $dir . $file_name;
                 $fp = fopen($save_file_loc, 'wb');
