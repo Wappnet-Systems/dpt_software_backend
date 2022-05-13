@@ -248,7 +248,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('project/activity/document/add', [ActivityDocumentController::class, 'addActivityDocument']);
     Route::put('project/activity/document/update/{id}', [ActivityDocumentController::class, 'updateActivityDocument']);
     Route::patch('project/activity/document/status/change/{id}', [ActivityDocumentController::class, 'changeActivityDocumentStatus']);
-    Route::put('project/activity/document/assign-activity/{id}', [ActivityDocumentController::class, 'assignActivityDocument']);
+    Route::post('project/activity/document/assign', [ActivityDocumentController::class, 'assignActivityDocument']);
 
     /* Time Slots Routes */
     Route::get('time-slot/get/lists', [TimeSlotsController::class, 'getTimeSlots']);
