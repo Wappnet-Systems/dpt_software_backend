@@ -124,6 +124,7 @@ class InventoryStocksController extends Controller
         $orderBy = !empty($request->orderby) ? $request->orderby : config('constants.default_orderby');
 
         $query = ProjectInventory::whereStatus(ProjectInventory::STATUS['Active'])
+            ->whereProjectId($request->project_id ?? '')
             ->where('minimum_quantity', '>', 0)
             ->orderby('id', $orderBy);
 
