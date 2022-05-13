@@ -73,11 +73,13 @@ class UserController extends Controller
                                     ->where('project_id', $value->id)
                                     ->where('minimum_quantity', '>', 0)->get();
 
-                                $minimumQuantityArr[$key] = [
-                                    'project_id' => $value->id,
-                                    'project_name' => $value->name,
-                                    'count' => isset($minimumQuantity) ? $minimumQuantity->count() : 0
-                                ];
+                                if (isset($minimumQuantity) && !empty($minimumQuantity)) {
+                                    $minimumQuantityArr[$key] = [
+                                        'project_id' => $value->id,
+                                        'project_name' => $value->name,
+                                        'count' => isset($minimumQuantity) ? $minimumQuantity->count() : 0
+                                    ];
+                                }
                             }
                         }
                     }
