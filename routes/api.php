@@ -283,11 +283,11 @@ Route::middleware('auth:sanctum')->group(function () {
 
     /* Method Statement Routes */
     Route::get('project/method-statements/get/lists', [MethodStatementController::class, 'getMethodStatements']);
-    Route::get('project/method-statements/get/{id}', [MethodStatementController::class, 'getmethodStatementDetails']);
+    Route::get('project/method-statements/get/{id}', [MethodStatementController::class, 'getMethodStatementDetails']);
     Route::post('project/method-statements/add', [MethodStatementController::class, 'addMethodStatement']);
     Route::put('project/method-statements/update/{id}', [MethodStatementController::class, 'updateMethodStatement']);
     Route::delete('project/method-statements/delete/{id}', [MethodStatementController::class, 'deleteMethodStatement']);
-    Route::put('project/method-statements/update-activity/{id}', [MethodStatementController::class, 'updateMethodActivity']);
+    Route::post('project/method-statements/activity/assign', [MethodStatementController::class, 'assignMethodStatementToActivity']);
 
     /* NCR/SOR Routes */
     Route::get('ncr-sor/lists', [NcrSorController::class, 'getNcrSor']);

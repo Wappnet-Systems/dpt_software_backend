@@ -54,15 +54,19 @@ class MethodStatementController extends Controller
         $orderBy = !empty($request->orderby) ? $request->orderby : config('constants.default_orderby');
 
         try {
-            $query = MethodStatement::whereProjectId($request->project_id ?? '')
-                ->select('id', 'project_id', 'project_activity_id', 'path')
+            $query = MethodStatement::with('projectActivity')
+                ->whereProjectId($request->project_id ?? '')
+                ->select('id', 'project_id', 'project_activity_id', 'path', 'updated_at')
                 ->orderBy('id', $orderBy);
 
             $totalQuery = $query;
             $totalQuery = $totalQuery->count();
 
             if (isset($request->project_activity_id) && !empty($request->project_activity_id)) {
-                $query->where('project_activity_id', $request->project_activity_id);
+                $query->where(function($query) use($request) {
+                    $query->orWhere('project_activity_id', $request->project_activity_id);
+                    $query->orWhere('project_activity_id', null);
+                });
             }
 
             if ($request->exists('cursor')) {
@@ -94,14 +98,15 @@ class MethodStatementController extends Controller
         }
     }
 
-    public function getmethodStatementDetails(Request $request, $id = null)
+    public function getMethodStatementDetails(Request $request, $id = null)
     {
-        $methodStatement = MethodStatement::whereId($request->id)
-            ->select('id', 'project_id', 'project_activity_id', 'path')
+        $methodStatement = MethodStatement::with('projectActivity')
+            ->whereId($request->id)
+            ->select('id', 'project_id', 'project_activity_id', 'path', 'updated_at')
             ->first();
 
         if (!isset($methodStatement) || empty($methodStatement)) {
-            return $this->sendError('Method statement does not exists.');
+            return $this->sendError('Method statement does not exists.', [], 404);
         }
 
         return $this->sendResponse($methodStatement, 'Method statement details.');
@@ -138,12 +143,12 @@ class MethodStatementController extends Controller
                 $methodStatement->updated_ip = $request->ip();
 
                 if (!$methodStatement->save()) {
-                    return $this->sendError('Something went wrong while creating the method statement.');
+                    return $this->sendError('Something went wrong while creating the method statement.', [], 500);
                 }
 
                 return $this->sendResponse($methodStatement, 'Method statement created successfully.');
             } else {
-                return $this->sendError('User not exists.');
+                return $this->sendError('User not exists.', [], 404);
             }
         } catch (\Exception $e) {
             Log::error($e->getMessage());
@@ -170,11 +175,10 @@ class MethodStatementController extends Controller
                     }
                 }
 
-                $methodStatement = MethodStatement::whereId($request->id)
-                    ->first();
+                $methodStatement = MethodStatement::whereId($request->id)->first();
 
                 if (!isset($methodStatement) || empty($methodStatement)) {
-                    return $this->sendError('Method statement does not exists.');
+                    return $this->sendError('Method statement does not exists.', [], 404);
                 }
 
                 $oldPath = $methodStatement->path;
@@ -187,7 +191,7 @@ class MethodStatementController extends Controller
                 }
 
                 if (!$methodStatement->save()) {
-                    return $this->sendError('Something went wrong while updating the method statement.');
+                    return $this->sendError('Something went wrong while updating the method statement.', [], 500);
                 }
 
                 if (isset($oldPath) && !empty($oldPath)) {
@@ -196,7 +200,7 @@ class MethodStatementController extends Controller
 
                 return $this->sendResponse($methodStatement, 'Method statement updated successfully.');
             } else {
-                return $this->sendError('User not exists.');
+                return $this->sendError('User not exists.', [], 404);
             }
         } catch (\Exception $e) {
             Log::error($e->getMessage());
@@ -216,7 +220,7 @@ class MethodStatementController extends Controller
                     ->first();
 
                 if (!isset($methodStatement) || empty($methodStatement)) {
-                    return $this->sendError('Method statement does not exists.');
+                    return $this->sendError('Method statement does not exists.', [], 404);
                 }
 
                 $methodStatement->delete();
@@ -232,14 +236,14 @@ class MethodStatementController extends Controller
         }
     }
 
-    /*  */
-    public function updateMethodActivity(Request $request, $id = null)
+    public function assignMethodStatementToActivity(Request $request, $id = null)
     {
         try {
             $user = $request->user();
 
             if (isset($user) && !empty($user)) {
                 $validator = Validator::make($request->all(), [
+                    'project_id' => 'required|exists:projects,id',
                     'project_activity_id' => 'required|exists:projects_activities,id',
                 ]);
 
@@ -249,23 +253,26 @@ class MethodStatementController extends Controller
                     }
                 }
 
-                $methodStatement = MethodStatement::whereId($request->id)
-                    ->first();
+                $request->method_statement_ids = !empty($request->method_statement_ids) ? explode(',', $request->method_statement_ids) : [];
 
-                if (!isset($methodStatement) || empty($methodStatement)) {
-                    return $this->sendError('Method statement does not exists.');
+                if (isset($request->method_statement_ids) && !empty($request->method_statement_ids)) {
+                    $methodStatement = MethodStatement::whereIn('id', $request->method_statement_ids)
+                        ->update([
+                            'project_activity_id' => $request->project_activity_id,
+                            'updated_ip' => $request->ip()
+                        ]);
+                } else {
+                    $methodStatement = MethodStatement::whereProjectId($request->project_id)
+                        ->whereProjectActivityId($request->project_activity_id)
+                        ->update([
+                            'project_activity_id' => null,
+                            'updated_ip' => $request->ip()
+                        ]);
                 }
 
-                if ($request->filled('project_activity_id')) $methodStatement->project_activity_id = $request->project_activity_id;
-                $methodStatement->updated_ip = $request->ip();
-
-                if (!$methodStatement->save()) {
-                    return $this->sendError('Something went wrong while updating the Method statement activity.');
-                }
-
-                return $this->sendResponse($methodStatement, 'Method statement activity updated successfully.');
+                return $this->sendResponse([], 'Assigned activity to method statement successfully.');
             } else {
-                return $this->sendError('User not exists.');
+                return $this->sendError('User not exists.', [], 404);
             }
         } catch (\Exception $e) {
             Log::error($e->getMessage());
