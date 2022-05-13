@@ -113,7 +113,7 @@ class MainActivitiesController extends Controller
             ->first();
 
         if (!isset($proMainActivity) || empty($proMainActivity)) {
-            return $this->sendError('Main Activity does not exists.');
+            return $this->sendError('Main Activity does not exists.', [], 404);
         }
 
         return $this->sendResponse($proMainActivity, 'Main activity details updated successfully.');
