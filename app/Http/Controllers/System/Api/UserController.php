@@ -13,6 +13,8 @@ use App\Models\System\Role;
 use App\Models\System\SubModule;
 use App\Models\System\User;
 use App\Models\System\UserLoginLog;
+use App\Models\Tenant\Project;
+use App\Models\Tenant\ProjectAssignedUser;
 use App\Models\Tenant\ProjectInventory;
 use Hyn\Tenancy\Models\Hostname;
 use Hyn\Tenancy\Models\Website;
@@ -44,6 +46,8 @@ class UserController extends Controller
                         $this->deviceLogin($req, $user->toArray());
                     }
 
+                    $minimumQuantityArr = [];
+
                     if ($user->role_id != User::USER_ROLE['SUPER_ADMIN']) {
                         $hostnameId = Organization::whereId($user->organization_id)->value('hostname_id');
 
@@ -58,13 +62,29 @@ class UserController extends Controller
 
                         AppHelper::setDefaultDBConnection();
 
-                        $minimumQuantity = ProjectInventory::whereStatus(ProjectInventory::STATUS['Active'])
-                            ->where('minimum_quantity', '>', 0)->count();
+                        $assignedProjectIds = ProjectAssignedUser::whereUserId($user->id)
+                            ->pluck('project_id');
+
+                        $projects = Project::whereIn('id', $assignedProjectIds)->select('id', 'name')->get();
+
+                        if (isset($projects) && !empty($projects)) {
+                            foreach ($projects as $key => $value) {
+                                $minimumQuantity = ProjectInventory::whereStatus(ProjectInventory::STATUS['Active'])
+                                    ->where('project_id', $value->id)
+                                    ->where('minimum_quantity', '>', 0)->get();
+
+                                $minimumQuantityArr[$key] = [
+                                    'project_id' => $value->id,
+                                    'project_name' => $value->name,
+                                    'count' => isset($minimumQuantity) ? $minimumQuantity->count() : 0
+                                ];
+                            }
+                        }
                     }
 
                     $data = [
                         'user' => $user,
-                        'minimum quantity' => isset($minimumQuantity) ? $minimumQuantity : 0,
+                        'minimum quantity' => $minimumQuantityArr,
                         'modules' => Module::pluck('name', 'id'),
                         'assign_modules' => Module::isAssigned($user->organization_id ?? null)->get()->toArray(),
                         'sub_modules' => SubModule::pluck('name', 'id'),
