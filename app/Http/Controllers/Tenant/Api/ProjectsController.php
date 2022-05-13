@@ -400,31 +400,28 @@ class ProjectsController extends Controller
                     }
                 }
 
+                $projAssignUser = ProjectAssignedUser::whereProjectId($request->project_id)
+                    ->where('user_id', '!=', $user->id)
+                    ->delete();
+                    
                 $request->user_ids = !empty($request->user_ids) ? explode(',', $request->user_ids) : [];
 
-                // Assign users to project
-                if (empty($request->user_ids)) {
+                foreach ($request->user_ids as $userId) {
                     $projAssignUser = ProjectAssignedUser::whereProjectId($request->project_id)
-                        ->where('user_id', '!=', $user->id)
-                        ->delete();
-                } else {
-                    foreach ($request->user_ids as $userId) {
-                        $projAssignUser = ProjectAssignedUser::whereProjectId($request->project_id)
-                            ->whereUserId($userId)
-                            ->first();
+                        ->whereUserId($userId)
+                        ->first();
 
-                        if (isset($projAssignUser) && !empty($projAssignUser)) {
-                            $projAssignUser->updated_ip = $request->ip();
-                            $projAssignUser->save();
-                        } else {
-                            $projAssignUser = new ProjectAssignedUser();
-                            $projAssignUser->user_id = $userId;
-                            $projAssignUser->project_id = $request->project_id;
-                            $projAssignUser->created_by = $user->id;
-                            $projAssignUser->created_ip = $request->ip();
-                            $projAssignUser->updated_ip = $request->ip();
-                            $projAssignUser->save();
-                        }
+                    if (isset($projAssignUser) && !empty($projAssignUser)) {
+                        $projAssignUser->updated_ip = $request->ip();
+                        $projAssignUser->save();
+                    } else {
+                        $projAssignUser = new ProjectAssignedUser();
+                        $projAssignUser->user_id = $userId;
+                        $projAssignUser->project_id = $request->project_id;
+                        $projAssignUser->created_by = $user->id;
+                        $projAssignUser->created_ip = $request->ip();
+                        $projAssignUser->updated_ip = $request->ip();
+                        $projAssignUser->save();
                     }
                 }
 
