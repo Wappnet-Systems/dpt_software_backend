@@ -65,7 +65,7 @@ class UserController extends Controller
                         $assignedProjectIds = ProjectAssignedUser::whereUserId($user->id)
                             ->pluck('project_id');
 
-                        $projects = Project::whereIn('id', $assignedProjectIds)->select('id', 'name')->get();
+                        $projects = Project::whereIn('id', $assignedProjectIds)->select('id', 'uuid', 'name')->get();
 
                         if (isset($projects) && !empty($projects)) {
                             foreach ($projects as $key => $value) {
@@ -76,6 +76,7 @@ class UserController extends Controller
                                 if (isset($minimumQuantity) && !empty($minimumQuantity)) {
                                     $minimumQuantityArr[$key] = [
                                         'project_id' => $value->id,
+                                        'project_uuid' => $value->uuid,
                                         'project_name' => $value->name,
                                         'count' => isset($minimumQuantity) ? $minimumQuantity->count() : 0
                                     ];
@@ -86,7 +87,7 @@ class UserController extends Controller
 
                     $data = [
                         'user' => $user,
-                        'minimum quantity' => $minimumQuantityArr,
+                        'minimum_quantity' => $minimumQuantityArr,
                         'modules' => Module::pluck('name', 'id'),
                         'assign_modules' => Module::isAssigned($user->organization_id ?? null)->get()->toArray(),
                         'sub_modules' => SubModule::pluck('name', 'id'),
