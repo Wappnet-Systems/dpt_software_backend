@@ -67,7 +67,7 @@ class OrganizationController extends Controller
                 'prev_page_url' => ltrim(str_replace($organizations['path'], "", $organizations['prev_page_url']), "?cursor=")
             ], 'Organization List');
         } else {
-            return $this->sendResponse($results, 'Organization List');
+            return $this->sendResponse($results, 'Organization List.');
         }
     }
 
@@ -197,9 +197,9 @@ class OrganizationController extends Controller
 
                 $orgUser->notify(new ResetPassword($token)); */
 
-                return $this->sendResponse($orgUser, 'Organization register successfully, also sent reset password link on organization mail.');
+                return $this->sendResponse([], 'Organization register successfully, also sent reset password link on organization mail.');
             } else {
-                return $this->sendError('User not exists.');
+                return $this->sendError('User not exists.', [], 404);
             }
         } catch (\Exception $e) {
             Log::error($e->getMessage());
@@ -268,9 +268,9 @@ class OrganizationController extends Controller
                     $user->save();
                 }
 
-                return $this->sendResponse($organization, 'Organization details updated successfully.');
+                return $this->sendResponse([], 'Organization details updated successfully.');
             } else {
-                return $this->sendError('User not exists.');
+                return $this->sendError('User not exists.', [], 404);
             }
         } catch (\Exception $e) {
             Log::error($e->getMessage());

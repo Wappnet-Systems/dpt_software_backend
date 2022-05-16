@@ -103,7 +103,7 @@ class ActivitiesController extends Controller
             return $this->sendError('Activity does not exists.', [], 404);
         }
 
-        return $this->sendResponse($proActivity, 'Activity details updated successfully.');
+        return $this->sendResponse($proActivity, 'Activity details get.');
     }
 
     public function addActivity(Request $request)
@@ -157,7 +157,7 @@ class ActivitiesController extends Controller
                     return $this->sendError('Something went wrong while creating the activity.', [], 500);
                 }
 
-                return $this->sendResponse($proActivity, 'Activity created successfully.');
+                return $this->sendResponse([], 'Activity created successfully.');
             } else {
                 return $this->sendError('User not exists.', [], 404);
             }
@@ -217,7 +217,7 @@ class ActivitiesController extends Controller
                     return $this->sendError('Something went wrong while creating the activity.', [], 500);
                 }
 
-                return $this->sendResponse($proActivity, 'Activity updated successfully.');
+                return $this->sendResponse([], 'Activity updated successfully.');
             } else {
                 return $this->sendError('User not exists.', [], 404);
             }

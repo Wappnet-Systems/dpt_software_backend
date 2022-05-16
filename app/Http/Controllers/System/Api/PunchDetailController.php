@@ -141,7 +141,7 @@ class PunchDetailController extends Controller
                         return $this->sendError('Something went wrong while creating the punch details.', [], 400);
                     }
 
-                    return $this->sendResponse($punchDetails, 'User punch details saved successfully.');
+                    return $this->sendResponse([], 'User punch details saved successfully.');
                 } else {
                     return $this->sendError('Your are not under radius of project working location.', [], 400);
                 }

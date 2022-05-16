@@ -191,7 +191,7 @@ class ActivityDocumentController extends Controller
                     return $this->sendError('Something went wrong while creating the project activity document.', [], 500);
                 }
 
-                return $this->sendResponse($projectActivityDocument, 'Project activity document created successfully.');
+                return $this->sendResponse([], 'Project activity document created successfully.');
             } else {
                 return $this->sendError('User not exists.', [], 404);
             }
@@ -261,7 +261,7 @@ class ActivityDocumentController extends Controller
                     return $this->sendError('Something went wrong while updating the project activity document.', [], 500);
                 }
 
-                return $this->sendResponse($projectActivityDocument, 'Project activity document updated successfully.');
+                return $this->sendResponse([], 'Project activity document updated successfully.');
             } else {
                 return $this->sendError('User not exists.', [], 404);
             }

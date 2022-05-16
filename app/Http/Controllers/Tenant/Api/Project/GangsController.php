@@ -124,7 +124,7 @@ class GangsController extends Controller
                     return $this->sendError('Something went wrong while creating the project gang.');
                 }
 
-                return $this->sendResponse($projectGangs, 'Project gang created successfully.');
+                return $this->sendResponse([], 'Project gang created successfully.');
             } else {
                 return $this->sendError('User not exists.');
             }
@@ -160,7 +160,7 @@ class GangsController extends Controller
                 return $this->sendError('Something went wrong while udating the project gang.');
             }
 
-            return $this->sendResponse($projectGangs, 'Project gang updated successfully.');
+            return $this->sendResponse([], 'Project gang updated successfully.');
         } catch (\Exception $e) {
             Log::error($e->getMessage());
 

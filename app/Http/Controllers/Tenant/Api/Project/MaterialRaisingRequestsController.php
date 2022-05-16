@@ -125,7 +125,7 @@ class MaterialRaisingRequestsController extends Controller
                     return $this->sendError('Something went wrong while creating the project material raising request.');
                 }
 
-                return $this->sendResponse($materialRaisingRequest, 'Project material raising request created successfully.');
+                return $this->sendResponse([], 'Project material raising request created successfully.');
             } else {
                 return $this->sendError('User does not exist');
             }
@@ -170,7 +170,7 @@ class MaterialRaisingRequestsController extends Controller
                     return $this->sendError('Something went wrong while creating the project material raising request.');
                 }
 
-                return $this->sendResponse($materialRaisingRequest, 'Project material raising request updated successfully.');
+                return $this->sendResponse([], 'Project material raising request updated successfully.');
             } else {
                 return $this->sendError('User does not exist');
             }

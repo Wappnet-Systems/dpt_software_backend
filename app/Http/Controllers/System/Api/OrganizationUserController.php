@@ -206,10 +206,10 @@ class OrganizationUserController extends Controller
                         $orgSubUser->only('email')
                     );
 
-                    return $this->sendResponse($orgSubUser, 'User saved successfully, also sent reset password link on organization mail.');
+                    return $this->sendResponse([], 'User saved successfully, also sent reset password link on organization mail.');
                 }
             } else {
-                return $this->sendError('User not exists.');
+                return $this->sendError('User not exists.', [], 404);
             }
         } catch (\Exception $e) {
             Log::error($e->getMessage());
@@ -303,10 +303,10 @@ class OrganizationUserController extends Controller
                     $orgUser->updated_ip = $request->ip();
                     $orgUser->save();
 
-                    return $this->sendResponse($orgUser, 'User Profile Updated Successfully.');
+                    return $this->sendResponse([], 'User Profile Updated Successfully.');
                 }
             } else {
-                return $this->sendError('User does not exists.');
+                return $this->sendError('User does not exists.', [], 404);
             }
         } catch (\Exception $e) {
             Log::error($e->getMessage());
