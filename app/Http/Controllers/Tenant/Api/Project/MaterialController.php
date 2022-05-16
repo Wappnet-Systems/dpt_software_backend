@@ -137,9 +137,9 @@ class MaterialController extends Controller
                     ProjectMaterial::projectInventoryCostCalculation($projectMaterial);
                 }
 
-                return $this->sendResponse($projectMaterial, 'Project material created successfully.');
+                return $this->sendResponse([], 'Project material created successfully.');
             } else {
-                return $this->sendError('User not exists.');
+                return $this->sendError('User not exists.', [], 404);
             }
         } catch (\Exception $e) {
             Log::error($e->getMessage());
@@ -200,9 +200,9 @@ class MaterialController extends Controller
                     ProjectMaterial::projectInventoryCostCalculation($projectMaterial);
                 }
 
-                return $this->sendResponse($projectMaterial, 'Project material updated successfully.');
+                return $this->sendResponse([], 'Project material updated successfully.');
             } else {
-                return $this->sendError('User not exists.');
+                return $this->sendError('User not exists.', [], 404);
             }
         } catch (\Exception $e) {
             Log::error($e->getMessage());
@@ -312,7 +312,7 @@ class MaterialController extends Controller
                     return $this->sendResponse([], 'Project Material import successfully.');
                 }
             } else {
-                return $this->sendError('User not exists.');
+                return $this->sendError('User not exists.', [], 404);
             }
         } catch (\Exception $e) {
             Log::error($e->getMessage());

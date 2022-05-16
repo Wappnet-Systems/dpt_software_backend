@@ -118,7 +118,7 @@ class GangsManforcesController extends Controller
                 return $this->sendError('Something went wrong while creating the project gang manforce.');
             }
 
-            return $this->sendResponse($projectGangManforce, 'Project gang manforce created successfully.');
+            return $this->sendResponse([], 'Project gang manforce created successfully.');
         } catch (\Exception $e) {
             Log::error($e->getMessage());
 
@@ -155,7 +155,7 @@ class GangsManforcesController extends Controller
                 return $this->sendError('Something went wrong while upadating the project gang manforce.');
             }
 
-            return $this->sendResponse($projectGangManforce, 'Project gang manforce updated successfully.');
+            return $this->sendResponse([], 'Project gang manforce updated successfully.');
         } catch (\Exception $e) {
             Log::error($e->getMessage());
 

@@ -138,9 +138,9 @@ class NonWorkingDaysController extends Controller
                     return $this->sendError('Something went wrong while creating the non working day.');
                 }
 
-                return $this->sendResponse($nonWorkingDays, 'Non working day created successfully.');
+                return $this->sendResponse([], 'Non working day created successfully.');
             } else {
-                return $this->sendError('User not exists.');
+                return $this->sendError('User not exists.', [], 404);
             }
         } catch (\Exception $e) {
             Log::error($e->getMessage());
@@ -179,7 +179,7 @@ class NonWorkingDaysController extends Controller
                 return $this->sendError('Something went wrong while updating the non working day.');
             }
 
-            return $this->sendResponse($nonWorkingDays, 'Non working day updated successfully.');
+            return $this->sendResponse([], 'Non working day updated successfully.');
         } catch (\Exception $e) {
             Log::error($e->getMessage());
 

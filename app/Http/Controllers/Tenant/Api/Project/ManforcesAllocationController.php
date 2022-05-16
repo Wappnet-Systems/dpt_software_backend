@@ -169,7 +169,7 @@ class ManforcesAllocationController extends Controller
                     return $this->sendError('Something went wrong while creating the allocating manforces to activity.');
                 }
 
-                return $this->sendResponse($allocatedManforces, 'Manforces allocating into activity successfully.');
+                return $this->sendResponse([], 'Manforces allocating into activity successfully.');
             } else {
                 return $this->sendError('User not exists.');
             }
@@ -238,7 +238,7 @@ class ManforcesAllocationController extends Controller
                     return $this->sendError('Something went wrong while updating the manforce allocating activity.');
                 }
 
-                return $this->sendResponse($allocatedManforces, 'Manforce allocating into activity successfully.');
+                return $this->sendResponse([], 'Manforce allocating into activity successfully.');
             } else {
                 return $this->sendError('User not exists.');
             }

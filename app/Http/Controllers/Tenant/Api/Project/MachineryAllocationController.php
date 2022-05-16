@@ -177,7 +177,7 @@ class MachineryAllocationController extends Controller
 
                 return $this->sendResponse($allocateMachinery, 'Machinery allocated to activity successfully.');
             } else {
-                return $this->sendError('User not exists.');
+                return $this->sendError('User not exists.', [], 404);
             }
         } catch (\Exception $e) {
             Log::error($e->getMessage());

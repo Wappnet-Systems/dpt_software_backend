@@ -123,7 +123,7 @@ class MachineriesController extends Controller
                 return $this->sendError('Something went wrong while creating the machineries.');
             }
 
-            return $this->sendResponse($machineries, 'Machineries created successfully.');
+            return $this->sendResponse([], 'Machineries created successfully.');
         } catch (\Exception $e) {
             Log::error($e->getMessage());
 
@@ -157,7 +157,7 @@ class MachineriesController extends Controller
                 return $this->sendError('Something went wrong while updating the machinery');
             }
 
-            return $this->sendResponse($machineries, 'Machinery details updated successfully.');
+            return $this->sendResponse([], 'Machinery details updated successfully.');
         } catch (\Exception $e) {
             Log::error($e->getMessage());
 

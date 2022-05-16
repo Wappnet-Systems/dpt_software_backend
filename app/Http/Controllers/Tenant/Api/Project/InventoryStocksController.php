@@ -115,7 +115,7 @@ class InventoryStocksController extends Controller
             return $this->sendError('Something went wrong while updating the project inventory');
         }
 
-        return $this->sendResponse($projectInventory, 'Project inventory updated successfully.');
+        return $this->sendResponse([], 'Project inventory updated successfully.');
     }
 
     public function getMinimumQuantity(Request $request)

@@ -177,7 +177,7 @@ class ProjectsController extends Controller
                         $project->save();
                     }
 
-                    return $this->sendResponse($project, 'Project created successfully.');
+                    return $this->sendResponse([], 'Project created successfully.');
                 }
             } else {
                 return $this->sendError('User not exists.');
@@ -248,7 +248,7 @@ class ProjectsController extends Controller
                     $project->updated_ip = $request->ip();
                     $project->save();
 
-                    return $this->sendResponse($project, 'Project Updated Successfully.');
+                    return $this->sendResponse([], 'Project Updated Successfully.');
                 }
             } else {
                 return $this->sendError('User does not exists.');

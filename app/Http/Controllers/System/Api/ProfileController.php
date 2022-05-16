@@ -67,7 +67,7 @@ class ProfileController extends Controller
             'password' => Hash::make($request->new_password)
         ]);
 
-        return $this->sendResponse($user, 'Password updated successfully.');
+        return $this->sendResponse([], 'Password updated successfully.');
     }
 
     public function getProfileDetails(Request $request)
@@ -162,6 +162,6 @@ class ProfileController extends Controller
         $user->updated_ip = $request->ip();
         $user->save();
 
-        return $this->sendResponse($user, 'Profile Updated Successfully.');
+        return $this->sendResponse([], 'Profile Updated Successfully.');
     }
 }

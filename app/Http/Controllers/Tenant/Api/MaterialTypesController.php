@@ -117,7 +117,7 @@ class MaterialTypesController extends Controller
                 return $this->sendError('Something went wrong while creating the material type.');
             }
 
-            return $this->sendResponse($materialType, 'Material type created successfully.');
+            return $this->sendResponse([], 'Material type created successfully.');
         } catch (\Exception $e) {
             Log::error($e->getMessage());
 
@@ -151,7 +151,7 @@ class MaterialTypesController extends Controller
                 return $this->sendError('Something went wrong while updating the material type.');
             }
 
-            return $this->sendResponse($materialType, 'Material type details updated successfully.');
+            return $this->sendResponse([], 'Material type details updated successfully.');
         } catch (\Exception $e) {
             Log::error($e->getMessage());
 

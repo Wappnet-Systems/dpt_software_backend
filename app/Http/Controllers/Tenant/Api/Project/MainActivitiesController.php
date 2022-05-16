@@ -154,7 +154,7 @@ class MainActivitiesController extends Controller
                     return $this->sendError('Something went wrong while creating the activity.', [], 500);
                 }
 
-                return $this->sendResponse($proMainActivity, 'Main activity created successfully.');
+                return $this->sendResponse([], 'Main activity created successfully.');
             } else {
                 return $this->sendError('User not exists.', [], 404);
             }
@@ -201,7 +201,7 @@ class MainActivitiesController extends Controller
                     return $this->sendError('Something went wrong while creating the activity.', [], 500);
                 }
 
-                return $this->sendResponse($proMainActivity, 'Activity updated successfully.');
+                return $this->sendResponse([], 'Activity updated successfully.');
             } else {
                 return $this->sendError('User not exists.', [], 404);
             }

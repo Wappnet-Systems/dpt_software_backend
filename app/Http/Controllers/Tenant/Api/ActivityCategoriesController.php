@@ -123,7 +123,7 @@ class ActivityCategoriesController extends Controller
                 return $this->sendError('Something went wrong while creating the activity category.');
             }
 
-            return $this->sendResponse($activityCategory, 'Activity category created successfully.');
+            return $this->sendResponse([], 'Activity category created successfully.');
         } catch (\Exception $e) {
             Log::error($e->getMessage());
 
@@ -158,7 +158,7 @@ class ActivityCategoriesController extends Controller
                 return $this->sendError('Something went wrong while updating the activity category.');
             }
 
-            return $this->sendResponse($activityCategory, 'Activity category details updated successfully.');
+            return $this->sendResponse([], 'Activity category details updated successfully.');
         } catch (\Exception $e) {
             Log::error($e->getMessage());
 

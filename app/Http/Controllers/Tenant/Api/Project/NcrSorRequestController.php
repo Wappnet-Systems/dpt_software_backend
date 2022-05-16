@@ -99,9 +99,9 @@ class NcrSorRequestController extends Controller
                 'per_page' => $projectNcrSorRequest['per_page'],
                 'next_page_url' => ltrim(str_replace($projectNcrSorRequest['path'], "", $projectNcrSorRequest['next_page_url']), "?cursor="),
                 'prev_page_url' => ltrim(str_replace($projectNcrSorRequest['path'], "", $projectNcrSorRequest['prev_page_url']), "?cursor=")
-            ], 'Project ncr/sor request list');
+            ], 'Project ncr/sor request list.');
         } else {
-            return $this->sendResponse($results, 'Project ncr/sor request list');
+            return $this->sendResponse($results, 'Project ncr/sor request list.');
         }
     }
 
@@ -166,9 +166,9 @@ class NcrSorRequestController extends Controller
                     return $this->sendError('Something went wrong while creating the project ncr/sor request.');
                 }
 
-                return $this->sendResponse($projectNcrSorRequest, 'Project ncr/sor request created successfully.');
+                return $this->sendResponse([], 'Project ncr/sor request created successfully.');
             } else {
-                return $this->sendError('User not exists.');
+                return $this->sendError('User not exists.', [], 404);
             }
         } catch (\Exception $e) {
             return $this->sendError($e->getMessage());
@@ -227,9 +227,9 @@ class NcrSorRequestController extends Controller
                 if($oldPath){
                     $this->uploadFile->deleteFileFromS3($oldPath);
                 }
-                return $this->sendResponse($projectNcrSorRequest, 'Project ncr/sor request updated successfully.');
+                return $this->sendResponse([], 'Project ncr/sor request updated successfully.');
             } else {
-                return $this->sendError('User not exists.');
+                return $this->sendError('User not exists.', [], 404);
             }
         } catch (\Exception $e) {
             return $this->sendError($e->getMessage());

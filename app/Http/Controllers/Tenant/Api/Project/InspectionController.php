@@ -153,7 +153,7 @@ class InspectionController extends Controller
                     return $this->sendError('Something went wrong while creating the project inspection.');
                 }
 
-                return $this->sendResponse([$projectInspection], 'Project inspection created successfully.');
+                return $this->sendResponse([], 'Project inspection created successfully.');
             } else {
                 return $this->sendError('User not exists.');
             }
@@ -217,7 +217,7 @@ class InspectionController extends Controller
                     return $this->sendError('Something went wrong while updating the project inspection');
                 }
 
-                return $this->sendResponse($projectInspection, 'Project inspection updated successfully.');
+                return $this->sendResponse([], 'Project inspection updated successfully.');
             } else {
                 return $this->sendError('User not exists.');
             }

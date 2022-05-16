@@ -146,7 +146,7 @@ class MethodStatementController extends Controller
                     return $this->sendError('Something went wrong while creating the method statement.', [], 500);
                 }
 
-                return $this->sendResponse($methodStatement, 'Method statement created successfully.');
+                return $this->sendResponse([], 'Method statement created successfully.');
             } else {
                 return $this->sendError('User not exists.', [], 404);
             }
@@ -198,7 +198,7 @@ class MethodStatementController extends Controller
                     $this->uploadFile->deleteFileFromS3($oldPath);
                 }
 
-                return $this->sendResponse($methodStatement, 'Method statement updated successfully.');
+                return $this->sendResponse([], 'Method statement updated successfully.');
             } else {
                 return $this->sendError('User not exists.', [], 404);
             }

@@ -117,7 +117,7 @@ class UnitTypesController extends Controller
                 return $this->sendError('Something went wrong while creating the unit Type.');
             }
 
-            return $this->sendResponse($unitType, 'unit Type created successfully.');
+            return $this->sendResponse([], 'Unit Type created successfully.');
         } catch (\Exception $e) {
             Log::error($e->getMessage());
 
@@ -151,7 +151,7 @@ class UnitTypesController extends Controller
                 return $this->sendError('Something went wrong while updating the unit Type.');
             }
 
-            return $this->sendResponse($unitTypes, 'unit Type details updated successfully.');
+            return $this->sendResponse([], 'Unit Type details updated successfully.');
         } catch (\Exception $e) {
             Log::error($e->getMessage());
 
