@@ -80,6 +80,13 @@ class ActivityDocumentController extends Controller
             });
         }
 
+        if (isset($request->project_activity_id) && !empty($request->project_activity_id)) {
+            $query->where(function($query) use($request) {
+                $query->orWhere('project_activity_id', $request->project_activity_id);
+                $query->orWhere('project_activity_id', null);
+            });
+        }
+
         if (isset($request->type) && !empty($request->type)) {
             $query = $query->whereType($request->type);
         }
@@ -125,7 +132,7 @@ class ActivityDocumentController extends Controller
             ->first();
 
         if (!isset($projectActivityDocument) || empty($projectActivityDocument)) {
-            return $this->sendError('Project activity document does not exist.');
+            return $this->sendError('Project activity document does not exist.', [], 404);
         }
 
         return $this->sendResponse($projectActivityDocument, 'Project activity document details.');
@@ -144,12 +151,12 @@ class ActivityDocumentController extends Controller
                 $validator = Validator::make($request->all(), [
                     'project_id' => 'required|exists:projects,id',
                     'name' => 'required',
-                    'path' => sprintf('required|mimes:%s|max:%s', 'pdf,jpeg,jpg,bmp,png', config('constants.organizations.projects.activity_document.upload_image_max_size')),
+                    'path' => sprintf('required|mimes:%s|max:%s', 'pdf,jpeg,jpg,bmp,png', config('constants.upload_image_max_size')),
                     'location' => 'required',
                     'area' => 'required',
                     'type' => 'required',
                 ], [
-                    'path.max' => 'The file must not be greater than 10mb.',
+                    'path.max' => 'The file must not be greater than 5mb.',
                 ]);
 
                 if ($validator->fails()) {
@@ -181,17 +188,17 @@ class ActivityDocumentController extends Controller
                 }
 
                 if (!$projectActivityDocument->save()) {
-                    return $this->sendError('Something went wrong while creating the project activity document.');
+                    return $this->sendError('Something went wrong while creating the project activity document.', [], 500);
                 }
 
-                return $this->sendResponse($projectActivityDocument, 'Project activity document created successfully.');
+                return $this->sendResponse([], 'Project activity document created successfully.');
             } else {
-                return $this->sendError('User not exists.');
+                return $this->sendError('User not exists.', [], 404);
             }
         } catch (\Exception $e) {
             Log::error($e->getMessage());
 
-return $this->sendError('Something went wrong!', [], 500);
+            return $this->sendError('Something went wrong!', [], 500);
         }
     }
 
@@ -207,12 +214,12 @@ return $this->sendError('Something went wrong!', [], 500);
             if (isset($user) && !empty($user)) {
                 $validator = Validator::make($request->all(), [
                     'name' => 'required',
-                    'path' => sprintf('mimes:%s|max:%s', 'pdf,jpeg,jpg,bmp,png', config('constants.organizations.projects.activity_document.upload_image_max_size')),
+                    'path' => sprintf('mimes:%s|max:%s', 'pdf,jpeg,jpg,bmp,png', config('constants.upload_image_max_size')),
                     'location' => 'required',
                     'area' => 'required',
                     'type' => 'required',
                 ], [
-                    'path.max' => 'The file must not be greater than 10mb.',
+                    'path.max' => 'The file must not be greater than 5mb.',
                 ]);
 
                 if ($validator->fails()) {
@@ -225,7 +232,7 @@ return $this->sendError('Something went wrong!', [], 500);
                     ->first();
 
                 if (!isset($projectActivityDocument) || empty($projectActivityDocument)) {
-                    return $this->sendError('Project activity document does not exist.');
+                    return $this->sendError('Project activity document does not exist.', [], 404);
                 }
 
                 if ($request->filled('name')) $projectActivityDocument->name = $request->name;
@@ -251,17 +258,17 @@ return $this->sendError('Something went wrong!', [], 500);
                 $projectActivityDocument->updated_ip = $request->ip();
 
                 if (!$projectActivityDocument->save()) {
-                    return $this->sendError('Something went wrong while updating the project activity document.');
+                    return $this->sendError('Something went wrong while updating the project activity document.', [], 500);
                 }
 
-                return $this->sendResponse($projectActivityDocument, 'Project activity document updated successfully.');
+                return $this->sendResponse([], 'Project activity document updated successfully.');
             } else {
-                return $this->sendError('User not exists.');
+                return $this->sendError('User not exists.', [], 404);
             }
         } catch (\Exception $e) {
             Log::error($e->getMessage());
 
-return $this->sendError('Something went wrong!', [], 500);
+            return $this->sendError('Something went wrong!', [], 500);
         }
     }
 
@@ -282,14 +289,14 @@ return $this->sendError('Something went wrong!', [], 500);
                 }
 
                 if (!in_array($request->status, ProjectActivityDocument::STATUS)) {
-                    return $this->sendError('Invalid status requested.');
+                    return $this->sendError('Invalid status requested.', [], 400);
                 }
 
                 $projectActivityDocument = ProjectActivityDocument::whereId($request->id)
                     ->first();
 
                 if (!isset($projectActivityDocument) || empty($projectActivityDocument)) {
-                    return $this->sendError('Project activity document does not exist.');
+                    return $this->sendError('Project activity document does not exist.', [], 404);
                 }
 
                 if ($request->status == ProjectActivityDocument::STATUS['Deleted']) {
@@ -302,7 +309,7 @@ return $this->sendError('Something went wrong!', [], 500);
                         ->first();
 
                     if (!isset($projectActivityDocument) || empty($projectActivityDocument)) {
-                        return $this->sendError('You can not delete assigned project activity document.');
+                        return $this->sendError('You can not delete assigned project activity document.', [], 400);
                     }
 
                     $projectActivityDocument->delete();
@@ -314,12 +321,12 @@ return $this->sendError('Something went wrong!', [], 500);
 
                 return $this->sendResponse($projectActivityDocument, 'Status changed successfully.');
             } else {
-                return $this->sendError('User not exists.');
+                return $this->sendError('User not exists.', [], 404);
             }
         } catch (\Exception $e) {
             Log::error($e->getMessage());
 
-return $this->sendError('Something went wrong!', [], 500);
+            return $this->sendError('Something went wrong!', [], 500);
         }
     }
 
@@ -329,27 +336,42 @@ return $this->sendError('Something went wrong!', [], 500);
             $user = $request->user();
 
             if (isset($user) && !empty($user)) {
-                $projectActivityDocument = ProjectActivityDocument::whereId($request->id)
-                    ->first();
+                $validator = Validator::make($request->all(), [
+                    'project_id' => 'required|exists:projects,id',
+                    'project_activity_id' => 'required|exists:projects_activities,id',
+                ]);
 
-                if (!isset($projectActivityDocument) || empty($projectActivityDocument)) {
-                    return $this->sendError('Project activity document does not exist.');
+                if ($validator->fails()) {
+                    foreach ($validator->errors()->messages() as $key => $value) {
+                        return $this->sendError('Validation Error.', [$key => $value[0]], 400);
+                    }
                 }
 
-                $projectActivityDocument->project_activity_id = !empty($request->project_activity_id) ? $request->project_activity_id : NULL;
+                $request->activity_doc_ids = !empty($request->activity_doc_ids) ? explode(',', $request->activity_doc_ids) : [];
 
-                if (!$projectActivityDocument->save()) {
-                    return $this->sendError('Something went wrong while updating the project activity document.');
+                if (isset($request->activity_doc_ids) && !empty($request->activity_doc_ids)) {
+                    $methodStatement = ProjectActivityDocument::whereIn('id', $request->activity_doc_ids)
+                        ->update([
+                            'project_activity_id' => $request->project_activity_id,
+                            'updated_ip' => $request->ip()
+                        ]);
+                } else {
+                    $methodStatement = ProjectActivityDocument::whereProjectId($request->project_id)
+                        ->whereProjectActivityId($request->project_activity_id)
+                        ->update([
+                            'project_activity_id' => null,
+                            'updated_ip' => $request->ip()
+                        ]);
                 }
 
-                return $this->sendResponse($projectActivityDocument, 'Project activity document updated successfully.');
+                return $this->sendResponse([], 'Project activity document assigned successfully.');
             } else {
-                return $this->sendError('User not exists.');
+                return $this->sendError('User not exists.', [], 404);
             }
         } catch (\Exception $e) {
             Log::error($e->getMessage());
 
-return $this->sendError('Something went wrong!', [], 500);
+            return $this->sendError('Something went wrong!', [], 500);
         }
     }
 }

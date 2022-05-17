@@ -44,4 +44,21 @@ class Controller extends BaseController
 
         return response()->json($response, $code);
     }
+
+    /**
+     * return recovery response.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function sendRecoveryResponse($message = null, $data = [], $code = 200)
+    {
+    	$response = [
+            'code'    => $code,
+            'type'    => 'recovery',
+            'message' => $message,
+            'data'    => $data
+        ];
+
+        return response()->json($response, $code);
+    }
 }

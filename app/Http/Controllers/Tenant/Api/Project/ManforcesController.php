@@ -128,7 +128,7 @@ class ManforcesController extends Controller
                 return $this->sendError('Something went wrong while creating the project manforce.');
             }
 
-            return $this->sendResponse($projectManforce, 'Project manforce created successfully.');
+            return $this->sendResponse([], 'Project manforce created successfully.');
         } catch (\Exception $e) {
             Log::error($e->getMessage());
 
@@ -171,7 +171,7 @@ class ManforcesController extends Controller
                 return $this->sendError('Something went wrong while updating the project manforce.');
             }
 
-            return $this->sendResponse($projectManforce, 'Project manforce updated successfully.');
+            return $this->sendResponse([], 'Project manforce updated successfully.');
         } catch (\Exception $e) {
             Log::error($e->getMessage());
 

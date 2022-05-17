@@ -119,7 +119,7 @@ class ManforceTypesController extends Controller
                 return $this->sendError('Something went wrong while creating the manforce type.');
             }
 
-            return $this->sendResponse($manforceType, 'Manforce type created successfully.');
+            return $this->sendResponse([], 'Manforce type created successfully.');
         } catch (\Exception $e) {
             Log::error($e->getMessage());
 
@@ -155,7 +155,7 @@ class ManforceTypesController extends Controller
                 return $this->sendError('Something went wrong while updating the manforce type.');
             }
 
-            return $this->sendResponse($manforceType, 'Manforce type details updated successfully.');
+            return $this->sendResponse([], 'Manforce type details updated successfully.');
         } catch (\Exception $e) {
             Log::error($e->getMessage());
 

@@ -146,7 +146,7 @@ class OrganizationUserController extends Controller
                         'profile_image' => sprintf('mimes:%s|max:%s', config('constants.upload_image_types'), config('constants.upload_image_max_size')),
                         'role_id' => 'required|exists:roles,id'
                     ], [
-                        'profile_image.max' => 'The profile image must not be greater than 8mb.',
+                        'profile_image.max' => 'The profile image must not be greater than 5mb.',
                     ]);
 
                     if ($validator->fails()) {
@@ -206,10 +206,10 @@ class OrganizationUserController extends Controller
                         $orgSubUser->only('email')
                     );
 
-                    return $this->sendResponse($orgSubUser, 'User saved successfully, also sent reset password link on organization mail.');
+                    return $this->sendResponse([], 'User saved successfully, also sent reset password link on organization mail.');
                 }
             } else {
-                return $this->sendError('User not exists.');
+                return $this->sendError('User not exists.', [], 404);
             }
         } catch (\Exception $e) {
             Log::error($e->getMessage());
@@ -260,7 +260,7 @@ class OrganizationUserController extends Controller
                         'personal_email' => 'email|regex:/^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,4}$/|unique:users,personal_email,' . $orgUser->id,
                         'profile_image' => sprintf('mimes:%s|max:%s', config('constants.upload_image_types'), config('constants.upload_image_max_size')),
                     ], [
-                        'profile_image.max' => 'The profile image must not be greater than 8mb.',
+                        'profile_image.max' => 'The profile image must not be greater than 5mb.',
                     ]);
 
                     if ($validator->fails()) {
@@ -303,10 +303,10 @@ class OrganizationUserController extends Controller
                     $orgUser->updated_ip = $request->ip();
                     $orgUser->save();
 
-                    return $this->sendResponse($orgUser, 'User Profile Updated Successfully.');
+                    return $this->sendResponse([], 'User Profile Updated Successfully.');
                 }
             } else {
-                return $this->sendError('User does not exists.');
+                return $this->sendError('User does not exists.', [], 404);
             }
         } catch (\Exception $e) {
             Log::error($e->getMessage());

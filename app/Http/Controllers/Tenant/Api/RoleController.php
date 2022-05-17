@@ -140,7 +140,7 @@ class RoleController extends Controller
                     return $this->sendError('Something went wrong while creating the role.');
                 }
 
-                return $this->sendResponse($role, 'Role added successfully');
+                return $this->sendResponse([], 'Role added successfully');
             } else {
                 return $this->sendError('User not exists.');
             }
@@ -185,7 +185,7 @@ class RoleController extends Controller
                     return $this->sendError('Something went wrong while creating the role.');
                 }
 
-                return $this->sendResponse($role, 'Role details updated successfully.');
+                return $this->sendResponse([], 'Role details updated successfully.');
             } else {
                 return $this->sendError('User not exists.');
             }

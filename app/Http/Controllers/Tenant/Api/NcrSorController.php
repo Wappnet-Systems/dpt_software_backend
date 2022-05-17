@@ -141,7 +141,7 @@ class NcrSorController extends Controller
 
                 return $this->sendResponse($NcrSor, 'NCR/SOR document uploaded successfully.');
             } else {
-                return $this->sendError('User not exists.');
+                return $this->sendError('User not exists.', [], 404);
             }
         } catch (\Exception $e) {
             return $this->sendError($e->getMessage());
@@ -167,7 +167,7 @@ class NcrSorController extends Controller
                 }
                 return $this->sendResponse([], 'NCR/SOR document deleted Successfully.');
             } else {
-                return $this->sendError('User not exists.');
+                return $this->sendError('User not exists.', [], 404);
             }
         } catch (\Exception $e) {
             return $this->sendError($e->getMessage());
@@ -179,18 +179,18 @@ class NcrSorController extends Controller
         try {
             $user = $request->user();
             if (isset($user) && !empty($user)) {
-                $type= $request->type;
-                $id= !empty($request->id) ? $request->id : '';
-                if($id){
+                $type = $request->type;
+                $id = !empty($request->id) ? $request->id : '';
+                if ($id) {
                     $ncrsor = ProjectNcrSorRequest::where("id", $id)
                         ->select('id', 'type', 'path')
                         ->first();
-                }else{
+                } else {
                     $ncrsor = NcrSor::where("type", $request->type)
-                    ->select('id', 'type', 'path')
-                    ->first();
+                        ->select('id', 'type', 'path')
+                        ->first();
                 }
-                
+
                 if (!isset($ncrsor) || empty($ncrsor) || ($ncrsor && empty($ncrsor->file_path))) {
                     return $this->sendError('Ncr/Sor document does not exists.');
                 }
@@ -210,18 +210,18 @@ class NcrSorController extends Controller
                 curl_exec($ch);
                 curl_close($ch);
                 fclose($fp);
-                
+
                 $file = $dir . $file_name;
                 $data = fopen($file, 'rb');
                 $size = filesize($file);
                 $contents = fread($data, $size);
                 fclose($data);
-                if(file_exists($file)){
+                if (file_exists($file)) {
                     unlink($file);
                 }
                 return response($contents, 200);
             } else {
-                return $this->sendError('User not exists.');
+                return $this->sendError('User not exists.', [], 404);
             }
         } catch (\Exception $e) {
             return $this->sendError($e->getMessage());
@@ -235,7 +235,6 @@ class NcrSorController extends Controller
             echo "lll";
             exit;
             if (isset($user) && !empty($user)) {
-                 
             } else {
                 return $this->sendError('User not exists.');
             }

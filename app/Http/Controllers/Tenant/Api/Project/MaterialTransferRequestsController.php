@@ -149,7 +149,7 @@ class MaterialTransferRequestsController extends Controller
                     return $this->sendError('Something went wrong while creating the material transfer request.');
                 }
 
-                return $this->sendResponse($transferReq, 'Material transfer requested successfully.');
+                return $this->sendResponse([], 'Material transfer requested successfully.');
             } else {
                 return $this->sendError('User not exists.');
             }
@@ -219,7 +219,7 @@ class MaterialTransferRequestsController extends Controller
                     return $this->sendError('Something went wrong while creating the material transfer request.');
                 }
 
-                return $this->sendResponse($transferReq, 'Material transfer request updated successfully.');
+                return $this->sendResponse([], 'Material transfer request updated successfully.');
             } else {
                 return $this->sendError('User not exists.');
             }

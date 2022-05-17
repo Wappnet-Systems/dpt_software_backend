@@ -179,7 +179,7 @@ class MaterialAllocationController extends Controller
                 $projectInventory->remaining_quantity = $projectInventory->remaining_quantity - $request->quantity;
                 $projectInventory->save();
 
-                return $this->sendResponse($allocatedMaterial, 'Material allocating into activity successfully.');
+                return $this->sendResponse([], 'Material allocating into activity successfully.');
             } else {
                 return $this->sendError('User not exists.');
             }
@@ -262,7 +262,7 @@ class MaterialAllocationController extends Controller
                     $projectInventory->save();
                 }
 
-                return $this->sendResponse($allocatedMaterial, 'Material allocating into activity successfully.');
+                return $this->sendResponse([], 'Material allocating into activity successfully.');
             } else {
                 return $this->sendError('User not exists.');
             }
