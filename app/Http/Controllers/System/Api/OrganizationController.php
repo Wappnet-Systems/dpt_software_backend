@@ -105,7 +105,7 @@ class OrganizationController extends Controller
                     'zip_code' => 'required|numeric|digits_between:5,10',
                 ], [
                     'org_admin_name.required' => 'The organization admin name is require.',
-                    'logo.max' => 'The logo must not be greater than 8mb.'
+                    'logo.max' => 'The logo must not be greater than 5mb.'
                 ]);
 
                 if ($validator->fails()) {
@@ -119,7 +119,7 @@ class OrganizationController extends Controller
                 }
 
                 if (Organization::whereEmail(strtolower($request->email))->onlyTrashed()->exists()) {
-                    return $this->sendError('Already added organization with same email id, do you want to recover it.', [], 400);
+                    return $this->sendRecoveryResponse('Already added organization with same email id, do you want to recover it.', [], 400);
                 }
 
                 if (Organization::whereEmail(strtolower($request->email))->exists()) {
