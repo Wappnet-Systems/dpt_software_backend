@@ -246,13 +246,14 @@ class MainActivitiesController extends Controller
                     }
 
                     $proMainActivity->delete();
+
+                    return $this->sendResponse([], 'Activity deleted Successfully.');
                 } else {
                     $proMainActivity->delete_at = null;
+                    $proMainActivity->save();
+
+                    return $this->sendResponse([], 'Status changed successfully.');
                 }
-
-                $proMainActivity->save();
-
-                return $this->sendResponse($proMainActivity, 'Status changed successfully.');
             }
 
             return $this->sendError('Main activity does not exists.', [], 404);
