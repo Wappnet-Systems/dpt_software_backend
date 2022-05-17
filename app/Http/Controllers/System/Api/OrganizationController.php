@@ -67,7 +67,7 @@ class OrganizationController extends Controller
                 'prev_page_url' => ltrim(str_replace($organizations['path'], "", $organizations['prev_page_url']), "?cursor=")
             ], 'Organization List');
         } else {
-            return $this->sendResponse($results, 'Organization List');
+            return $this->sendResponse($results, 'Organization List.');
         }
     }
 
@@ -105,7 +105,7 @@ class OrganizationController extends Controller
                     'zip_code' => 'required|numeric|digits_between:5,10',
                 ], [
                     'org_admin_name.required' => 'The organization admin name is require.',
-                    'logo.max' => 'The logo must not be greater than 8mb.'
+                    'logo.max' => 'The logo must not be greater than 5mb.'
                 ]);
 
                 if ($validator->fails()) {
@@ -118,7 +118,11 @@ class OrganizationController extends Controller
                     return $this->sendError('You have not rights to create a organization.', [], 401);
                 }
 
-                if (Organization::whereEmail(strtolower($request->email))->withTrashed()->exists()) {
+                if (Organization::whereEmail(strtolower($request->email))->onlyTrashed()->exists()) {
+                    return $this->sendRecoveryResponse('Already added organization with same email id, do you want to recover it.', [], 400);
+                }
+
+                if (Organization::whereEmail(strtolower($request->email))->exists()) {
                     return $this->sendError('Organization already exists please try using another one.', [], 400);
                 }
 
@@ -197,9 +201,9 @@ class OrganizationController extends Controller
 
                 $orgUser->notify(new ResetPassword($token)); */
 
-                return $this->sendResponse($orgUser, 'Organization register successfully, also sent reset password link on organization mail.');
+                return $this->sendResponse([], 'Organization register successfully, also sent reset password link on organization mail.');
             } else {
-                return $this->sendError('User not exists.');
+                return $this->sendError('User not exists.', [], 404);
             }
         } catch (\Exception $e) {
             Log::error($e->getMessage());
@@ -220,7 +224,7 @@ class OrganizationController extends Controller
                     'logo' => sprintf('mimes:%s|max:%s', config('constants.upload_image_types'), config('constants.upload_image_max_size')),
                 ], [
                     'org_admin_name.required' => 'The organization admin name is require.',
-                    'logo.max' => 'The logo must not be greater than 8mb.'
+                    'logo.max' => 'The logo must not be greater than 5mb.'
                 ]);
 
                 if ($validator->fails()) {
@@ -268,9 +272,9 @@ class OrganizationController extends Controller
                     $user->save();
                 }
 
-                return $this->sendResponse($organization, 'Organization details updated successfully.');
+                return $this->sendResponse([], 'Organization details updated successfully.');
             } else {
-                return $this->sendError('User not exists.');
+                return $this->sendError('User not exists.', [], 404);
             }
         } catch (\Exception $e) {
             Log::error($e->getMessage());
@@ -317,6 +321,56 @@ class OrganizationController extends Controller
             }
 
             return $this->sendError('Organization does not exists.');
+        } catch (\Exception $e) {
+            Log::error($e->getMessage());
+
+            return $this->sendError('Something went wrong!', [], 500);
+        }
+    }
+
+    public function recoveryEmail(Request $request)
+    {
+        try {
+            $user = $request->user();
+
+            if (isset($user) && !empty($user)) {
+                $validator = Validator::make($request->all(), [
+                    'email' => "required|email|regex:/^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,4}$/",
+                ]);
+
+                if ($validator->fails()) {
+                    foreach ($validator->errors()->messages() as $key => $value) {
+                        return $this->sendError('Validation Error.', [$key => $value[0]], 400);
+                    }
+                }
+
+                if (!in_array($user->role_id, [User::USER_ROLE['SUPER_ADMIN']])) {
+                    return $this->sendError('You have not rights to recovery of organization email.', [], 401);
+                }
+
+                $organization = Organization::whereEmail(strtolower($request->email))->onlyTrashed()->first();
+
+                if (!isset($organization) || empty($organization)) {
+                    return $this->sendError('Organization does not exists.');
+                }
+
+                if (!empty($organization->deleted_at)) {
+                    $organization->status = Organization::STATUS['Active'];
+                    $organization->deleted_at = null;
+                    $organization->save();
+
+                    User::whereOrganizationId($organization->id)->onlyTrashed()
+                        ->update([
+                            'status' => User::STATUS['Active'],
+                            'deleted_at' => null
+                        ]);
+
+                    return $this->sendResponse([], 'Organization email recovery successfully.');
+                }
+                return $this->sendError('Something went wrong while recover the organization email.', [], 400);
+            } else {
+                return $this->sendError('User not exists.', [], 404);
+            }
         } catch (\Exception $e) {
             Log::error($e->getMessage());
 
