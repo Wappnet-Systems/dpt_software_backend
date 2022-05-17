@@ -18,6 +18,7 @@ class CreateProjectsInspectionsTable extends Migration
             $table->collation = 'utf8_general_ci';
 
             $table->id();
+            $table->foreignId('project_id')->constrained('projects')->cascadeOnUpdate()->cascadeOnDelete();
             $table->foreignId('project_activity_id')->nullable()->constrained('projects_activities')->cascadeOnUpdate()->cascadeOnDelete();
             $table->foreignId('project_allocate_material_id')->nullable()->constrained('projects_activities_allocate_materials')->cascadeOnUpdate()->cascadeOnDelete();
             $table->string('inspection_no', 30)->nullable();
