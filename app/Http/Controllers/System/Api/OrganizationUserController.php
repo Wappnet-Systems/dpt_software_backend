@@ -146,7 +146,7 @@ class OrganizationUserController extends Controller
                         'profile_image' => sprintf('mimes:%s|max:%s', config('constants.upload_image_types'), config('constants.upload_image_max_size')),
                         'role_id' => 'required|exists:roles,id'
                     ], [
-                        'profile_image.max' => 'The profile image must not be greater than 8mb.',
+                        'profile_image.max' => 'The profile image must not be greater than 5mb.',
                     ]);
 
                     if ($validator->fails()) {
@@ -260,7 +260,7 @@ class OrganizationUserController extends Controller
                         'personal_email' => 'email|regex:/^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,4}$/|unique:users,personal_email,' . $orgUser->id,
                         'profile_image' => sprintf('mimes:%s|max:%s', config('constants.upload_image_types'), config('constants.upload_image_max_size')),
                     ], [
-                        'profile_image.max' => 'The profile image must not be greater than 8mb.',
+                        'profile_image.max' => 'The profile image must not be greater than 5mb.',
                     ]);
 
                     if ($validator->fails()) {

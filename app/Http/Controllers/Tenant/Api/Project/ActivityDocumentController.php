@@ -151,12 +151,12 @@ class ActivityDocumentController extends Controller
                 $validator = Validator::make($request->all(), [
                     'project_id' => 'required|exists:projects,id',
                     'name' => 'required',
-                    'path' => sprintf('required|mimes:%s|max:%s', 'pdf,jpeg,jpg,bmp,png', config('constants.organizations.projects.activity_document.upload_image_max_size')),
+                    'path' => sprintf('required|mimes:%s|max:%s', 'pdf,jpeg,jpg,bmp,png', config('constants.upload_image_max_size')),
                     'location' => 'required',
                     'area' => 'required',
                     'type' => 'required',
                 ], [
-                    'path.max' => 'The file must not be greater than 10mb.',
+                    'path.max' => 'The file must not be greater than 5mb.',
                 ]);
 
                 if ($validator->fails()) {
@@ -214,12 +214,12 @@ class ActivityDocumentController extends Controller
             if (isset($user) && !empty($user)) {
                 $validator = Validator::make($request->all(), [
                     'name' => 'required',
-                    'path' => sprintf('mimes:%s|max:%s', 'pdf,jpeg,jpg,bmp,png', config('constants.organizations.projects.activity_document.upload_image_max_size')),
+                    'path' => sprintf('mimes:%s|max:%s', 'pdf,jpeg,jpg,bmp,png', config('constants.upload_image_max_size')),
                     'location' => 'required',
                     'area' => 'required',
                     'type' => 'required',
                 ], [
-                    'path.max' => 'The file must not be greater than 10mb.',
+                    'path.max' => 'The file must not be greater than 5mb.',
                 ]);
 
                 if ($validator->fails()) {
