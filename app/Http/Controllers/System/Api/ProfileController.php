@@ -94,7 +94,7 @@ class ProfileController extends Controller
             'zip_code' => 'numeric|digits_between:5,10',
             'profile_image' => sprintf('mimes:%s|max:%s', config('constants.upload_image_types'), config('constants.upload_image_max_size'))
         ], [
-            'profile_image.max' => 'The profile image must not be greater than 8mb.'
+            'profile_image.max' => 'The profile image must not be greater than 5mb.'
         ]);
 
         if ($validator->fails()) {

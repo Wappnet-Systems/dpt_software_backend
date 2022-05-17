@@ -139,7 +139,7 @@ class ProjectsController extends Controller
                         'end_date' => 'required|date',
                         'cost' => 'required',
                     ], [
-                        'logo.max' => 'The logo must not be greater than 8mb.',
+                        'logo.max' => 'The logo must not be greater than 5mb.',
                     ]);
 
                     if ($validator->fails()) {
@@ -210,7 +210,7 @@ class ProjectsController extends Controller
                         'end_date' => 'required|date',
                         'cost' => 'required',
                     ], [
-                        'logo.max' => 'The logo must not be greater than 8mb.',
+                        'logo.max' => 'The logo must not be greater than 5mb.',
                     ]);
 
                     if ($validator->fails()) {
