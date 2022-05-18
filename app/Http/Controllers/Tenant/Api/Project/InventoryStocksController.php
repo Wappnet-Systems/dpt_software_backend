@@ -11,6 +11,8 @@ use App\Models\System\Organization;
 use App\Models\System\User;
 use App\Models\Tenant\ProjectInventory;
 use App\Helpers\AppHelper;
+use App\Models\Tenant\Project;
+use App\Models\Tenant\ProjectAssignedUser;
 
 class InventoryStocksController extends Controller
 {
@@ -153,6 +155,47 @@ class InventoryStocksController extends Controller
             ], 'Project inventory minimum quantity List.');
         } else {
             return $this->sendResponse($results, 'Project inventory minimum quantity List.');
+        }
+    }
+
+    public function getMinimumStockAlert(Request $request)
+    {
+        $user = $request->user();
+
+        if (isset($user) && !empty($user)) {
+
+            $assignedProjectIds = ProjectAssignedUser::whereUserId($user->id)
+                ->pluck('project_id');
+
+            $projects = Project::whereIn('id', $assignedProjectIds)->select('id', 'uuid', 'name')->get();
+
+            $minimumQuantityArr = [];
+
+            if (isset($projects) && !empty($projects)) {
+                foreach ($projects as $key => $value) {
+                    $minimumQuantity = ProjectInventory::whereStatus(ProjectInventory::STATUS['Active'])
+                        ->where('project_id', $value->id)
+                        ->where('minimum_quantity', '>', 0)->get();
+
+                    if (isset($minimumQuantity) && !empty($minimumQuantity)) {
+                        $minimumQuantityArr[$key] = [
+                            'project_id' => $value->id,
+                            'project_uuid' => $value->uuid,
+                            'project_name' => $value->name,
+                            'count' => isset($minimumQuantity) ? $minimumQuantity->count() : 0
+                        ];
+                    }
+                }
+                if (isset($minimumQuantityArr) && !empty($minimumQuantityArr)) {
+                    return $this->sendResponse($minimumQuantityArr, 'Get Minimum stock alert.');
+                } else {
+                    return $this->sendError('Minimum stock not found.', [], 404);
+                }
+            } else {
+                return $this->sendError('Project does not exist.', [], 404);
+            }
+        } else {
+            return $this->sendError('User not exists.', [], 404);
         }
     }
 }

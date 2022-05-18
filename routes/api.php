@@ -200,6 +200,7 @@ Route::middleware('auth:sanctum')->group(function () {
     /* Projects Inventories Stocks Routes */
     Route::get('project/inventory/stock/get/lists', [InventoryStocksController::class, 'getInventoryStocks']);
     Route::get('project/inventory/minimum-quantity/lists', [InventoryStocksController::class, 'getMinimumQuantity']);
+    Route::get('project/minimum-stock', [InventoryStocksController::class, 'getMinimumStockAlert']);
 
     /* Projects Inventories Minimum Quantity Update Routes */
     Route::put('project/inventory/minimum-quantity/update/{projectInventoryId}', [InventoryStocksController::class, 'updateMinimunQuntity']);
