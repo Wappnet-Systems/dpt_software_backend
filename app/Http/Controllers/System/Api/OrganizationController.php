@@ -94,7 +94,7 @@ class OrganizationController extends Controller
                 $validator = Validator::make($request->all(), [
                     'name' => 'required',
                     'org_admin_name' => 'required',
-                    'email' => 'required|email|regex:/^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,4}$/|unique:users,email',
+                    'email' => 'required|email|regex:/^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,4}$/',
                     'logo' => sprintf('mimes:%s|max:%s', config('constants.upload_image_types'), config('constants.upload_image_max_size')),
                     'phone_no' => 'required|numeric|digits_between:10,15',
                     'org_domain' => 'required', // |exists:hostnames,fqdn
@@ -116,6 +116,10 @@ class OrganizationController extends Controller
 
                 if (!in_array($user->role_id, [User::USER_ROLE['SUPER_ADMIN']])) {
                     return $this->sendError('You have not rights to create a organization.', [], 401);
+                }
+
+                if (User::whereEmail(strtolower($request->email))->exists()) {
+                    return $this->sendError('The email has already been taken please try using another one.', [], 400);
                 }
 
                 if (Organization::whereEmail(strtolower($request->email))->onlyTrashed()->exists()) {
