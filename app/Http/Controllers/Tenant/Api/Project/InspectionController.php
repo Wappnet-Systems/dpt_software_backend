@@ -55,10 +55,17 @@ class InspectionController extends Controller
 
         try {
             $query = ProjectInspection::with('projectActivity')
+                ->whereProjectId($request->project_id ?? '')
                 ->orderBy('id', $orderBy);
 
             if (isset($request->inspection_status) && !empty($request->inspection_status)) {
                 $query = $query->where('inspection_status', $request->inspection_status);
+            }
+
+            if (isset($request->project_activity_id) && !empty($request->project_activity_id)) {
+                $query = $query->WhereHas('projectActivity', function ($query) use ($request) {
+                    $query->whereId($request->project_activity_id);
+                });
             }
 
 
@@ -114,6 +121,7 @@ class InspectionController extends Controller
 
             if (isset($user) && !empty($user)) {
                 $validator = Validator::make($request->all(), [
+                    'project_id' => 'required|exists:projects,id',
                     'project_activity_id' => 'required|exists:projects_activities,id',
                     'inspection_no' => 'required|numeric|digits_between:10,30',
                     'inspection_date' => 'required|date_format:Y-m-d',
@@ -131,6 +139,7 @@ class InspectionController extends Controller
                 }
 
                 $projectInspection = new ProjectInspection();
+                $projectInspection->project_id = $request->project_id;
                 $projectInspection->project_activity_id = $request->project_activity_id;
                 $projectInspection->inspection_no = $request->inspection_no;
                 $projectInspection->inspection_date = date('Y-m-d', strtotime($request->inspection_date));

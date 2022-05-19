@@ -70,6 +70,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('organization/add', [OrganizationController::class, 'addOrganization']);
     Route::put('organization/update/{orgId}', [OrganizationController::class, 'updateOrganization']);
     Route::patch('organization/status/change/{orgId}', [OrganizationController::class, 'changeOrganizationStatus']);
+    Route::post('organization/recovery-email', [OrganizationController::class, 'recoveryEmail']);
 
     /** Organizations Management Routes */
     // Route::get('role/get/lists', [RoleController::class, 'getRoles']);
@@ -199,6 +200,7 @@ Route::middleware('auth:sanctum')->group(function () {
     /* Projects Inventories Stocks Routes */
     Route::get('project/inventory/stock/get/lists', [InventoryStocksController::class, 'getInventoryStocks']);
     Route::get('project/inventory/minimum-quantity/lists', [InventoryStocksController::class, 'getMinimumQuantity']);
+    Route::get('project/minimum-stock', [InventoryStocksController::class, 'getMinimumStockAlert']);
 
     /* Projects Inventories Minimum Quantity Update Routes */
     Route::put('project/inventory/minimum-quantity/update/{projectInventoryId}', [InventoryStocksController::class, 'updateMinimunQuntity']);
