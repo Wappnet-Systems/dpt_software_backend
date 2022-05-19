@@ -13,6 +13,7 @@ use App\Models\Tenant\ProjectInventory;
 use App\Helpers\AppHelper;
 use App\Models\Tenant\Project;
 use App\Models\Tenant\ProjectAssignedUser;
+use App\Models\Tenant\RoleHasSubModule;
 
 class InventoryStocksController extends Controller
 {
@@ -161,6 +162,10 @@ class InventoryStocksController extends Controller
     public function getMinimumStockAlert(Request $request)
     {
         $user = $request->user();
+
+        if (!AppHelper::roleHasSubModulePermission('Stock Management', RoleHasSubModule::ACTIONS['list'], $user)) {
+            return $this->sendError('You have no rights to access this action.');
+        }
 
         if (isset($user) && !empty($user)) {
 
