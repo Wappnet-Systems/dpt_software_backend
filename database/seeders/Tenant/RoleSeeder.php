@@ -4,6 +4,7 @@ namespace Database\Seeders\Tenant;
 
 use Illuminate\Database\Seeder;
 use App\Models\Tenant\Role;
+use App\Models\Tenant\RoleHasSubModule;
 
 class RoleSeeder extends Seeder
 {

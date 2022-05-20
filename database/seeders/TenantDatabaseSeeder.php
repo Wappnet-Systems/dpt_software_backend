@@ -9,6 +9,7 @@ use Database\Seeders\Tenant\MaterialTypesSeeder;
 use Database\Seeders\Tenant\ActivitySubActivityCategorySeeder;
 use Database\Seeders\Tenant\TimeSlotsSeeder;
 use Database\Seeders\Tenant\NcrSorSeeder;
+use Database\Seeders\Tenant\PermissionSeeder;
 
 class TenantDatabaseSeeder extends Seeder
 {
@@ -26,6 +27,7 @@ class TenantDatabaseSeeder extends Seeder
             ActivitySubActivityCategorySeeder::class,
             TimeSlotsSeeder::class,
             NcrSorSeeder::class,
+            // PermissionSeeder::class,
         ]);
     }
 }
