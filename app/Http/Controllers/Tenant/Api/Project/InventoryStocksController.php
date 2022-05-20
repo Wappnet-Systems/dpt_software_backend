@@ -164,7 +164,7 @@ class InventoryStocksController extends Controller
         $user = $request->user();
 
         if (!AppHelper::roleHasSubModulePermission('Stock Management', RoleHasSubModule::ACTIONS['list'], $user)) {
-            return $this->sendError('You have no rights to access this action.');
+            return $this->sendError('You have no rights to access this action.', [], 401);
         }
 
         if (isset($user) && !empty($user)) {
@@ -180,14 +180,14 @@ class InventoryStocksController extends Controller
                 foreach ($projects as $key => $value) {
                     $minimumQuantity = ProjectInventory::whereStatus(ProjectInventory::STATUS['Active'])
                         ->where('project_id', $value->id)
-                        ->where('minimum_quantity', '>', 0)->get();
+                        ->where('minimum_quantity', '>', 0)->count();
 
                     if (isset($minimumQuantity) && !empty($minimumQuantity)) {
                         $minimumQuantityArr[$key] = [
                             'project_id' => $value->id,
                             'project_uuid' => $value->uuid,
                             'project_name' => $value->name,
-                            'count' => isset($minimumQuantity) ? $minimumQuantity->count() : 0
+                            'count' => isset($minimumQuantity) ? $minimumQuantity : 0
                         ];
                     }
                 }
