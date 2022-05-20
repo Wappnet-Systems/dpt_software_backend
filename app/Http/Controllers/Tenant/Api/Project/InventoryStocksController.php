@@ -13,6 +13,7 @@ use App\Models\Tenant\ProjectInventory;
 use App\Helpers\AppHelper;
 use App\Models\Tenant\Project;
 use App\Models\Tenant\ProjectAssignedUser;
+use App\Models\Tenant\RoleHasSubModule;
 
 class InventoryStocksController extends Controller
 {
@@ -162,6 +163,10 @@ class InventoryStocksController extends Controller
     {
         $user = $request->user();
 
+        if (!AppHelper::roleHasSubModulePermission('Stock Management', RoleHasSubModule::ACTIONS['list'], $user)) {
+            return $this->sendError('You have no rights to access this action.', [], 401);
+        }
+
         if (isset($user) && !empty($user)) {
 
             $assignedProjectIds = ProjectAssignedUser::whereUserId($user->id)
@@ -175,8 +180,8 @@ class InventoryStocksController extends Controller
                 foreach ($projects as $key => $value) {
                     $minimumQuantity = ProjectInventory::whereStatus(ProjectInventory::STATUS['Active'])
                         ->where('project_id', $value->id)
-                        ->whereColumn('remaining_quantity', '<', 'minimum_quantity')->get()->count();
-                        
+                        ->where('minimum_quantity', '>', 0)->count();
+
                     if (isset($minimumQuantity) && !empty($minimumQuantity)) {
                         $minimumQuantityArr[$key] = [
                             'project_id' => $value->id,
@@ -189,13 +194,13 @@ class InventoryStocksController extends Controller
                 if (isset($minimumQuantityArr) && !empty($minimumQuantityArr)) {
                     return $this->sendResponse($minimumQuantityArr, 'Get Minimum stock alert.');
                 } else {
-                    return $this->sendError('Minimum stock not found.', [], 200);
+                    return $this->sendError('Minimum stock not found.', [], 204);
                 }
             } else {
                 return $this->sendError('Project does not exist.', [], 404);
             }
         } else {
-            return $this->sendError('User not exists.', [], 404);
+            return $this->sendError('User does not exists.', [], 404);
         }
     }
 }
