@@ -194,13 +194,13 @@ class InventoryStocksController extends Controller
                 if (isset($minimumQuantityArr) && !empty($minimumQuantityArr)) {
                     return $this->sendResponse($minimumQuantityArr, 'Get Minimum stock alert.');
                 } else {
-                    return $this->sendError('Minimum stock not found.', [], 204);
+                    return $this->sendError('Minimum stock not found.', [], 200);
                 }
             } else {
-                return $this->sendError('Project does not exist.', [], 404);
+                return $this->sendError('Project does not exist.', [], 400);
             }
         } else {
-            return $this->sendError('User does not exists.', [], 404);
+            return $this->sendError('User does not exists.', [], 400);
         }
     }
 }
