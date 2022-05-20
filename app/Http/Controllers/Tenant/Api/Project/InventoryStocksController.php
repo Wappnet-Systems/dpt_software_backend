@@ -175,21 +175,20 @@ class InventoryStocksController extends Controller
                 foreach ($projects as $key => $value) {
                     $minimumQuantity = ProjectInventory::whereStatus(ProjectInventory::STATUS['Active'])
                         ->where('project_id', $value->id)
-                        ->where('minimum_quantity', '>', 0)->get();
-
+                        ->whereColumn('remaining_quantity', '<', 'minimum_quantity')->get()->count();
                     if (isset($minimumQuantity) && !empty($minimumQuantity)) {
                         $minimumQuantityArr[$key] = [
                             'project_id' => $value->id,
                             'project_uuid' => $value->uuid,
                             'project_name' => $value->name,
-                            'count' => isset($minimumQuantity) ? $minimumQuantity->count() : 0
+                            'count' => isset($minimumQuantity) ? $minimumQuantity : 0
                         ];
                     }
                 }
                 if (isset($minimumQuantityArr) && !empty($minimumQuantityArr)) {
                     return $this->sendResponse($minimumQuantityArr, 'Get Minimum stock alert.');
                 } else {
-                    return $this->sendError('Minimum stock not found.', [], 404);
+                    return $this->sendError('Minimum stock not found.', [], 200);
                 }
             } else {
                 return $this->sendError('Project does not exist.', [], 404);
