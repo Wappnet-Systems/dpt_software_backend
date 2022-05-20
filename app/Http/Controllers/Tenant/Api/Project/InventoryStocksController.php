@@ -176,6 +176,7 @@ class InventoryStocksController extends Controller
                     $minimumQuantity = ProjectInventory::whereStatus(ProjectInventory::STATUS['Active'])
                         ->where('project_id', $value->id)
                         ->whereColumn('remaining_quantity', '<', 'minimum_quantity')->get()->count();
+                        
                     if (isset($minimumQuantity) && !empty($minimumQuantity)) {
                         $minimumQuantityArr[$key] = [
                             'project_id' => $value->id,
