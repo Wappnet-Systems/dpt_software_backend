@@ -56,22 +56,29 @@ class ReportController extends Controller
 
                 $getStatistics = [];
 
-                $getStatistics['projects']['yet_to_start'] = Project::whereIn('id', $assignedProjectIds)->whereStatus(Project::STATUS['Yet to Start'])->count();
-                $getStatistics['projects']['in_progress'] = Project::whereIn('id', $assignedProjectIds)->whereStatus(Project::STATUS['In Progress'])->count();
-                $getStatistics['projects']['completed'] = Project::whereIn('id', $assignedProjectIds)->whereStatus(Project::STATUS['Completed'])->count();
+                if (isset($assignedProjectIds) && count($assignedProjectIds)) {
+                    $getStatistics['projects']['yet_to_start'] = Project::whereIn('id', $assignedProjectIds)->whereStatus(Project::STATUS['Yet to Start'])->count();
+                    $getStatistics['projects']['in_progress'] = Project::whereIn('id', $assignedProjectIds)->whereStatus(Project::STATUS['In Progress'])->count();
+                    $getStatistics['projects']['completed'] = Project::whereIn('id', $assignedProjectIds)->whereStatus(Project::STATUS['Completed'])->count();
 
-                $getStatistics['projects_activities']['Pending'] = ProjectActivity::whereIn('project_id', $assignedProjectIds)->whereStatus(ProjectActivity::STATUS['Pending'])->count();
-                $getStatistics['projects_activities']['Start'] = ProjectActivity::whereIn('project_id', $assignedProjectIds)->whereStatus(ProjectActivity::STATUS['Start'])->count();
-                $getStatistics['projects_activities']['Hold'] = ProjectActivity::whereIn('project_id', $assignedProjectIds)->whereStatus(ProjectActivity::STATUS['Hold'])->count();
-                $getStatistics['projects_activities']['Completed'] = ProjectActivity::whereIn('project_id', $assignedProjectIds)->whereStatus(ProjectActivity::STATUS['Completed'])->count();
+                    foreach ($assignedProjectIds as $key => $projectId) {
+                        $getStatistics['projects_activities'][$key]['project_name'] = Project::where('id', $projectId)->value('name');
+                        $getStatistics['projects_activities'][$key]['Pending'] = ProjectActivity::where('project_id', $projectId)->whereStatus(ProjectActivity::STATUS['Pending'])->count();
+                        $getStatistics['projects_activities'][$key]['Start'] = ProjectActivity::where('project_id', $projectId)->whereStatus(ProjectActivity::STATUS['Start'])->count();
+                        $getStatistics['projects_activities'][$key]['Hold'] = ProjectActivity::where('project_id', $projectId)->whereStatus(ProjectActivity::STATUS['Hold'])->count();
+                        $getStatistics['projects_activities'][$key]['Completed'] = ProjectActivity::where('project_id', $projectId)->whereStatus(ProjectActivity::STATUS['Completed'])->count();
+                    }
 
-                if (isset($getStatistics) && !empty($getStatistics)) {
-                    return $this->sendResponse($getStatistics, 'Project reports.');
+                    if (isset($getStatistics) && !empty($getStatistics)) {
+                        return $this->sendResponse($getStatistics, 'Project reports.');
+                    } else {
+                        return $this->sendError('No project report found.', [], 200);
+                    }
                 } else {
-                    return $this->sendError('No project report found.', [], 204);
+                    return $this->sendError('Project does not exists.', [], 400);
                 }
             } else {
-                return $this->sendError('User does not exists.', [], 404);
+                return $this->sendError('User does not exists.', [], 400);
             }
         } catch (\Exception $e) {
             Log::error($e->getMessage());
