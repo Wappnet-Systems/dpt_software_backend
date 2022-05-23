@@ -66,10 +66,10 @@ class MainActivitiesController extends Controller
             'project_id' => Project::whereUuid($request->project_id ?? '')->value('id')
         ]);
 
-        $query = ProjectMainActivity::with('project', 'activitySubCategory')
+        $query = ProjectMainActivity::with('project')
             ->whereProjectId($request->project_id ?? '')
             ->whereStatus(ProjectMainActivity::STATUS['Active'])
-            ->select('id', 'project_id', 'activity_sub_category_id', 'name', 'status', 'created_by')
+            ->select('id', 'project_id', 'name', 'status', 'created_by')
             ->orderby('id', $orderBy);
 
         $totalQuery = $query;
@@ -107,9 +107,9 @@ class MainActivitiesController extends Controller
             return $this->sendError('You have no rights to access this action.');
         } */
 
-        $proMainActivity = ProjectMainActivity::with('project', 'activitySubCategory')
+        $proMainActivity = ProjectMainActivity::with('project')
             ->whereId($request->id ?? '')
-            ->select('id', 'project_id', 'activity_sub_category_id', 'name', 'status', 'created_by')
+            ->select('id', 'project_id', 'name', 'status', 'created_by')
             ->first();
 
         if (!isset($proMainActivity) || empty($proMainActivity)) {
@@ -131,7 +131,7 @@ class MainActivitiesController extends Controller
             if (isset($user) && !empty($user)) {
                 $validator = Validator::make($request->all(), [
                     'project_id' => 'required|exists:projects,id',
-                    'activity_sub_category_id' => 'required|exists:activity_sub_categories,id',
+                    // 'activity_sub_category_id' => 'required|exists:activity_sub_categories,id',
                     'name' => 'required',
                 ]);
 
@@ -144,7 +144,7 @@ class MainActivitiesController extends Controller
                 // Create new project activity
                 $proMainActivity = new ProjectMainActivity();
                 $proMainActivity->project_id = $request->project_id;
-                $proMainActivity->activity_sub_category_id = $request->activity_sub_category_id;
+                // $proMainActivity->activity_sub_category_id = $request->activity_sub_category_id;
                 $proMainActivity->name = $request->name;
                 $proMainActivity->created_by = $user->id;
                 $proMainActivity->created_ip = $request->ip();
@@ -177,7 +177,7 @@ class MainActivitiesController extends Controller
             if (isset($user) && !empty($user)) {
                 $validator = Validator::make($request->all(), [
                     'project_id' => 'exists:projects,id',
-                    'activity_sub_category_id' => 'exists:activity_sub_categories,id',
+                    // 'activity_sub_category_id' => 'exists:activity_sub_categories,id',
                 ]);
 
                 if ($validator->fails()) {
@@ -193,7 +193,7 @@ class MainActivitiesController extends Controller
                 }
 
                 if ($request->filled('project_id')) $proMainActivity->project_id = $request->project_id;
-                if ($request->filled('activity_sub_category_id')) $proMainActivity->activity_sub_category_id = $request->activity_sub_category_id;
+                // if ($request->filled('activity_sub_category_id')) $proMainActivity->activity_sub_category_id = $request->activity_sub_category_id;
                 if ($request->filled('name')) $proMainActivity->name = $request->name;
                 $proMainActivity->updated_ip = $request->ip();
 

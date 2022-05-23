@@ -75,9 +75,10 @@ class ActivitiesController extends Controller
             $query->where('project_id', $request->project_id ?? '');
         }]); */
 
-        $proActivities = ProjectMainActivity::with('projectActivities', 'activitySubCategory')
+        $proActivities = ProjectMainActivity::with('projectActivities')
             ->where('project_id', $request->project_id ?? '')
-            ->select('id', 'project_id', 'activity_sub_category_id', 'name', 'status', 'created_by')
+            ->select('id', 'project_id', 'name', 'status', 'created_by')
+            ->orderBy('id', 'DESC')
             ->get();
 
         return $this->sendResponse($proActivities, 'Activities List');
@@ -119,14 +120,15 @@ class ActivitiesController extends Controller
                 $validator = Validator::make($request->all(), [
                     'project_id' => 'exists:projects,id',
                     'project_main_activity_id' => 'required|exists:projects_main_activities,id',
+                    'activity_sub_category_id' => 'exists:activity_sub_categories,id',
                     'name' => 'required',
                     // 'scaffold_number' => 'required',
                     'start_date' => 'required|date_format:Y-m-d',
                     'end_date' => 'required|date_format:Y-m-d',
-                    'location' => 'required',
-                    'level' => 'required',
-                    'actual_area' => 'required',
-                    'cost' => 'required',
+                    // 'location' => 'required',
+                    // 'level' => 'required',
+                    // 'actual_area' => 'required',
+                    // 'cost' => 'required',
                 ]);
 
                 if ($validator->fails()) {
@@ -139,13 +141,14 @@ class ActivitiesController extends Controller
                 $proActivity = new ProjectActivity();
                 $proActivity->project_id = $request->project_id;
                 $proActivity->project_main_activity_id = $request->project_main_activity_id;
+                $proActivity->activity_sub_category_id = $request->activity_sub_category_id ?? null;
                 $proActivity->name = $request->name;
                 $proActivity->scaffold_number = empty($request->scaffold_number) ? $request->scaffold_number : null;
                 $proActivity->start_date = !empty($request->start_date) ? date('Y-m-d H:i:s', strtotime($request->start_date)) : NULL;
                 $proActivity->end_date = !empty($request->end_date) ? date('Y-m-d H:i:s', strtotime($request->end_date)) : NULL;
                 $proActivity->actual_start_date = !empty($request->start_date) ? date('Y-m-d H:i:s', strtotime($request->start_date)) : NULL;
                 $proActivity->actual_end_date = !empty($request->end_date) ? date('Y-m-d H:i:s', strtotime($request->end_date)) : NULL;
-                $proActivity->location = $request->location;
+                $proActivity->location = !empty($request->location) ? $request->location : null;
                 $proActivity->level = !empty($request->level) ? $request->level : null;
                 $proActivity->actual_area = !empty($request->actual_area) ? $request->actual_area : null;
                 $proActivity->cost = !empty($request->cost) ? $request->cost : null;
@@ -180,6 +183,7 @@ class ActivitiesController extends Controller
             if (isset($user) && !empty($user)) {
                 $validator = Validator::make($request->all(), [
                     'project_main_activity_id' => 'exists:projects_main_activities,id',
+                    'activity_sub_category_id' => 'exists:activity_sub_categories,id',
                     'start_date' => 'date_format:Y-m-d',
                     'end_date' => 'date_format:Y-m-d',
                     /* 'name' => 'required',
@@ -201,6 +205,7 @@ class ActivitiesController extends Controller
                 }
 
                 if ($request->filled('project_main_activity_id')) $proActivity->project_main_activity_id = $request->project_main_activity_id;
+                if ($request->filled('activity_sub_category_id')) $proActivity->activity_sub_category_id = $request->activity_sub_category_id ?? null;
                 if ($request->filled('name')) $proActivity->name = $request->name;
                 if ($request->filled('scaffold_number')) $proActivity->scaffold_number = $request->scaffold_number;
                 if ($request->filled('start_date')) $proActivity->start_date = !empty($request->start_date) ? date('Y-m-d H:i:s', strtotime($request->start_date)) : NULL;
