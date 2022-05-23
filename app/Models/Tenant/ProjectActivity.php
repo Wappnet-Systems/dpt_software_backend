@@ -49,7 +49,13 @@ class ProjectActivity extends Model
     public function mainActivity()
     {
         return $this->belongsTo(ProjectMainActivity::class, 'project_main_activity_id', 'id')
-            ->with('activitySubCategory')
-            ->select('id', 'activity_sub_category_id', 'project_id', 'name', 'status', 'created_by');
+            ->select('id', 'project_id', 'name', 'status', 'created_by');
+    }
+
+    public function activitySubCategory()
+    {
+        return $this->belongsTo(ActivitySubCategory::class, 'activity_sub_category_id', 'id')
+            ->with('activityCategory', 'unitType')
+            ->select('id', 'activity_category_id', 'unit_type_id', 'name', 'status');
     }
 }

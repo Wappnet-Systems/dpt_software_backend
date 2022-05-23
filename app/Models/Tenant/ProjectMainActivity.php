@@ -45,16 +45,10 @@ class ProjectMainActivity extends Model
             ->select('id', 'name', 'logo', 'address', 'lat', 'long', 'city', 'state', 'country', 'zip_code', 'start_date', 'end_date', 'cost', 'status');
     }
 
-    public function activitySubCategory()
-    {
-        return $this->belongsTo(ActivitySubCategory::class, 'activity_sub_category_id', 'id')
-            ->with('activityCategory', 'unitType')
-            ->select('id', 'activity_category_id', 'unit_type_id', 'name', 'status');
-    }
-
     public function projectActivities()
     {
         return $this->hasMany(ProjectActivity::class, 'project_main_activity_id', 'id')
-            ->select('id', 'project_id', 'project_main_activity_id', 'name', 'scaffold_number', 'start_date', 'end_date', 'actual_start_date', 'actual_end_date', 'location', 'level', 'actual_area', 'completed_area', 'cost', 'status', 'productivity_rate', 'created_by');
+            ->with('activitySubCategory')
+            ->select('id', 'project_id', 'project_main_activity_id', 'activity_sub_category_id', 'name', 'scaffold_number', 'start_date', 'end_date', 'actual_start_date', 'actual_end_date', 'location', 'level', 'actual_area', 'completed_area', 'cost', 'status', 'productivity_rate', 'created_by');
     }
 }
