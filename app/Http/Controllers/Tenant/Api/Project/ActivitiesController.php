@@ -107,6 +107,25 @@ class ActivitiesController extends Controller
         return $this->sendResponse($proActivity, 'Activity details get.');
     }
 
+    public function getActivityByMainActivity(Request $request)
+    {
+        $user = $request->user();
+
+        /* if (!AppHelper::roleHasSubModulePermission('Activity Settings', RoleHasSubModule::ACTIONS['view'], $user)) {
+            return $this->sendError('You have no rights to access this action.');
+        } */
+
+        $proActivities = ProjectMainActivity::with('project', 'projectActivities')
+            ->whereId($request->id)
+            ->first();
+
+        if (!isset($proActivities) || empty($proActivities)) {
+            return $this->sendError('Activity does not exists.', [], 404);
+        }
+
+        return $this->sendResponse($proActivities, 'Sub Activity list by main activity get.');
+    }
+
     public function addActivity(Request $request)
     {
         try {
@@ -118,9 +137,11 @@ class ActivitiesController extends Controller
 
             if (isset($user) && !empty($user)) {
                 $validator = Validator::make($request->all(), [
-                    'project_id' => 'exists:projects,id',
+                    'project_id' => 'required|exists:projects,id',
                     'project_main_activity_id' => 'required|exists:projects_main_activities,id',
                     'activity_sub_category_id' => 'exists:activity_sub_categories,id',
+                    'manforce_type_id' => 'exists:manforce_types,id',
+                    'unit_type_id' => 'exists:unit_types,id',
                     'name' => 'required',
                     // 'scaffold_number' => 'required',
                     // 'start_date' => 'required|date_format:Y-m-d',
@@ -142,8 +163,8 @@ class ActivitiesController extends Controller
                 $proActivity->project_id = $request->project_id;
                 $proActivity->project_main_activity_id = $request->project_main_activity_id;
                 $proActivity->activity_sub_category_id = $request->activity_sub_category_id ?? null;
+                $proActivity->manforce_type_id = $request->manforce_type_id ?? null;
                 $proActivity->name = $request->name;
-                $proActivity->scaffold_number = empty($request->scaffold_number) ? $request->scaffold_number : null;
                 $proActivity->start_date = !empty($request->start_date) ? date('Y-m-d H:i:s', strtotime($request->start_date)) : NULL;
                 $proActivity->end_date = !empty($request->end_date) ? date('Y-m-d H:i:s', strtotime($request->end_date)) : NULL;
                 $proActivity->actual_start_date = !empty($request->start_date) ? date('Y-m-d H:i:s', strtotime($request->start_date)) : NULL;
@@ -151,7 +172,10 @@ class ActivitiesController extends Controller
                 $proActivity->location = !empty($request->location) ? $request->location : null;
                 $proActivity->level = !empty($request->level) ? $request->level : null;
                 $proActivity->actual_area = !empty($request->actual_area) ? $request->actual_area : null;
+                $proActivity->unit_type_id = $request->unit_type_id ?? null;
                 $proActivity->cost = !empty($request->cost) ? $request->cost : null;
+                $proActivity->scaffold_requirement = boolval($request->scaffold_requirement);
+                $proActivity->helper = boolval($request->helper);
                 $proActivity->created_by = $user->id;
                 $proActivity->created_ip = $request->ip();
                 $proActivity->updated_ip = $request->ip();
@@ -184,6 +208,8 @@ class ActivitiesController extends Controller
                 $validator = Validator::make($request->all(), [
                     'project_main_activity_id' => 'exists:projects_main_activities,id',
                     'activity_sub_category_id' => 'exists:activity_sub_categories,id',
+                    'manforce_type_id' => 'exists:manforce_types,id',
+                    'unit_type_id' => 'exists:unit_types,id',
                     // 'start_date' => 'date_format:Y-m-d',
                     // 'end_date' => 'date_format:Y-m-d',
                     /* 'name' => 'required',
@@ -206,8 +232,8 @@ class ActivitiesController extends Controller
 
                 if ($request->filled('project_main_activity_id')) $proActivity->project_main_activity_id = $request->project_main_activity_id;
                 if ($request->filled('activity_sub_category_id')) $proActivity->activity_sub_category_id = $request->activity_sub_category_id ?? null;
+                if ($request->filled('manforce_type_id')) $proActivity->manforce_type_id = $request->manforce_type_id ?? null;
                 if ($request->filled('name')) $proActivity->name = $request->name;
-                if ($request->filled('scaffold_number')) $proActivity->scaffold_number = $request->scaffold_number;
                 if ($request->filled('start_date')) $proActivity->start_date = !empty($request->start_date) ? date('Y-m-d H:i:s', strtotime($request->start_date)) : NULL;
                 if ($request->filled('end_date')) $proActivity->end_date = !empty($request->end_date) ? date('Y-m-d H:i:s', strtotime($request->end_date)) : NULL;
                 if ($request->filled('start_date')) $proActivity->actual_start_date = !empty($request->start_date) ? date('Y-m-d H:i:s', strtotime($request->start_date)) : NULL;
@@ -215,7 +241,10 @@ class ActivitiesController extends Controller
                 if ($request->filled('location')) $proActivity->location = $request->location;
                 if ($request->filled('level')) $proActivity->level = $request->level;
                 if ($request->filled('actual_area')) $proActivity->actual_area = $request->actual_area;
+                if ($request->filled('unit_type_id')) $proActivity->unit_type_id = $request->unit_type_id ?? null;
                 if ($request->filled('cost')) $proActivity->cost = $request->cost;
+                if ($request->filled('scaffold_requirement')) $proActivity->scaffold_requirement = boolval($request->scaffold_requirement);
+                if ($request->filled('helper')) $proActivity->helper = boolval($request->helper);
                 $proActivity->updated_ip = $request->ip();
 
                 if (!$proActivity->save()) {
@@ -299,6 +328,60 @@ class ActivitiesController extends Controller
             }
 
             return $this->sendError('Activity does not exists.', [], 404);
+        } catch (\Exception $e) {
+            Log::error($e->getMessage());
+
+            return $this->sendError('Something went wrong!', [], 500);
+        }
+    }
+
+    public function updateActivityProperty(Request $request, $id = null) {
+        try {
+            $user = $request->user();
+
+            $proMainActivity = ProjectMainActivity::whereId($request->id)->first();
+
+            if (!isset($proMainActivity) || empty($proMainActivity)) {
+                return $this->sendError('Activity does not exists.', [], 404);
+            }
+
+            if (!isset($request->activities) || empty($request->activities)) {
+                return $this->sendError('Invalid request data.', [], 400);
+            }
+
+            foreach ($request->activities as $key => $activity) {
+                $proActivity = ProjectActivity::whereId($activity['id'] ?? '')->first();
+
+                if (isset($proActivity) && !empty($proActivity)) {
+                    if (isset($activity['name']) && !empty($activity['name'])) {
+                        $proActivity->name = $activity['name'];
+                    }
+
+                    if (isset($activity['start_date']) && !empty($activity['start_date'])) {
+                        $proActivity->start_date = date('Y-m-d H:i:s', strtotime($activity['start_date']));
+                        $proActivity->actual_start_date = date('Y-m-d H:i:s', strtotime($activity['start_date']));
+                    }
+                    
+                    if (isset($activity['end_date']) && !empty($activity['end_date'])) {
+                        $proActivity->end_date = date('Y-m-d H:i:s', strtotime($activity['end_date']));
+                        $proActivity->actual_end_date = date('Y-m-d H:i:s', strtotime($activity['end_date']));
+                    }
+
+                    $proActivity->activity_sub_category_id = $activity['activity_sub_category_id'] ?? null;
+                    $proActivity->manforce_type_id = $activity['manforce_type_id'] ?? null;
+                    $proActivity->location = $activity['location'] ?? null;
+                    $proActivity->level = $activity['level'] ?? null;
+                    $proActivity->actual_area = $activity['actual_area'] ?? null;
+                    $proActivity->unit_type_id = $activity['unit_type_id'] ?? null;
+                    $proActivity->cost = $activity['cost'] ?? null;
+                    $proActivity->scaffold_requirement = boolval($activity['scaffold_requirement']);
+                    $proActivity->helper = boolval($activity['helper']);
+                    $proActivity->updated_ip = $request->ip();
+                    $proActivity->save();
+                }
+            }
+
+            return $this->sendResponse([], 'Activity property updated successfully.');
         } catch (\Exception $e) {
             Log::error($e->getMessage());
 

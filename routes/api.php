@@ -216,8 +216,10 @@ Route::middleware('auth:sanctum')->group(function () {
     /* Projects Activity Management Routes */
     Route::get('project/activity/get/lists', [ActivitiesController::class, 'getActivities']);
     Route::get('project/activity/get/{id}', [ActivitiesController::class, 'getActivityDetails']);
+    Route::get('project/activity/get/by-main-activity/{id}', [ActivitiesController::class, 'getActivityByMainActivity']);
     Route::post('project/activity/add', [ActivitiesController::class, 'addActivity']);
     Route::put('project/activity/update/{id}', [ActivitiesController::class, 'updateActivity']);
+    Route::put('project/activity/property/update/{id}', [ActivitiesController::class, 'updateActivityProperty']);
     Route::patch('project/activity/status/change/{id}', [ActivitiesController::class, 'changeActivityStatus']);
     Route::delete('project/activity/delete/{id}', [ActivitiesController::class, 'deleteActivity']);
 

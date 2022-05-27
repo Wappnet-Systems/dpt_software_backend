@@ -58,4 +58,16 @@ class ProjectActivity extends Model
             ->with('activityCategory', 'unitType')
             ->select('id', 'activity_category_id', 'unit_type_id', 'name', 'status');
     }
+
+    public function unitType()
+    {
+        return $this->belongsTo(UnitType::class, 'unit_type_id', 'id')
+            ->select('id', 'name', 'status');
+    }
+    
+    public function manforceType()
+    {
+        return $this->belongsTo(ManforceType::class, 'manforce_type_id', 'id')
+            ->select('id', 'name', 'status');
+    }
 }
