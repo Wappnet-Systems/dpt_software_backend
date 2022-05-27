@@ -21,8 +21,8 @@ class CreateProjectsActivitiesTable extends Migration
             $table->foreignId('project_id')->constrained('projects')->cascadeOnUpdate()->cascadeOnDelete();
             $table->foreignId('project_main_activity_id')->constrained('projects_main_activities')->cascadeOnUpdate()->cascadeOnDelete();
             $table->foreignId('activity_sub_category_id')->constrained('activity_sub_categories')->cascadeOnUpdate()->cascadeOnDelete();
+            $table->foreignId('manforce_type_id')->constrained('manforce_types')->cascadeOnUpdate()->cascadeOnDelete();
             $table->string('name', 50);
-            $table->bigInteger('scaffold_number')->nullable();
             $table->timestamp('start_date')->nullable();
             $table->timestamp('end_date')->nullable();
             $table->timestamp('actual_start_date')->nullable();
@@ -31,7 +31,10 @@ class CreateProjectsActivitiesTable extends Migration
             $table->string('level', 30)->nullable();
             $table->double('actual_area', 50)->nullable();
             $table->double('completed_area', 50)->nullable();
+            $table->foreignId('unit_type_id')->constrained('unit_types')->cascadeOnUpdate()->cascadeOnDelete();
             $table->double('cost')->nullable();
+            $table->boolean('scaffold_requirement')->default(false);
+            $table->boolean('helper')->default(false);
             $table->tinyInteger('status')->default(1)->comment('1 - Pending, 2 - Start, 3 - Hold, 4 - Completed');
             $table->integer('productivity_rate')->nullable();
             $table->unsignedBigInteger('created_by')->nullable();
