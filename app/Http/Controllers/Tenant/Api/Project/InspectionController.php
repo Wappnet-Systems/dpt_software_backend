@@ -68,7 +68,6 @@ class InspectionController extends Controller
                 });
             }
 
-
             $totalQuery = $query;
             $totalQuery = $totalQuery->count();
 
@@ -123,6 +122,7 @@ class InspectionController extends Controller
                 $validator = Validator::make($request->all(), [
                     'project_id' => 'required|exists:projects,id',
                     'project_activity_id' => 'required|exists:projects_activities,id',
+                    'project_allocate_material_id' => 'exists:projects_activities_allocate_materials,id',
                     'inspection_no' => 'required|numeric|digits_between:10,30',
                     'inspection_date' => 'required|date_format:Y-m-d',
                     'location' => 'required',
@@ -141,6 +141,7 @@ class InspectionController extends Controller
                 $projectInspection = new ProjectInspection();
                 $projectInspection->project_id = $request->project_id;
                 $projectInspection->project_activity_id = $request->project_activity_id;
+                $projectInspection->project_allocate_material_id = $request->project_allocate_material_id ?? null;
                 $projectInspection->inspection_no = $request->inspection_no;
                 $projectInspection->inspection_date = date('Y-m-d', strtotime($request->inspection_date));
                 $projectInspection->location = $request->location;
@@ -180,6 +181,7 @@ class InspectionController extends Controller
 
             if (isset($user) && !empty($user)) {
                 $validator = Validator::make($request->all(), [
+                    'project_allocate_material_id' => 'exists:projects_activities_allocate_materials,id',
                     'inspection_no' => 'required|numeric|digits_between:10,30',
                     'inspection_date' => 'required|date_format:Y-m-d',
                     'location' => 'required',
@@ -203,6 +205,7 @@ class InspectionController extends Controller
                     return $this->sendError('Project inspection does not exists.');
                 }
 
+                if ($request->filled('project_allocate_material_id')) $projectInspection->project_allocate_material_id = $request->project_allocate_material_id ?? null;
                 if ($request->filled('inspection_no')) $projectInspection->inspection_no = $request->inspection_no;
                 if ($request->filled('inspection_date')) $projectInspection->inspection_date = date('Y-m-d', strtotime($request->inspection_date));
                 if ($request->filled('location')) $projectInspection->location = $request->location;
