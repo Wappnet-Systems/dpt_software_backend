@@ -40,18 +40,6 @@ class ProjectActivity extends Model
         return null;
     }
 
-    public function project()
-    {
-        return $this->belongsTo(Project::class, 'project_id', 'id')
-            ->select('id', 'name', 'logo', 'address', 'lat', 'long', 'city', 'state', 'country', 'zip_code', 'start_date', 'end_date', 'cost', 'status');
-    }
-
-    public function mainActivity()
-    {
-        return $this->belongsTo(ProjectMainActivity::class, 'project_main_activity_id', 'id')
-            ->select('id', 'project_id', 'name', 'status', 'created_by');
-    }
-
     public function activitySubCategory()
     {
         return $this->belongsTo(ActivitySubCategory::class, 'activity_sub_category_id', 'id')
@@ -69,5 +57,23 @@ class ProjectActivity extends Model
     {
         return $this->belongsTo(ManforceType::class, 'manforce_type_id', 'id')
             ->select('id', 'name', 'status');
+    }
+
+    public function project()
+    {
+        return $this->belongsTo(Project::class, 'project_id', 'id')
+            ->select('id', 'name', 'logo', 'address', 'lat', 'long', 'city', 'state', 'country', 'zip_code', 'start_date', 'end_date', 'cost', 'status');
+    }
+
+    public function mainActivity()
+    {
+        return $this->belongsTo(ProjectMainActivity::class, 'project_main_activity_id', 'id')
+            ->select('id', 'project_id', 'name', 'status', 'created_by');
+    }
+
+    public function projectInspections()
+    {
+        return $this->hasMany(ProjectInspection::class, 'project_activity_id', 'id')
+            ->select('id', 'project_activity_id', 'project_allocate_material_id', 'inspection_no', 'inspection_date', 'approve_reject_date', 'location', 'document', 'inspection_type', 'type', 'inspection_status', 'status');
     }
 }
