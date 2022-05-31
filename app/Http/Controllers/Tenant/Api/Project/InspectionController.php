@@ -12,6 +12,7 @@ use App\Models\System\User;
 use App\Models\Tenant\ProjectInspection;
 use App\Helpers\AppHelper;
 use App\Helpers\UploadFile;
+use App\Models\Tenant\ProjectActivityAllocateMaterial;
 use Illuminate\Support\Facades\Log;
 
 class InspectionController extends Controller
@@ -107,7 +108,7 @@ class InspectionController extends Controller
             ->first();
 
         if (!isset($projectInspection) || empty($projectInspection)) {
-            return $this->sendError('Project inspection does not exists.');
+            return $this->sendError('Project inspection does not exists.', [], 404);
         }
 
         return $this->sendResponse($projectInspection, 'Project inspection details.');
@@ -122,7 +123,6 @@ class InspectionController extends Controller
                 $validator = Validator::make($request->all(), [
                     'project_id' => 'required|exists:projects,id',
                     'project_activity_id' => 'required|exists:projects_activities,id',
-                    'project_allocate_material_id' => 'exists:projects_activities_allocate_materials,id',
                     'inspection_no' => 'required|numeric|digits_between:10,30',
                     'inspection_date' => 'required|date_format:Y-m-d',
                     'location' => 'required',
@@ -135,6 +135,12 @@ class InspectionController extends Controller
                 if ($validator->fails()) {
                     foreach ($validator->errors()->messages() as $key => $value) {
                         return $this->sendError('Validation Error.', [$key => $value[0]], 400);
+                    }
+                }
+
+                if (isset($request->project_allocate_material_id) && !empty($request->project_allocate_material_id)) {
+                    if (!ProjectActivityAllocateMaterial::whereId($request->project_allocate_material_id)->exists()) {
+                        return $this->sendError('Allocated material does not exists.', [], 404);
                     }
                 }
 
@@ -160,12 +166,12 @@ class InspectionController extends Controller
                 $projectInspection->updated_ip = $request->ip();
 
                 if (!$projectInspection->save()) {
-                    return $this->sendError('Something went wrong while creating the project inspection.');
+                    return $this->sendError('Something went wrong while creating the project inspection.', [], 500);
                 }
 
                 return $this->sendResponse([], 'Project inspection created successfully.');
             } else {
-                return $this->sendError('User not exists.');
+                return $this->sendError('User not exists.', [], 404);
             }
         } catch (\Exception $e) {
             Log::error($e->getMessage());
@@ -181,7 +187,6 @@ class InspectionController extends Controller
 
             if (isset($user) && !empty($user)) {
                 $validator = Validator::make($request->all(), [
-                    'project_allocate_material_id' => 'exists:projects_activities_allocate_materials,id',
                     'inspection_no' => 'required|numeric|digits_between:10,30',
                     'inspection_date' => 'required|date_format:Y-m-d',
                     'location' => 'required',
@@ -197,12 +202,18 @@ class InspectionController extends Controller
                     }
                 }
 
+                if (isset($request->project_allocate_material_id) && !empty($request->project_allocate_material_id)) {
+                    if (!ProjectActivityAllocateMaterial::whereId($request->project_allocate_material_id)->exists()) {
+                        return $this->sendError('Allocated material does not exists.', [], 404);
+                    }
+                }
+
                 $projectInspection = ProjectInspection::whereId($request->id)
                     ->where('inspection_status', ProjectInspection::INC_STATUS['Pending'])
                     ->first();
 
                 if (!isset($projectInspection) || empty($projectInspection)) {
-                    return $this->sendError('Project inspection does not exists.');
+                    return $this->sendError('Project inspection does not exists.', [], 404);
                 }
 
                 if ($request->filled('project_allocate_material_id')) $projectInspection->project_allocate_material_id = $request->project_allocate_material_id ?? null;
@@ -226,12 +237,12 @@ class InspectionController extends Controller
                 $projectInspection->updated_ip = $request->ip();
 
                 if (!$projectInspection->save()) {
-                    return $this->sendError('Something went wrong while updating the project inspection');
+                    return $this->sendError('Something went wrong while updating the project inspection', [], 500);
                 }
 
                 return $this->sendResponse([], 'Project inspection updated successfully.');
             } else {
-                return $this->sendError('User not exists.');
+                return $this->sendError('User not exists.', [], 404);
             }
         } catch (\Exception $e) {
             Log::error($e->getMessage());
@@ -251,14 +262,14 @@ class InspectionController extends Controller
                     ->first();
 
                 if (!isset($projectInspection) || empty($projectInspection)) {
-                    return $this->sendError('Project inspection does not exists.');
+                    return $this->sendError('Project inspection does not exists.', [], 404);
                 }
 
                 $projectInspection->delete();
 
                 return $this->sendResponse([], 'Project inspection deleted Successfully.');
             } else {
-                return $this->sendError('User does not exists.');
+                return $this->sendError('User does not exists.', [], 404);
             }
         } catch (\Exception $e) {
             Log::error($e->getMessage());
@@ -284,7 +295,7 @@ class InspectionController extends Controller
                 }
 
                 if (!in_array($request->status, ProjectInspection::STATUS)) {
-                    return $this->sendError('Invalid status requested.');
+                    return $this->sendError('Invalid status requested.', [], 400);
                 }
 
                 $projectInspection = ProjectInspection::whereId($request->id)
@@ -292,7 +303,7 @@ class InspectionController extends Controller
                     ->first();
 
                 if (!isset($projectInspection) || empty($projectInspection)) {
-                    return $this->sendError('Project inspection does not exists.');
+                    return $this->sendError('Project inspection does not exists.', [], 404);
                 }
 
                 $projectInspection->status = $request->status;
@@ -302,7 +313,7 @@ class InspectionController extends Controller
 
                 return $this->sendResponse($projectInspection, 'Status changed successfully.');
             } else {
-                return $this->sendError('User not exists.');
+                return $this->sendError('User not exists.', [], 404);
             }
         } catch (\Exception $e) {
             Log::error($e->getMessage());
@@ -327,16 +338,16 @@ class InspectionController extends Controller
                     }
                 }
 
+                if (!in_array($request->inspection_status, ProjectInspection::INC_STATUS)) {
+                    return $this->sendError('Invalid status requested.', [], 400);
+                }
+
                 $projectInspection = ProjectInspection::whereId($request->id)
                     ->where('inspection_status', ProjectInspection::INC_STATUS['Pending'])
                     ->first();
 
                 if (!isset($projectInspection) || empty($projectInspection)) {
-                    return $this->sendError('Project inspection does not exists.');
-                }
-
-                if (!in_array($request->inspection_status, ProjectInspection::INC_STATUS)) {
-                    return $this->sendError('Invalid status requested.');
+                    return $this->sendError('Project inspection does not exists.', [], 404);
                 }
 
                 if ($request->inspection_status == ProjectInspection::INC_STATUS['Rejected']) {
@@ -366,7 +377,7 @@ class InspectionController extends Controller
 
                 return $this->sendResponse($projectInspection, 'Status changed successfully.');
             } else {
-                return $this->sendError('User does not exists.');
+                return $this->sendError('User does not exists.', [], 404);
             }
         } catch (\Exception $e) {
             Log::error($e->getMessage());
