@@ -48,7 +48,7 @@ class ProjectMainActivity extends Model
     public function projectActivities()
     {
         return $this->hasMany(ProjectActivity::class, 'project_main_activity_id', 'id')
-            ->with('projectInspections', 'activitySubCategory', 'unitType', 'manforceType')
+            ->with('projectInspections', 'assignedUsers', 'activitySubCategory', 'unitType', 'manforceType')
             ->select('id', 'project_id', 'project_main_activity_id', 'activity_sub_category_id', 'manforce_type_id', 'name', 'start_date', 'end_date', 'actual_start_date', 'actual_end_date', 'location', 'level', 'actual_area', 'completed_area', 'unit_type_id', 'cost', 'scaffold_requirement', 'helper', 'status', 'productivity_rate', 'created_by');
     }
 }

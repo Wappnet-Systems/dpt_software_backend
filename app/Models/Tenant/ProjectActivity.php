@@ -71,6 +71,11 @@ class ProjectActivity extends Model
             ->select('id', 'project_id', 'name', 'status', 'created_by');
     }
 
+    public function assignedUsers()
+    {
+        return $this->hasMany(ProjectActivityAssignedUser::class, 'project_activity_id', 'id');
+    }
+    
     public function projectInspections()
     {
         return $this->hasMany(ProjectInspection::class, 'project_activity_id', 'id')

@@ -13,6 +13,7 @@ use App\Helpers\AppHelper;
 use App\Models\Tenant\ActivitySubCategory;
 use App\Models\Tenant\Project;
 use App\Models\Tenant\ProjectActivity;
+use App\Models\Tenant\ProjectActivityAssignedUser;
 use App\Models\Tenant\ProjectMainActivity;
 use App\Models\Tenant\RoleHasSubModule;
 use Illuminate\Support\Facades\Log;
@@ -75,11 +76,26 @@ class ActivitiesController extends Controller
             $query->where('project_id', $request->project_id ?? '');
         }]); */
 
-        $proActivities = ProjectMainActivity::with('projectActivities')
-            ->where('project_id', $request->project_id ?? '')
+        $assignProActivityIds = ProjectActivityAssignedUser::whereUserId($user->id)
+            ->pluck('project_activity_id')
+            ->toArray();
+
+        $proActivitiesQuery = ProjectMainActivity::where('project_id', $request->project_id ?? '')
             ->select('id', 'project_id', 'name', 'status', 'created_by')
-            ->orderBy('id', 'DESC')
-            ->get();
+            ->orderBy('id', 'DESC');
+            
+        if ($user->role_id != User::USER_ROLE['MANAGER']) {
+            $proActivitiesQuery->with([
+                'projectActivities' => fn($query) => $query->whereIn('id', $assignProActivityIds)
+            ])
+            ->whereHas('projectActivities', function ($query) use($assignProActivityIds) {
+                $query->whereIn('id', $assignProActivityIds ?? []);
+            });
+        } else {
+            $proActivitiesQuery->with('projectActivities');
+        }
+
+        $proActivities = $proActivitiesQuery->get();
 
         return $this->sendResponse($proActivities, 'Activities List');
     }
@@ -378,12 +394,39 @@ class ActivitiesController extends Controller
                     $proActivity->helper = boolval($activity['helper']);
                     $proActivity->updated_ip = $request->ip();
                     $proActivity->save();
+
+                    if (isset($activity['assigned_users_ids']) && !empty($activity['assigned_users_ids'])) {
+                        $projAssignUser = ProjectActivityAssignedUser::whereProjectActivityId($activity['id'])
+                            ->where('user_id', '!=', $user->id)
+                            ->delete();
+    
+                        foreach ($activity['assigned_users_ids'] as $userId) {
+                            $projAssignUser = ProjectActivityAssignedUser::whereProjectActivityId($activity['id'])
+                                ->whereUserId($userId)
+                                ->first();
+    
+                            if (isset($projAssignUser) && !empty($projAssignUser)) {
+                                $projAssignUser->updated_ip = $request->ip();
+                                $projAssignUser->save();
+                            } else {
+                                $projAssignUser = new ProjectActivityAssignedUser();
+                                $projAssignUser->project_activity_id = $activity['id'];
+                                $projAssignUser->user_id = $userId;
+                                $projAssignUser->created_by = $user->id;
+                                $projAssignUser->created_ip = $request->ip();
+                                $projAssignUser->updated_ip = $request->ip();
+                                $projAssignUser->save();
+                            }
+                        }
+                    }
                 }
             }
 
             return $this->sendResponse([], 'Activity property updated successfully.');
         } catch (\Exception $e) {
             Log::error($e->getMessage());
+
+            echo '<pre>'; print_r($e->getMessage()); echo '</pre>'; die;
 
             return $this->sendError('Something went wrong!', [], 500);
         }
