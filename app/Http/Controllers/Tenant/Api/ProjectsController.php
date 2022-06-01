@@ -340,6 +340,12 @@ class ProjectsController extends Controller
                     ->whereIn('id', $assignedUserIds)
                     ->orderBy('id', $orderBy);
 
+                if (isset(USER::USER_ROLE_GROUP[$user->role_id])) {
+                    $query->whereIn('role_id', USER::USER_ROLE_GROUP[$user->role_id]);
+                } else {
+                    $query->where('id', null);
+                }
+
                 AppHelper::setDefaultDBConnection();
 
                 if (isset($request->search) && !empty($request->search)) {
@@ -426,40 +432,6 @@ class ProjectsController extends Controller
                 }
 
                 return $this->sendResponse([], 'Users assigned to project successfully.');
-            } else {
-                return $this->sendError('User not exists.');
-            }
-        } catch (\Exception $e) {
-            Log::error($e->getMessage());
-
-            return $this->sendError('Something went wrong!', [], 500);
-        }
-    }
-
-    public function unAssignUsers(Request $request)
-    {
-        try {
-            $user = $request->user();
-
-            if (isset($user) && !empty($user)) {
-                $validator = Validator::make($request->all(), [
-                    'user_ids' => 'required',
-                    'project_id' => 'required|exists:projects,id',
-                ]);
-
-                if ($validator->fails()) {
-                    foreach ($validator->errors()->messages() as $key => $value) {
-                        return $this->sendError('Validation Error.', [$key => $value[0]], 400);
-                    }
-                }
-
-                $request->user_ids = explode(',', $request->user_ids);
-
-                ProjectAssignedUser::whereProjectId($request->project_id)
-                    ->whereIn('user_id', $request->user_ids)
-                    ->delete();
-
-                return $this->sendResponse([], 'Users un assigned from project successfully.');
             } else {
                 return $this->sendError('User not exists.');
             }

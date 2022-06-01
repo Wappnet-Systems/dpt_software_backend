@@ -158,7 +158,6 @@ Route::middleware('auth:sanctum')->group(function () {
     /* Assign Users to Projects Routes */
     Route::get('project/assign/users/list', [ProjectsController::class, 'assignUsersList']);
     Route::post('project/assign/users', [ProjectsController::class, 'assignUsers']);
-    Route::post('project/un-assign/users', [ProjectsController::class, 'unAssignUsers']);
 
     /* Projects Non Working Days Routes */
     Route::get('project/non-working-day/get/lists', [NonWorkingDaysController::class, 'getNonWorkingDays']);
