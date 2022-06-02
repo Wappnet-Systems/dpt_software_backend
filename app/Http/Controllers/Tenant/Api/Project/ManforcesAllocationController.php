@@ -53,6 +53,10 @@ class ManforcesAllocationController extends Controller
             ->whereProjectActivityId($request->project_activity_id ?? '')
             ->orderby('id', $orderBy);
 
+        if (isset($request->manforce_type_id) && !empty($request->manforce_type_id)) {
+            $query->whereManforceTypeId($request->manforce_type_id ?? '');
+        }
+
         if (isset($request->date) && !empty($request->date)) {
             $query = $query->whereDate('date', '>=', date('Y-m-d', strtotime($request->date)))
                 ->whereDate('date', '<=', date('Y-m-d', strtotime($request->date)));
@@ -93,7 +97,7 @@ class ManforcesAllocationController extends Controller
             ->first();
 
         if (!isset($allocatedManforces) || empty($allocatedManforces)) {
-            return $this->sendError('Manforce not allocated to the activity.');
+            return $this->sendError('Manforce not allocated to the activity.', [], 404);
         }
 
         return $this->sendResponse($allocatedManforces, 'Activity allocated manforce details.');
@@ -112,7 +116,7 @@ class ManforcesAllocationController extends Controller
                     'start_time' => 'required|date_format:H:i:s',
                     'end_time' => 'required|date_format:H:i:s',
                     'total_assigned' => 'required',
-                    'total_cost' => 'required',
+                    // 'total_cost' => 'required',
                 ]);
 
                 if ($validator->fails()) {
@@ -125,7 +129,7 @@ class ManforcesAllocationController extends Controller
                     ->select('total_manforce')->first();
 
                 if ($request->total_assigned > $checkTotalManforce->total_manforce) {
-                    return $this->sendError('Requested manforce are not available.');
+                    return $this->sendError('Requested manforce are not available.', [], 400);
                 }
 
                 $checkAllocatedManforces = ProjectActivityAllocateManforce::whereProjectActivityId($request->project_activity_id)
@@ -139,7 +143,7 @@ class ManforcesAllocationController extends Controller
                     $requestManforce = $checkTotalManforce->total_manforce - $checkAllocatedManforces->total_assigned;
 
                     if ($request->total_assigned > $requestManforce) {
-                        return $this->sendError('Total manforce available is ' . $requestManforce . ' so please enter the available manforces.');
+                        return $this->sendError('Total manforce available is ' . $requestManforce . ' so please enter the available manforces.', [], 400);
                     }
                 }
 
@@ -159,19 +163,19 @@ class ManforcesAllocationController extends Controller
                     $allocatedManforces->start_time = date('H:i:s', strtotime($request->start_time));
                     $allocatedManforces->end_time = date('H:i:s', strtotime($request->end_time));
                     $allocatedManforces->total_assigned = $request->total_assigned;
-                    $allocatedManforces->total_cost = $request->total_cost;
+                    $allocatedManforces->total_cost = $request->total_cost ?? null;
                     $allocatedManforces->created_ip = $request->ip();
                 }
                 $allocatedManforces->assign_by = $user->id;
                 $allocatedManforces->updated_ip = $request->ip();
 
                 if (!$allocatedManforces->save()) {
-                    return $this->sendError('Something went wrong while creating the allocating manforces to activity.');
+                    return $this->sendError('Something went wrong while creating the allocating manforces to activity.', [], 500);
                 }
 
                 return $this->sendResponse([], 'Manforces allocating into activity successfully.');
             } else {
-                return $this->sendError('User not exists.');
+                return $this->sendError('User not exists.', [], 404);
             }
         } catch (\Exception $e) {
             Log::error($e->getMessage());
@@ -191,7 +195,7 @@ class ManforcesAllocationController extends Controller
                     'start_time' => 'required|date_format:H:i:s',
                     'end_time' => 'required|date_format:H:i:s',
                     'total_assigned' => 'required',
-                    'total_cost' => 'required',
+                    // 'total_cost' => 'required',
                 ]);
 
                 if ($validator->fails()) {
@@ -204,18 +208,19 @@ class ManforcesAllocationController extends Controller
                     ->first();
 
                 if (!isset($allocatedManforces) || empty($allocatedManforces)) {
-                    return $this->sendError('Manforce not allocated to the activity.');
+                    return $this->sendError('Manforce not allocated to the activity.', [], 400);
                 }
 
                 $checkTotalManforce = ProjectManforce::whereId($allocatedManforces->project_manforce_id)
-                    ->select('total_manforce')->first();
+                    ->select('total_manforce')
+                    ->first();
 
                 if ($request->total_assigned > $checkTotalManforce->total_manforce) {
-                    return $this->sendError('Requested manforce are not available.');
+                    return $this->sendError('Requested manforce are not available.', [], 400);
                 }
 
                 if (date('Y-m-d', strtotime($request->date)) < date('Y-m-d')) {
-                    return $this->sendError('You are not update past date manforce allocating activity.');
+                    return $this->sendError('You are not update past date manforce allocating activity.', [], 400);
                 }
 
                 if (date('Y-m-d') == date('Y-m-d', strtotime($allocatedManforces->date))) {
@@ -224,23 +229,23 @@ class ManforcesAllocationController extends Controller
                         $allocatedManforces->start_time = date('H:i:s', strtotime($request->start_time));
                         $allocatedManforces->end_time = date('H:i:s', strtotime($request->end_time));
                         $allocatedManforces->total_assigned = $request->total_assigned;
-                        $allocatedManforces->total_cost = $request->total_cost;
+                        $allocatedManforces->total_cost = $request->total_cost ?? null;
                     }
                 } elseif (date('Y-m-d', strtotime($allocatedManforces->date)) >= date('Y-m-d')) {
                     $allocatedManforces->date = date('Y-m-d', strtotime($request->date));
                     $allocatedManforces->start_time = date('H:i:s', strtotime($request->start_time));
                     $allocatedManforces->end_time = date('H:i:s', strtotime($request->end_time));
                     $allocatedManforces->total_assigned = $request->total_assigned;
-                    $allocatedManforces->total_cost = $request->total_cost;
+                    $allocatedManforces->total_cost = $request->total_cost ?? null;
                 }
 
                 if (!$allocatedManforces->save()) {
-                    return $this->sendError('Something went wrong while updating the manforce allocating activity.');
+                    return $this->sendError('Something went wrong while updating the manforce allocating activity.', [], 500);
                 }
 
                 return $this->sendResponse([], 'Manforce allocating into activity successfully.');
             } else {
-                return $this->sendError('User not exists.');
+                return $this->sendError('User not exists.', [], 404);
             }
         } catch (\Exception $e) {
             Log::error($e->getMessage());
@@ -259,7 +264,7 @@ class ManforcesAllocationController extends Controller
                     ->first();
 
                 if (!isset($allocatedManforces) || empty($allocatedManforces)) {
-                    return $this->sendError('Manforce not allocated to the activity.');
+                    return $this->sendError('Manforce not allocated to the activity.', [], 404);
                 }
 
                 if (date('Y-m-d') == date('Y-m-d', strtotime($allocatedManforces->date))) {
@@ -272,7 +277,7 @@ class ManforcesAllocationController extends Controller
 
                 return $this->sendResponse([], 'Allocated manforce removed from activity successfully.');
             } else {
-                return $this->sendError('User not exists.');
+                return $this->sendError('User not exists.', [], 404);
             }
         } catch (\Exception $e) {
             Log::error($e->getMessage());
@@ -345,7 +350,7 @@ class ManforcesAllocationController extends Controller
                     return $this->sendResponse($results, 'Activity allocated manforces list.');
                 }
             } else {
-                return $this->sendError('User not exists.');
+                return $this->sendError('User not exists.', [], 404);
             }
         } catch (\Exception $e) {
             Log::error($e->getMessage());
