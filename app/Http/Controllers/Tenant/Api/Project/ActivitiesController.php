@@ -112,7 +112,7 @@ class ActivitiesController extends Controller
             'project_id' => Project::whereUuid($request->project_id ?? '')->value('id')
         ]);
 
-        $proActivity = ProjectActivity::with('project', 'mainActivity')
+        $proActivity = ProjectActivity::with('activitySubCategory', 'unitType', 'manforceType', 'project', 'mainActivity', 'assignedUsers', 'projectInspections')
             ->whereId($request->id)
             ->first();
 
