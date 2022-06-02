@@ -53,8 +53,8 @@ class ManforcesAllocationController extends Controller
             ->whereProjectActivityId($request->project_activity_id ?? '')
             ->orderby('id', $orderBy);
 
-        if (isset($request->manforce_type_id) && !empty($request->manforce_type_id)) {
-            $query->whereManforceTypeId($request->manforce_type_id ?? '');
+        if (isset($request->project_manforce_id) && !empty($request->project_manforce_id)) {
+            $query->whereProjectManforceId($request->project_manforce_id ?? '');
         }
 
         if (isset($request->date) && !empty($request->date)) {
