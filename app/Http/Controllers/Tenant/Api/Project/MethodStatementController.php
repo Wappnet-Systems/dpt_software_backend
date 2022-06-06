@@ -56,7 +56,7 @@ class MethodStatementController extends Controller
         try {
             $query = MethodStatement::with('projectActivity')
                 ->whereProjectId($request->project_id ?? '')
-                ->select('id', 'project_id', 'project_activity_id', 'path', 'updated_at')
+                ->select('id', 'project_id', 'project_activity_id', 'name', 'path', 'updated_at')
                 ->orderBy('id', $orderBy);
 
             $totalQuery = $query;
@@ -102,7 +102,7 @@ class MethodStatementController extends Controller
     {
         $methodStatement = MethodStatement::with('projectActivity')
             ->whereId($request->id)
-            ->select('id', 'project_id', 'project_activity_id', 'path', 'updated_at')
+            ->select('id', 'project_id', 'project_activity_id', 'name', 'path', 'updated_at')
             ->first();
 
         if (!isset($methodStatement) || empty($methodStatement)) {
@@ -120,6 +120,7 @@ class MethodStatementController extends Controller
             if (isset($user) && !empty($user)) {
                 $validator = Validator::make($request->all(), [
                     'project_id' => 'required|exists:projects,id',
+                    'name' => 'required',
                     'path' => 'required|mimes:pdf,jpg,jpeg,png|max:10240',
                 ], [
                     'path.max' => 'The file must not be greater than 10mb.',
@@ -133,6 +134,8 @@ class MethodStatementController extends Controller
 
                 $methodStatement = new MethodStatement();
                 $methodStatement->project_id = $request->project_id;
+                $methodStatement->name = $request->name;
+
                 if ($request->hasFile('path')) {
                     $dirPath = str_replace([':uid:'], [$user->organization_id], config('constants.organizations.projects.method_statements.file_path'));
 
@@ -164,6 +167,7 @@ class MethodStatementController extends Controller
 
             if (isset($user) && !empty($user)) {
                 $validator = Validator::make($request->all(), [
+                    'name' => 'required',
                     'path' => 'mimes:pdf,jpg,jpeg,png|max:10240',
                 ], [
                     'path.max' => 'The file must not be greater than 10mb.',
@@ -181,10 +185,10 @@ class MethodStatementController extends Controller
                     return $this->sendError('Method statement does not exists.', [], 404);
                 }
 
+                if ($request->filled('name')) $methodStatement->name = $request->name;
+
                 $oldPath = $methodStatement->path;
-
                 if ($request->hasFile('path')) {
-
                     $dirPath = str_replace([':uid:'], [$user->organization_id], config('constants.organizations.projects.method_statements.file_path'));
 
                     $methodStatement->path = $this->uploadFile->uploadFileInS3($request, $dirPath, 'path');

@@ -123,7 +123,7 @@ class InspectionController extends Controller
                 $validator = Validator::make($request->all(), [
                     'project_id' => 'required|exists:projects,id',
                     'project_activity_id' => 'required|exists:projects_activities,id',
-                    'inspection_no' => 'required|numeric|digits_between:10,30',
+                    'inspection_no' => 'required|numeric',
                     'inspection_date' => 'required|date_format:Y-m-d',
                     'location' => 'required',
                     'document' => 'mimes:pdf|max:10240',
@@ -187,7 +187,7 @@ class InspectionController extends Controller
 
             if (isset($user) && !empty($user)) {
                 $validator = Validator::make($request->all(), [
-                    'inspection_no' => 'required|numeric|digits_between:10,30',
+                    'inspection_no' => 'required|numeric',
                     'inspection_date' => 'required|date_format:Y-m-d',
                     'location' => 'required',
                     'document' => 'mimes:pdf|max:10240',
