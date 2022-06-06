@@ -20,6 +20,7 @@ class CreateMethodsStatementsTable extends Migration
             $table->id();
             $table->foreignId('project_id')->constrained('projects')->cascadeOnUpdate()->cascadeOnDelete();
             $table->foreignId('project_activity_id')->nullable()->constrained('projects_activities')->cascadeOnUpdate()->cascadeOnDelete();
+            $table->string('name', 50);
             $table->string('path', 200)->nullable();
             $table->ipAddress('created_ip')->nullable();
             $table->ipAddress('updated_ip')->nullable();
