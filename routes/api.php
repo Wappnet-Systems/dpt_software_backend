@@ -156,6 +156,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::patch('project/status/change/{Uuid}', [ProjectsController::class, 'changeProjectStatus']);
 
     /* Assign Users to Projects Routes */
+    Route::get('project/non-assign/users/list', [ProjectsController::class, 'nonAssignUsersList']);
     Route::get('project/assign/users/list', [ProjectsController::class, 'assignUsersList']);
     Route::post('project/assign/users', [ProjectsController::class, 'assignUsers']);
 
