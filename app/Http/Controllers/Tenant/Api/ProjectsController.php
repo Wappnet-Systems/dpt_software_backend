@@ -68,7 +68,7 @@ class ProjectsController extends Controller
                     }
                 }
 
-                if (!in_array($user->role_id, [User::USER_ROLE['CONSTRUCATION_SITE_ADMIN'], User::USER_ROLE['MANAGER']])) {
+                if (!in_array($user->role_id, [User::USER_ROLE['COMPANY_ADMIN'], User::USER_ROLE['CONSTRUCATION_SITE_ADMIN'], User::USER_ROLE['MANAGER']])) {
                     $query->whereStatus(Project::STATUS['In Progress']);
                 }
 
