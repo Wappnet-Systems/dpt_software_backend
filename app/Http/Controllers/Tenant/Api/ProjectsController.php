@@ -68,6 +68,10 @@ class ProjectsController extends Controller
                     }
                 }
 
+                if (!in_array($user->role_id, [User::USER_ROLE['CONSTRUCATION_SITE_ADMIN'], User::USER_ROLE['MANAGER']])) {
+                    $query->whereStatus(Project::STATUS['In Progress']);
+                }
+
                 if (isset($request->search) && !empty($request->search)) {
                     $search = trim(strtolower($request->search));
 
@@ -298,11 +302,11 @@ class ProjectsController extends Controller
                 $project = Project::whereUuid($request->Uuid)->first();
 
                 if (!in_array($request->status, Project::STATUS)) {
-                    return $this->sendError('Invalid status requested.');
+                    return $this->sendError('Invalid status requested.', [], 404);
                 }
 
                 if (!isset($project) || empty($project)) {
-                    return $this->sendError('Project dose not exists.');
+                    return $this->sendError('Project dose not exists.', [], 404);
                 } else if (!in_array($user->role_id, [User::USER_ROLE['COMPANY_ADMIN']])) {
                     return $this->sendError('You have no rights to change status of project.', [], 401);
                 } else {
@@ -312,7 +316,7 @@ class ProjectsController extends Controller
                     return $this->sendResponse($project, 'Status changed successfully.');
                 }
             } else {
-                return $this->sendError('User does not exists.');
+                return $this->sendError('User does not exists.', [], 404);
             }
         } catch (\Exception $e) {
             Log::error($e->getMessage());
@@ -380,7 +384,7 @@ class ProjectsController extends Controller
                     return $this->sendResponse($results, 'Project Assigned Users List');
                 }
             } else {
-                return $this->sendError('User does not exists.');
+                return $this->sendError('User does not exists.', [], 404);
             }
         } catch (\Exception $e) {
             Log::error($e->getMessage());
@@ -408,6 +412,7 @@ class ProjectsController extends Controller
 
                 $projAssignUser = ProjectAssignedUser::whereProjectId($request->project_id)
                     ->where('user_id', '!=', $user->id)
+                    ->whereCreatedBy($user->id)
                     ->delete();
                     
                 $request->user_ids = !empty($request->user_ids) ? explode(',', $request->user_ids) : [];
@@ -415,6 +420,7 @@ class ProjectsController extends Controller
                 foreach ($request->user_ids as $userId) {
                     $projAssignUser = ProjectAssignedUser::whereProjectId($request->project_id)
                         ->whereUserId($userId)
+                        ->whereCreatedBy($user->id)
                         ->first();
 
                     if (isset($projAssignUser) && !empty($projAssignUser)) {
@@ -432,6 +438,77 @@ class ProjectsController extends Controller
                 }
 
                 return $this->sendResponse([], 'Users assigned to project successfully.');
+            } else {
+                return $this->sendError('User not exists.', [], 404);
+            }
+        } catch (\Exception $e) {
+            Log::error($e->getMessage());
+
+            return $this->sendError('Something went wrong!', [], 500);
+        }
+    }
+
+    public function nonAssignUsersList(Request $request)
+    {
+        try {
+            $loggedUser = $request->user();
+
+            if (isset($loggedUser) && !empty($loggedUser)) {
+                AppHelper::setDefaultDBConnection(true);
+
+                $query = User::with('role', 'organization')
+                    ->where('role_id', '!=', User::USER_ROLE['SUPER_ADMIN'])
+                    ->where('id', '!=', $loggedUser->id);
+
+                if (isset(USER::USER_ROLE_GROUP[$loggedUser->role_id])) {
+                    $query->whereIn('role_id', USER::USER_ROLE_GROUP[$loggedUser->role_id]);
+                } else {
+                    $query->where('id', null);
+                }
+
+                if (isset($loggedUser->organization_id) && !empty($loggedUser->organization_id)) {
+                    $query = $query->WhereHas('organization', function ($query) use ($loggedUser) {
+                        $query->whereId($loggedUser->organization_id);
+                    });
+                }
+
+                $users = $query->get()->toArray();
+                
+                AppHelper::setDefaultDBConnection();
+
+                $results = [];
+
+                foreach ($users as $user) {
+                    // Check user has not assigned to any projects
+                    if (!ProjectAssignedUser::whereUserId($user['id'] ?? '')->exists()) {
+                        array_push($results, $user);
+
+                    // Check user has already assigned to requested project
+                    } else if (ProjectAssignedUser::whereUserId($user['id'] ?? '')->whereProjectId($request->project_id)->exists()) {
+                        array_push($results, $user);
+                    } else {
+                        // Check loggedin user role and manager role
+                        if ($loggedUser->role_id == User::USER_ROLE['COMPANY_ADMIN'] && $user['role_id'] == User::USER_ROLE['CONSTRUCATION_SITE_ADMIN']) {
+                            $isShow = true;
+                        } else if ($loggedUser->role_id == User::USER_ROLE['CONSTRUCATION_SITE_ADMIN'] && $user['role_id'] == User::USER_ROLE['MANAGER']) {
+                            $isShow = true;
+                        } else {
+                            // Check user has assigned to any project with project status completed
+                            $isShow = ProjectAssignedUser::with('project')
+                                ->whereHas('project', function ($query) {
+                                    $query->whereStatus(Project::STATUS['Completed']);
+                                })
+                                ->whereUserId($user['id'] ?? '')
+                                ->exists();
+                        }
+
+                        if ($isShow) {
+                            array_push($results, $user);
+                        }
+                    }
+                }
+
+                return $this->sendResponse($results, 'User List');
             } else {
                 return $this->sendError('User not exists.');
             }

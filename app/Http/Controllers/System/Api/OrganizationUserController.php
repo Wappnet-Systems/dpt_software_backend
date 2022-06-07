@@ -30,13 +30,13 @@ class OrganizationUserController extends Controller
         $limit = !empty($request->limit) ? $request->limit : config('constants.default_per_page_limit');
         $orderBy = !empty($request->orderby) ? $request->orderby : config('constants.default_orderby');
 
-        $query = User::with('role', 'organization')
-            ->where('role_id', '!=', User::USER_ROLE['SUPER_ADMIN'])
-            ->where('id', '!=', $user->id)
-            ->orderBy('id', $orderBy);
-
         try {
             if (isset($user) && !empty($user)) {
+                $query = User::with('role', 'organization')
+                    ->where('role_id', '!=', User::USER_ROLE['SUPER_ADMIN'])
+                    ->where('id', '!=', $user->id)
+                    ->orderBy('id', $orderBy);
+
                 if (isset($request->search) && !empty($request->search)) {
                     $search = trim(strtolower($request->search));
 
