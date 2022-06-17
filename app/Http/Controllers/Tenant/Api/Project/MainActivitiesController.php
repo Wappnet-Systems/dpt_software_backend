@@ -69,7 +69,7 @@ class MainActivitiesController extends Controller
         $query = ProjectMainActivity::with('project')
             ->whereProjectId($request->project_id ?? '')
             ->whereStatus(ProjectMainActivity::STATUS['Active'])
-            ->select('id', 'project_id', 'name', 'status', 'created_by')
+            ->select('id', 'project_id', 'parent_id', 'name', 'status', 'created_by')
             ->orderby('id', $orderBy);
 
         $totalQuery = $query;
@@ -109,7 +109,7 @@ class MainActivitiesController extends Controller
 
         $proMainActivity = ProjectMainActivity::with('project')
             ->whereId($request->id ?? '')
-            ->select('id', 'project_id', 'name', 'status', 'created_by')
+            ->select('id', 'project_id', 'parent_id', 'name', 'status', 'created_by')
             ->first();
 
         if (!isset($proMainActivity) || empty($proMainActivity)) {
@@ -131,7 +131,7 @@ class MainActivitiesController extends Controller
             if (isset($user) && !empty($user)) {
                 $validator = Validator::make($request->all(), [
                     'project_id' => 'required|exists:projects,id',
-                    // 'activity_sub_category_id' => 'required|exists:activity_sub_categories,id',
+                    'parent_id' => 'exists:projects_main_activities,id',
                     'name' => 'required',
                 ]);
 
@@ -144,7 +144,7 @@ class MainActivitiesController extends Controller
                 // Create new project activity
                 $proMainActivity = new ProjectMainActivity();
                 $proMainActivity->project_id = $request->project_id;
-                // $proMainActivity->activity_sub_category_id = $request->activity_sub_category_id;
+                $proMainActivity->parent_id = $request->parent_id ?? null;
                 $proMainActivity->name = $request->name;
                 $proMainActivity->created_by = $user->id;
                 $proMainActivity->created_ip = $request->ip();
@@ -177,7 +177,7 @@ class MainActivitiesController extends Controller
             if (isset($user) && !empty($user)) {
                 $validator = Validator::make($request->all(), [
                     'project_id' => 'exists:projects,id',
-                    // 'activity_sub_category_id' => 'exists:activity_sub_categories,id',
+                    'parent_id' => 'exists:projects_main_activities,id',
                 ]);
 
                 if ($validator->fails()) {
@@ -193,7 +193,7 @@ class MainActivitiesController extends Controller
                 }
 
                 if ($request->filled('project_id')) $proMainActivity->project_id = $request->project_id;
-                // if ($request->filled('activity_sub_category_id')) $proMainActivity->activity_sub_category_id = $request->activity_sub_category_id;
+                if ($request->filled('parent_id')) $proMainActivity->parent_id = $request->parent_id ?? null;
                 if ($request->filled('name')) $proMainActivity->name = $request->name;
                 $proMainActivity->updated_ip = $request->ip();
 
