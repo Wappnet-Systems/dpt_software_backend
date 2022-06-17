@@ -63,36 +63,21 @@ class ActivitiesController extends Controller
         $request->merge([
             'project_id' => Project::whereUuid($request->project_id ?? '')->value('id')
         ]);
-
-        /* $subActivityIds = ProjectActivity::whereProjectId($request->project_id ?? '')
-            ->pluck('activity_sub_category_id')
-            ->unique();
-
-        $proActivities = ActivitySubCategory::with('activityCategory', 'unitType', 'projectActivities')
-            ->whereIn('id', $subActivityIds)
-            ->get();
-
-        $proActivities->load(['projectActivities' => function ($query) use ($request) {
-            $query->where('project_id', $request->project_id ?? '');
-        }]); */
-
-        $assignProActivityIds = ProjectActivityAssignedUser::whereUserId($user->id)
-            ->pluck('project_activity_id')
-            ->toArray();
-
-        $proActivitiesQuery = ProjectMainActivity::where('project_id', $request->project_id ?? '')
-            ->select('id', 'project_id', 'name', 'status', 'created_by')
+        
+        $proActivitiesQuery = ProjectMainActivity::with('parents', 'projectActivities')
+            ->whereProjectId($request->project_id ?? '')
+            ->whereNull('parent_id')
+            ->select('id', 'project_id', 'parent_id', 'name', 'status', 'created_by')
             ->orderBy('id', 'DESC');
-            
+
         if ($user->role_id != User::USER_ROLE['MANAGER']) {
-            $proActivitiesQuery->with([
-                'projectActivities' => fn($query) => $query->whereIn('id', $assignProActivityIds)
-            ])
-            ->whereHas('projectActivities', function ($query) use($assignProActivityIds) {
-                $query->whereIn('id', $assignProActivityIds ?? []);
+            $assignProActivityIds = ProjectActivityAssignedUser::whereUserId($user->id)
+                ->pluck('project_activity_id')
+                ->toArray();
+
+            $proActivitiesQuery->whereHas('parents.projectActivities', function ($query) use($assignProActivityIds) {
+                $query->orWhereIn('id', $assignProActivityIds);
             });
-        } else {
-            $proActivitiesQuery->with('projectActivities');
         }
 
         $proActivities = $proActivitiesQuery->get();
@@ -240,31 +225,56 @@ class ActivitiesController extends Controller
                     }
                 }
 
-                $proActivity = ProjectActivity::whereId($request->id)->first();
+                if ($request->boolean('is_remove')) {
+                    $proMainActivity = ProjectMainActivity::whereId($request->id)->first();
+                    
+                    if (isset($proMainActivity) && !empty($proMainActivity)) {
+                        $proMainActivity->forcedelete();
 
-                if (!isset($proActivity) || empty($proActivity)) {
-                    return $this->sendError('Activity does not exists.', [], 404);
-                }
-
-                if ($request->filled('project_main_activity_id')) $proActivity->project_main_activity_id = $request->project_main_activity_id;
-                if ($request->filled('activity_sub_category_id')) $proActivity->activity_sub_category_id = $request->activity_sub_category_id ?? null;
-                if ($request->filled('manforce_type_id')) $proActivity->manforce_type_id = $request->manforce_type_id ?? null;
-                if ($request->filled('name')) $proActivity->name = $request->name;
-                if ($request->filled('start_date')) $proActivity->start_date = !empty($request->start_date) ? date('Y-m-d H:i:s', strtotime($request->start_date)) : NULL;
-                if ($request->filled('end_date')) $proActivity->end_date = !empty($request->end_date) ? date('Y-m-d H:i:s', strtotime($request->end_date)) : NULL;
-                if ($request->filled('start_date')) $proActivity->actual_start_date = !empty($request->start_date) ? date('Y-m-d H:i:s', strtotime($request->start_date)) : NULL;
-                if ($request->filled('end_date')) $proActivity->actual_end_date = !empty($request->end_date) ? date('Y-m-d H:i:s', strtotime($request->end_date)) : NULL;
-                if ($request->filled('location')) $proActivity->location = $request->location;
-                if ($request->filled('level')) $proActivity->level = $request->level;
-                if ($request->filled('actual_area')) $proActivity->actual_area = $request->actual_area;
-                if ($request->filled('unit_type_id')) $proActivity->unit_type_id = $request->unit_type_id ?? null;
-                if ($request->filled('cost')) $proActivity->cost = $request->cost;
-                if ($request->filled('scaffold_requirement')) $proActivity->scaffold_requirement = boolval($request->scaffold_requirement);
-                if ($request->filled('helper')) $proActivity->helper = boolval($request->helper);
-                $proActivity->updated_ip = $request->ip();
-
-                if (!$proActivity->save()) {
-                    return $this->sendError('Something went wrong while creating the activity.', [], 500);
+                        $proActivity = new ProjectActivity();
+                        $proActivity->project_id = $request->project_id;
+                        $proActivity->project_main_activity_id = $request->project_main_activity_id;
+                        $proActivity->name = $request->name;
+                        $proActivity->start_date = !empty($request->start_date) ? date('Y-m-d H:i:s', strtotime($request->start_date)) : NULL;
+                        $proActivity->end_date = !empty($request->end_date) ? date('Y-m-d H:i:s', strtotime($request->end_date)) : NULL;
+                        $proActivity->actual_start_date = !empty($request->start_date) ? date('Y-m-d H:i:s', strtotime($request->start_date)) : NULL;
+                        $proActivity->actual_end_date = !empty($request->end_date) ? date('Y-m-d H:i:s', strtotime($request->end_date)) : NULL;
+                        $proActivity->actual_area = !empty($request->actual_area) ? $request->actual_area : null;
+                        $proActivity->created_by = $user->id;
+                        $proActivity->created_ip = $request->ip();
+                        $proActivity->updated_ip = $request->ip();
+    
+                        if (!$proActivity->save()) {
+                            return $this->sendError('Something went wrong while updating the activity.', [], 500);
+                        }
+                    }
+                } else {
+                    $proActivity = ProjectActivity::whereId($request->id)->first();
+    
+                    if (!isset($proActivity) || empty($proActivity)) {
+                        return $this->sendError('Activity does not exists.', [], 404);
+                    }
+    
+                    if ($request->filled('project_main_activity_id')) $proActivity->project_main_activity_id = $request->project_main_activity_id;
+                    if ($request->filled('activity_sub_category_id')) $proActivity->activity_sub_category_id = $request->activity_sub_category_id ?? null;
+                    if ($request->filled('manforce_type_id')) $proActivity->manforce_type_id = $request->manforce_type_id ?? null;
+                    if ($request->filled('name')) $proActivity->name = $request->name;
+                    if ($request->filled('start_date')) $proActivity->start_date = !empty($request->start_date) ? date('Y-m-d H:i:s', strtotime($request->start_date)) : NULL;
+                    if ($request->filled('end_date')) $proActivity->end_date = !empty($request->end_date) ? date('Y-m-d H:i:s', strtotime($request->end_date)) : NULL;
+                    if ($request->filled('start_date')) $proActivity->actual_start_date = !empty($request->start_date) ? date('Y-m-d H:i:s', strtotime($request->start_date)) : NULL;
+                    if ($request->filled('end_date')) $proActivity->actual_end_date = !empty($request->end_date) ? date('Y-m-d H:i:s', strtotime($request->end_date)) : NULL;
+                    if ($request->filled('location')) $proActivity->location = $request->location;
+                    if ($request->filled('level')) $proActivity->level = $request->level;
+                    if ($request->filled('actual_area')) $proActivity->actual_area = $request->actual_area;
+                    if ($request->filled('unit_type_id')) $proActivity->unit_type_id = $request->unit_type_id ?? null;
+                    if ($request->filled('cost')) $proActivity->cost = $request->cost;
+                    if ($request->filled('scaffold_requirement')) $proActivity->scaffold_requirement = boolval($request->scaffold_requirement);
+                    if ($request->filled('helper')) $proActivity->helper = boolval($request->helper);
+                    $proActivity->updated_ip = $request->ip();
+    
+                    if (!$proActivity->save()) {
+                        return $this->sendError('Something went wrong while updating the activity.', [], 500);
+                    }
                 }
 
                 return $this->sendResponse([], 'Activity updated successfully.');
