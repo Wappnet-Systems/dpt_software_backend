@@ -37,6 +37,7 @@ use App\Http\Controllers\Tenant\Api\Project\MethodStatementController;
 use App\Http\Controllers\Tenant\Api\Project\ManforceProductivityController;
 use App\Http\Controllers\Tenant\Api\NcrSorController;
 use App\Http\Controllers\Tenant\Api\Project\NcrSorRequestController;
+use App\Http\Controllers\Tenant\Api\Project\ScaffoldController;
 use App\Http\Controllers\Tenant\Api\ReportController;
 use Illuminate\Support\Facades\Route;
 
@@ -313,4 +314,8 @@ Route::middleware('auth:sanctum')->group(function () {
 
     /* Project KPI and Reports Routes */
     Route::get('project/KPI-reports/lists', [ReportController::class, 'KpiReports']);
+
+    /* Project Scaffold Activity Routes */
+    Route::get('project/scaffold/activity/lists', [ScaffoldController::class, 'getScaffoldActivity']);
+    Route::post('project/scaffold/activity/add', [ScaffoldController::class, 'addScaffoldActivity']);
 });

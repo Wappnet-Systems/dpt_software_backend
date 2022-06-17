@@ -67,7 +67,7 @@ class ProjectActivity extends Model
         return $this->belongsTo(UnitType::class, 'unit_type_id', 'id')
             ->select('id', 'name', 'status');
     }
-    
+
     public function manforceType()
     {
         return $this->belongsTo(ManforceType::class, 'manforce_type_id', 'id')
@@ -90,10 +90,16 @@ class ProjectActivity extends Model
     {
         return $this->hasMany(ProjectActivityAssignedUser::class, 'project_activity_id', 'id');
     }
-    
+
     public function projectInspections()
     {
         return $this->hasMany(ProjectInspection::class, 'project_activity_id', 'id')
             ->select('id', 'project_activity_id', 'project_allocate_material_id', 'inspection_no', 'inspection_date', 'approve_reject_date', 'location', 'document', 'inspection_type', 'type', 'inspection_status', 'status');
+    }
+
+    public function projectScaffold()
+    {
+        return $this->hasMany(ProjectScaffold::class, 'project_activity_id', 'id')
+            ->select('id', 'project_activity_id', 'scaffold_number', 'on_hire_date', 'off_hire_date', 'width', 'length', 'height', 'area', 'volume');
     }
 }

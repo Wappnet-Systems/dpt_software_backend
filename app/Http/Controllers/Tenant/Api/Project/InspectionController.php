@@ -144,6 +144,14 @@ class InspectionController extends Controller
                     }
                 }
 
+                if (!in_array($request->inspection_type, ProjectInspection::INC_TYPE)) {
+                    return $this->sendError('Invalid inspection type requested.', [], 400);
+                }
+
+                if (!in_array($request->type, ProjectInspection::TYPE)) {
+                    return $this->sendError('Invalid type requested.', [], 400);
+                }
+
                 $projectInspection = new ProjectInspection();
                 $projectInspection->project_id = $request->project_id;
                 $projectInspection->project_activity_id = $request->project_activity_id;
@@ -214,6 +222,14 @@ class InspectionController extends Controller
 
                 if (!isset($projectInspection) || empty($projectInspection)) {
                     return $this->sendError('Project inspection does not exists.', [], 404);
+                }
+
+                if (!in_array($request->inspection_type, ProjectInspection::INC_TYPE)) {
+                    return $this->sendError('Invalid inspection type requested.', [], 400);
+                }
+
+                if (!in_array($request->type, ProjectInspection::TYPE)) {
+                    return $this->sendError('Invalid type requested.', [], 400);
                 }
 
                 if ($request->filled('project_allocate_material_id')) $projectInspection->project_allocate_material_id = $request->project_allocate_material_id ?? null;
