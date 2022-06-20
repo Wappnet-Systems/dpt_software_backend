@@ -12,6 +12,7 @@ use App\Models\System\User;
 use App\Models\Tenant\ProjectManforce;
 use App\Models\Tenant\ProjectActivityAllocateManforce;
 use App\Helpers\AppHelper;
+use App\Models\Tenant\ProjectActivity;
 use Illuminate\Support\Facades\Log;
 
 class ManforcesAllocationController extends Controller
@@ -113,9 +114,9 @@ class ManforcesAllocationController extends Controller
                     'project_activity_id' => 'required|exists:projects_activities,id',
                     'project_manforce_id' => 'required|exists:projects_manforces,id',
                     'date' => 'required|date_format:Y-m-d',
-                    'start_time' => 'required|date_format:H:i:s',
-                    'end_time' => 'required|date_format:H:i:s',
                     'total_assigned' => 'required',
+                    'total_planned' => 'required',
+                    'is_overtime' => 'required|boolean',
                     // 'total_cost' => 'required',
                 ]);
 
@@ -135,8 +136,8 @@ class ManforcesAllocationController extends Controller
                 $checkAllocatedManforces = ProjectActivityAllocateManforce::whereProjectActivityId($request->project_activity_id)
                     ->whereProjectManforceId($request->project_manforce_id)
                     ->whereDate('date', date('Y-m-d', strtotime($request->date)))
-                    ->whereTime('start_time', date('H:i:s', strtotime($request->start_time)))
-                    ->whereTime('end_time', date('H:i:s', strtotime($request->end_time)))
+                    // ->whereTime('start_time', date('H:i:s', strtotime($request->start_time)))
+                    // ->whereTime('end_time', date('H:i:s', strtotime($request->end_time)))
                     ->first();
 
                 if (isset($checkAllocatedManforces) && !empty($checkAllocatedManforces)) {
@@ -150,7 +151,7 @@ class ManforcesAllocationController extends Controller
                 $allocatedManforces = ProjectActivityAllocateManforce::whereProjectActivityId($request->project_activity_id)
                     ->whereProjectManforceId($request->project_manforce_id)
                     ->whereDate('date', date('Y-m-d', strtotime($request->date)))
-                    ->whereTime('start_time', date('H:i:s', strtotime($request->start_time)))
+                    // ->whereTime('start_time', date('H:i:s', strtotime($request->start_time)))
                     ->first();
 
                 if (isset($allocatedManforces) && !empty($allocatedManforces)) {
@@ -160,12 +161,13 @@ class ManforcesAllocationController extends Controller
                     $allocatedManforces->project_activity_id = $request->project_activity_id;
                     $allocatedManforces->project_manforce_id = $request->project_manforce_id;
                     $allocatedManforces->date = date('Y-m-d', strtotime($request->date));
-                    $allocatedManforces->start_time = date('H:i:s', strtotime($request->start_time));
-                    $allocatedManforces->end_time = date('H:i:s', strtotime($request->end_time));
                     $allocatedManforces->total_assigned = $request->total_assigned;
+                    $allocatedManforces->total_planned = $request->total_planned;
+                    $allocatedManforces->is_overtime = !empty($request->is_overtime) ? $request->is_overtime : false;
                     $allocatedManforces->total_cost = $request->total_cost ?? null;
                     $allocatedManforces->created_ip = $request->ip();
                 }
+
                 $allocatedManforces->assign_by = $user->id;
                 $allocatedManforces->updated_ip = $request->ip();
 
@@ -192,9 +194,9 @@ class ManforcesAllocationController extends Controller
             if (isset($user) && !empty($user)) {
                 $validator = Validator::make($request->all(), [
                     'date' => 'required|date_format:Y-m-d',
-                    'start_time' => 'required|date_format:H:i:s',
-                    'end_time' => 'required|date_format:H:i:s',
                     'total_assigned' => 'required',
+                    'total_planned' => 'required',
+                    'is_overtime' => 'required|boolean',
                     // 'total_cost' => 'required',
                 ]);
 
@@ -226,16 +228,16 @@ class ManforcesAllocationController extends Controller
                 if (date('Y-m-d') == date('Y-m-d', strtotime($allocatedManforces->date))) {
                     if (date('H:i:s', strtotime($allocatedManforces->start_time)) > date('H:i:s')) {
                         $allocatedManforces->date = date('Y-m-d', strtotime($request->date));
-                        $allocatedManforces->start_time = date('H:i:s', strtotime($request->start_time));
-                        $allocatedManforces->end_time = date('H:i:s', strtotime($request->end_time));
                         $allocatedManforces->total_assigned = $request->total_assigned;
+                        $allocatedManforces->total_planned = $request->total_planned;
+                        $allocatedManforces->is_overtime = $request->is_overtime;
                         $allocatedManforces->total_cost = $request->total_cost ?? null;
                     }
                 } elseif (date('Y-m-d', strtotime($allocatedManforces->date)) >= date('Y-m-d')) {
                     $allocatedManforces->date = date('Y-m-d', strtotime($request->date));
-                    $allocatedManforces->start_time = date('H:i:s', strtotime($request->start_time));
-                    $allocatedManforces->end_time = date('H:i:s', strtotime($request->end_time));
                     $allocatedManforces->total_assigned = $request->total_assigned;
+                    $allocatedManforces->total_planned = $request->total_planned;
+                    $allocatedManforces->is_overtime = $request->is_overtime;
                     $allocatedManforces->total_cost = $request->total_cost ?? null;
                 }
 
@@ -286,7 +288,9 @@ class ManforcesAllocationController extends Controller
         }
     }
 
-    /* Activity manpower APIs */
+    /** 
+     * Activity manpower APIs
+     */
     public function getActivityManpower(Request $request)
     {
         $limit = !empty($request->limit) ? $request->limit : config('constants.default_per_page_limit');
@@ -349,6 +353,58 @@ class ManforcesAllocationController extends Controller
                 } else {
                     return $this->sendResponse($results, 'Activity allocated manforces list.');
                 }
+            } else {
+                return $this->sendError('User not exists.', [], 404);
+            }
+        } catch (\Exception $e) {
+            Log::error($e->getMessage());
+
+            return $this->sendError('Something went wrong!', [], 500);
+        }
+    }
+
+    /**
+     * 
+     * Date wise get project activity
+     */
+    public function getDateWiseActivityMaforces(Request $request)
+    {
+        try {
+            $user = $request->user();
+            
+
+            if (isset($user) && !empty($user)) {
+
+                $projectActivity = ProjectActivity::select('id', 'project_id', 'project_main_activity_id', 'activity_sub_category_id', 'manforce_type_id', 'name', 'start_date', 'end_date', 'actual_start_date', 'actual_end_date', 'location', 'level', 'actual_area', 'completed_area', 'unit_type_id', 'cost', 'scaffold_requirement', 'helper', 'status', 'productivity_rate', 'created_by')
+                    ->whereProjectId($request->project_id ?? '');
+
+                if (isset($request->date) && !empty($request->date)) {
+                    $projectActivity = $projectActivity->whereDate('start_date', '>=', date('Y-m-d', strtotime($request->date)))
+                        ->whereDate('end_date', '<=', date('Y-m-d', strtotime($request->date)));
+                }
+
+                $projectActivity = $projectActivity->get();
+
+                if (isset($projectActivity) && !empty($projectActivity)) {
+                    foreach ($projectActivity as $key => $projectActivityValue) {
+                        foreach ($projectActivityValue as $k1 => $k2) {
+                            $projectActivity[$key]['project_manforce'] = ProjectManforce::select('id', 'project_id', 'manforce_type_id', 'total_manforce', 'cost', 'cost_type')
+                                ->whereProjectId($projectActivityValue->project_id ?? '')
+                                ->whereManforceTypeId($projectActivityValue->manforce_type_id ?? '')
+                                ->get();
+
+                            if (!empty($k2)) {
+                                $projectActivity[$key]['allocated_manforce'] = ProjectActivityAllocateManforce::select('id', 'project_activity_id', 'project_manforce_id', 'date', 'total_assigned', 'total_planned', 'is_overtime', 'total_work', 'total_cost', 'productivity_rate', 'assign_by')
+                                    ->whereProjectActivityId($projectActivityValue->id ?? '')
+                                    ->first();
+                            }
+                        }
+                    }
+                } else {
+                    return $this->sendError('Project activity not exists.', [], 400);
+                }
+
+                return $this->sendResponse($projectActivity, 'Project activity manforce allocation list.');
             } else {
                 return $this->sendError('User not exists.', [], 404);
             }
