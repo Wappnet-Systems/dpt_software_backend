@@ -5,6 +5,7 @@ namespace App\Models\Tenant;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\DB;
 
 class ProjectActivity extends Model
 {
@@ -39,6 +40,20 @@ class ProjectActivity extends Model
 
         return null;
     }
+    
+    public function scopeProjectActivities($query, $relation, $data) {
+        return $query->addSelect(DB::raw(
+                sprintf('(EXISTS (SELECT * FROM projects_activities_assigned_users WHERE projects_activities_assigned_users.project_activity_id = projects_activities.id AND user_id = %s)) as is_assigned', auth()->user()->id)
+            )
+        );
+        
+        /* $query->whereHas(
+            $relation,
+            function ($query) use ($data) {
+                $query->whereIn('id', $data);
+            }
+        ); */
+    }
 
     public function activitySubCategory()
     {
@@ -68,7 +83,7 @@ class ProjectActivity extends Model
     public function mainActivity()
     {
         return $this->belongsTo(ProjectMainActivity::class, 'project_main_activity_id', 'id')
-            ->select('id', 'project_id', 'name', 'status', 'created_by');
+            ->select('id', 'project_id', 'parent_id', 'name', 'status', 'created_by');
     }
 
     public function assignedUsers()
