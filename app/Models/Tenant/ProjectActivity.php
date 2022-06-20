@@ -87,4 +87,10 @@ class ProjectActivity extends Model
         return $this->hasMany(ProjectScaffold::class, 'project_activity_id', 'id')
             ->select('id', 'project_activity_id', 'scaffold_number', 'on_hire_date', 'off_hire_date', 'width', 'length', 'height', 'area', 'volume');
     }
+
+    public function AllocatedManforce()
+    {
+        return $this->hasMany(ProjectActivityAllocateManforce::class, 'project_activity_id', 'id')
+            ->select('id', 'project_activity_id', 'project_manforce_id', 'date', 'total_assigned', 'total_planned', 'is_overtime', 'total_work', 'total_cost', 'productivity_rate');
+    }
 }

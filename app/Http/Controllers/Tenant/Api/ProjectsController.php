@@ -141,6 +141,8 @@ class ProjectsController extends Controller
                         'address' => 'required',
                         'start_date' => 'required|date',
                         'end_date' => 'required|date',
+                        'working_start_time' => 'required|date_format:H:i:s',
+                        'working_end_time' => 'required|date_format:H:i:s',
                         'cost' => 'required',
                     ], [
                         'logo.max' => 'The logo must not be greater than 5mb.',
@@ -164,6 +166,8 @@ class ProjectsController extends Controller
                     $project->zip_code = !empty($request->zip_code) ? $request->zip_code : NULL;
                     $project->start_date = !empty($request->start_date) ? date('Y-m-d', strtotime($request->start_date)) : NULL;
                     $project->end_date = !empty($request->end_date) ? date('Y-m-d', strtotime($request->end_date)) : NULL;
+                    $project->working_start_time = !empty($request->working_start_time) ? date('H:i:s', strtotime($request->working_start_time)) : NULL;
+                    $project->working_end_time = !empty($request->working_end_time) ? date('H:i:s', strtotime($request->working_end_time)) : NULL;
                     $project->cost = !empty($request->cost) ? $request->cost : NULL;
                     $project->created_by = $user->id;
                     $project->created_ip = $request->ip();
@@ -212,6 +216,8 @@ class ProjectsController extends Controller
                         'address' => 'required',
                         'start_date' => 'required|date',
                         'end_date' => 'required|date',
+                        'working_start_time' => 'required|date_format:H:i:s',
+                        'working_end_time' => 'required|date_format:H:i:s',
                         'cost' => 'required',
                     ], [
                         'logo.max' => 'The logo must not be greater than 5mb.',
@@ -237,6 +243,8 @@ class ProjectsController extends Controller
                     if ($request->filled('zip_code')) $project->zip_code = $request->zip_code;
                     if ($request->filled('start_date')) $project->start_date = $request->start_date;
                     if ($request->filled('end_date')) $project->end_date = $request->end_date;
+                    if ($request->filled('working_start_time')) $project->working_start_time = $request->working_start_time;
+                    if ($request->filled('working_end_time')) $project->working_end_time = $request->working_end_time;
                     if ($request->filled('cost')) $project->cost = $request->cost;
 
                     if ($request->hasFile('logo')) {
@@ -414,7 +422,7 @@ class ProjectsController extends Controller
                     ->where('user_id', '!=', $user->id)
                     ->whereCreatedBy($user->id)
                     ->delete();
-                    
+
                 $request->user_ids = !empty($request->user_ids) ? explode(',', $request->user_ids) : [];
 
                 foreach ($request->user_ids as $userId) {
@@ -473,7 +481,7 @@ class ProjectsController extends Controller
                 }
 
                 $users = $query->get()->toArray();
-                
+
                 AppHelper::setDefaultDBConnection();
 
                 $results = [];
@@ -483,7 +491,7 @@ class ProjectsController extends Controller
                     if (!ProjectAssignedUser::whereUserId($user['id'] ?? '')->exists()) {
                         array_push($results, $user);
 
-                    // Check user has already assigned to requested project
+                        // Check user has already assigned to requested project
                     } else if (ProjectAssignedUser::whereUserId($user['id'] ?? '')->whereProjectId($request->project_id)->exists()) {
                         array_push($results, $user);
                     } else {
