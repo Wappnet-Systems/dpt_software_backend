@@ -23,7 +23,7 @@ class ScaffoldController extends Controller
 
             if (isset($user) && !empty($user)) {
                 if ($user->role_id == User::USER_ROLE['SUPER_ADMIN']) {
-                    return $this->sendError('You have no rights to access this module.');
+                    return $this->sendError('You have no rights to access this module.', [], 401);
                 }
 
                 $hostnameId = Organization::whereId($user->organization_id)->value('hostname_id');
@@ -53,7 +53,6 @@ class ScaffoldController extends Controller
             $user = $request->user();
 
             if (isset($user) && !empty($user)) {
-
                 $query = ProjectActivity::with('projectScaffold')
                     ->whereProjectMainActivityId($request->project_main_activity_id ?? '')
                     ->where('scaffold_requirement', true)
@@ -85,7 +84,7 @@ class ScaffoldController extends Controller
                     return $this->sendResponse($results, 'Scaffold Activity List.');
                 }
             } else {
-                return $this->sendError('User does not exists.', [], 400);
+                return $this->sendError('User does not exists.', [], 404);
             }
         } catch (\Exception $e) {
             Log::error($e->getMessage());
@@ -101,8 +100,7 @@ class ScaffoldController extends Controller
 
             if (isset($user) && !empty($user)) {
                 $validator = Validator::make($request->all(), [
-                    'project_activity_id' => 'required|exists:projects_activities,id',
-                    'activity_scaffold' => 'required|json'
+                    'activities' => 'required'
                 ]);
 
                 if ($validator->fails()) {
@@ -110,34 +108,36 @@ class ScaffoldController extends Controller
                         return $this->sendError('Validation Error.', [$key => $value[0]], 400);
                     }
                 }
+                
+                $request->merge(['activities' => json_decode(base64_decode($request->activities), true)]);
 
-                $request->merge(['activity_scaffold' => json_decode($request->activity_scaffold, true)]);
+                foreach ($request->activities as $key => $activity) {
+                    $projectScaffoldExists = ProjectScaffold::whereProjectActivityId($activity['id']);
 
-                $projectScaffoldExists = ProjectScaffold::where('project_activity_id', $request->project_activity_id);
+                    if ($projectScaffoldExists->exists()) {
+                        $projectScaffoldExists->delete();
+                    }
 
-                if ($projectScaffoldExists->exists()) {
-                    $projectScaffoldExists->delete();
+                    foreach ($activity['project_scaffold'] as $sKey => $sVal) {
+                        $projectScaffold = new ProjectScaffold();
+                        $projectScaffold->project_activity_id = $activity['id'];
+                        $projectScaffold->scaffold_number = $sVal['scaffold_number'];
+                        $projectScaffold->on_hire_date = date('Y-m-d', strtotime($sVal['on_hire_date']));
+                        $projectScaffold->off_hire_date = date('Y-m-d', strtotime($sVal['off_hire_date']));
+                        $projectScaffold->width = $sVal['width'];
+                        $projectScaffold->length = $sVal['length'];
+                        $projectScaffold->height = $sVal['height'];
+                        $projectScaffold->area = $sVal['length'] * $sVal['width'];
+                        $projectScaffold->volume = $sVal['length'] * $sVal['width'] * $sVal['height'];
+                        $projectScaffold->created_ip = $request->ip();
+                        $projectScaffold->updated_ip = $request->ip();
+                        $projectScaffold->save();
+                    }
                 }
 
-                foreach ($request->activity_scaffold as $key => $value) {
-                    $projectScaffold = new ProjectScaffold();
-                    $projectScaffold->project_activity_id = $request->project_activity_id;
-                    $projectScaffold->scaffold_number = $value['scaffold_number'];
-                    $projectScaffold->on_hire_date = date('Y-m-d', strtotime($value['on_hire_date']));
-                    $projectScaffold->off_hire_date = date('Y-m-d', strtotime($value['off_hire_date']));
-                    $projectScaffold->width = $value['width'];
-                    $projectScaffold->length = $value['length'];
-                    $projectScaffold->height = $value['height'];
-                    $projectScaffold->area = $value['length'] * $value['width'];
-                    $projectScaffold->volume = $value['length'] * $value['width'] * $value['height'];
-                    $projectScaffold->created_ip = $request->ip();
-                    $projectScaffold->updated_ip = $request->ip();
-                    $projectScaffold->save();
-                }
-
-                return $this->sendResponse([], 'Activity scaffold created successfully.');
+                return $this->sendResponse([], 'Activity scaffold updated successfully.');
             } else {
-                return $this->sendError('User does not exist');
+                return $this->sendError('User does not exist', [], 404);
             }
         } catch (\Exception $e) {
             Log::error($e->getMessage());

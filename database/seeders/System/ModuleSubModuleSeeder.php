@@ -50,6 +50,7 @@ class ModuleSubModuleSeeder extends Seeder
                     ['name' => 'Stock Management'],
                     ['name' => 'Gantt Chart'],
                     ['name' => 'Activity Settings'],
+                    ['name' => 'Scaffold Requirement'],
                     ['name' => 'Planned Manpower'],
                     ['name' => 'Material Sheet'],
                     ['name' => 'Actual Manpower'],
