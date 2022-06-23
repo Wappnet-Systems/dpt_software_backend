@@ -115,7 +115,7 @@ class ProjectsController extends Controller
 
     public function getProjectDetails(Request $request)
     {
-        $project = Project::select('id', 'uuid', 'name', 'logo', 'address', 'lat', 'long', 'city', 'state', 'country', 'zip_code', 'start_date', 'end_date', 'cost', 'status', 'created_by')
+        $project = Project::select('id', 'uuid', 'name', 'logo', 'address', 'lat', 'long', 'city', 'state', 'country', 'zip_code', 'start_date', 'end_date', 'working_end_time', 'working_start_time', 'cost', 'status', 'created_by')
             ->whereUuid($request->id)
             ->first();
 
