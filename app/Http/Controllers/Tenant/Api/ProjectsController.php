@@ -141,8 +141,8 @@ class ProjectsController extends Controller
                         'address' => 'required',
                         'start_date' => 'required|date',
                         'end_date' => 'required|date',
-                        'working_start_time' => 'required|date_format:H:i:s',
-                        'working_end_time' => 'required|date_format:H:i:s',
+                        'working_start_time' => 'required|date_format:H:i',
+                        'working_end_time' => 'required|date_format:H:i',
                         'cost' => 'required',
                     ], [
                         'logo.max' => 'The logo must not be greater than 5mb.',
@@ -216,8 +216,8 @@ class ProjectsController extends Controller
                         'address' => 'required',
                         'start_date' => 'required|date',
                         'end_date' => 'required|date',
-                        'working_start_time' => 'required|date_format:H:i:s',
-                        'working_end_time' => 'required|date_format:H:i:s',
+                        'working_start_time' => 'required|date_format:H:i',
+                        'working_end_time' => 'required|date_format:H:i',
                         'cost' => 'required',
                     ], [
                         'logo.max' => 'The logo must not be greater than 5mb.',
