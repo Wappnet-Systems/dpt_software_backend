@@ -364,7 +364,6 @@ class ManforcesAllocationController extends Controller
     }
 
     /**
-     * 
      * Date wise get project activity
      */
     public function getDateWiseActivityMaforces(Request $request)
@@ -372,31 +371,40 @@ class ManforcesAllocationController extends Controller
         try {
             $user = $request->user();
             
-
             if (isset($user) && !empty($user)) {
-
                 $projectActivity = ProjectActivity::select('id', 'project_id', 'project_main_activity_id', 'activity_sub_category_id', 'manforce_type_id', 'name', 'start_date', 'end_date', 'actual_start_date', 'actual_end_date', 'location', 'level', 'actual_area', 'completed_area', 'unit_type_id', 'cost', 'scaffold_requirement', 'helper', 'status', 'productivity_rate', 'created_by')
                     ->whereProjectId($request->project_id ?? '');
 
                 if (isset($request->date) && !empty($request->date)) {
-                    $projectActivity = $projectActivity->whereDate('start_date', '>=', date('Y-m-d', strtotime($request->date)))
-                        ->whereDate('end_date', '<=', date('Y-m-d', strtotime($request->date)));
+                    $projectActivity = $projectActivity->whereDate('start_date', '<=', date('Y-m-d', strtotime($request->date)))
+                        ->whereDate('end_date', '>=', date('Y-m-d', strtotime($request->date)));
                 }
 
-                $projectActivity = $projectActivity->get();
+                $projectActivity = $projectActivity->get()->toArray();
 
                 if (isset($projectActivity) && !empty($projectActivity)) {
-                    foreach ($projectActivity as $key => $projectActivityValue) {
-                        foreach ($projectActivityValue as $k1 => $k2) {
-                            $projectActivity[$key]['project_manforce'] = ProjectManforce::select('id', 'project_id', 'manforce_type_id', 'total_manforce', 'cost', 'cost_type')
-                                ->whereProjectId($projectActivityValue->project_id ?? '')
-                                ->whereManforceTypeId($projectActivityValue->manforce_type_id ?? '')
-                                ->get();
+                    foreach ($projectActivity as $proActKey => $proActVal) {
+                        $projectActivity[$proActKey]['project_manforce'] = ProjectManforce::/* with([
+                                'allocatedManforce' => function($query) use($proActVal) {
+                                    $query->whereProjectActivityId($proActVal->id);
+                                }
+                            ])
+                            -> */select('id', 'project_id', 'manforce_type_id', 'total_manforce', 'cost', 'cost_type')
+                            ->whereProjectId($proActVal['project_id'] ?? '')
+                            // ->allocatedManforces('allocatedManforce', $proActVal->id)
+                            ->orderby('id', 'desc')
+                            ->get()
+                            ->toArray();
 
-                            if (!empty($k2)) {
-                                $projectActivity[$key]['allocated_manforce'] = ProjectActivityAllocateManforce::select('id', 'project_activity_id', 'project_manforce_id', 'date', 'total_assigned', 'total_planned', 'is_overtime', 'total_work', 'total_cost', 'productivity_rate', 'assign_by')
-                                    ->whereProjectActivityId($projectActivityValue->id ?? '')
-                                    ->first();
+                        foreach ($projectActivity[$proActKey]['project_manforce'] as $key => $value) {
+                            $projectActivity[$proActKey]['project_manforce'][$key]['allocated_manforce'] = ProjectActivityAllocateManforce::select('id', 'project_activity_id', 'project_manforce_id', 'date', 'total_assigned', 'total_planned', 'is_overtime', 'total_work', 'total_cost', 'productivity_rate', 'assign_by')
+                                ->whereProjectActivityId($proActVal['id'])
+                                ->whereProjectManforceId($value['id'])
+                                ->first();
+
+                            if (!isset($projectActivity[$proActKey]['project_manforce'][$key]['allocated_manforce']) || empty($projectActivity[$proActKey]['project_manforce'][$key]['allocated_manforce'])) {
+                                $projectActivity[$proActKey]['project_manforce'][$key]['allocated_manforce']['total_planned'] = 0;
+                                $projectActivity[$proActKey]['project_manforce'][$key]['allocated_manforce']['total_assigned'] = 0;
                             }
                         }
                     }
