@@ -60,6 +60,7 @@ class ModuleSubModuleSeeder extends Seeder
                     ['name' => 'Machinery Allocation'],
                     ['name' => 'Material Allocation'],
                     ['name' => 'Manforce Allocation'],
+                    ['name' => 'Overtime'],
                     ['name' => 'Gangs Management'],
                     ['name' => 'Manforce Gang Management'],
                 ]

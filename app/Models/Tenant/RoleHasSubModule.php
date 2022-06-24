@@ -26,7 +26,7 @@ class RoleHasSubModule extends Model
         'list' => ['User Management'],
         'edit' => ['Stock Management'],
         'comment' => ['Gantt Chart', 'Inspection'],
-        'assign' => ['Method Statement', 'Activity Document Management', 'NCR/SOR Request', 'Machinery Allocation', 'Material Allocation', 'Manforce Allocation'],
+        'assign' => ['Method Statement', 'Activity Document Management', 'NCR/SOR Request', 'Machinery Allocation', 'Material Allocation', 'Manforce Allocation', 'Overtime'],
         'approve_reject' => ['Raising Material Requisition', 'Raising Site Instruction', 'NCR/SOR Request', 'Material Transfer Request', 'Inspection']
     ];
 
