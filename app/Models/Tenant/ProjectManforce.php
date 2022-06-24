@@ -5,6 +5,7 @@ namespace App\Models\Tenant;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\DB;
 
 class ProjectManforce extends Model
 {
@@ -48,5 +49,11 @@ class ProjectManforce extends Model
     {
         return $this->belongsTo(ManforceType::class, 'manforce_type_id', 'id')
             ->select('id', 'name', 'status');
+    }
+
+    public function allocatedManforce()
+    {
+        return $this->hasOne(ProjectActivityAllocateManforce::class, 'project_manforce_id', 'id')
+            ->select('id', 'project_activity_id', 'project_manforce_id', 'date', 'total_assigned', 'total_planned', 'is_overtime', 'total_work', 'total_cost', 'productivity_rate', 'assign_by');
     }
 }
