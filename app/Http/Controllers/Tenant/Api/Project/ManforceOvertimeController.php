@@ -70,17 +70,19 @@ class ManforceOvertimeController extends Controller
                     foreach ($projectActivity as $proActKey => $proActVal) {
                         $projectActivity[$proActKey]['project_manforce'] = ProjectManforce::with([
                                 'allocatedManforce' => function($query) use($proActVal) {
-                                    $query->whereProjectActivityId($proActVal['id']);
+                                    $query->whereProjectActivityId($proActVal['id'])
+                                        ->where('is_overtime', true);
                                 }
                             ])
                             ->select('id', 'project_id', 'manforce_type_id', 'total_manforce', 'cost', 'cost_type')
                             ->whereProjectId($proActVal['project_id'] ?? '')
                             ->whereManforceTypeId($proActVal['manforce_type_id'] ?? '')
                             ->orderby('id', 'desc')
-                            ->first()
-                            ->toArray();
+                            ->first();
 
-                        if (!isset($projectActivity[$proActKey]['project_manforce']['allocated_manforce']['id']) || empty($projectActivity[$proActKey]['project_manforce']['allocated_manforce']['id'])) {
+                            $projectActivity[$proActKey] = json_decode(json_encode($projectActivity[$proActKey]), true);
+
+                        if (!isset($projectActivity[$proActKey]['project_manforce']['allocated_manforce']) || empty($projectActivity[$proActKey]['project_manforce']['allocated_manforce'])) {
                             $projectActivity[$proActKey]['project_manforce']['allocated_manforce']['total_assigned'] = 0;
                             $projectActivity[$proActKey]['project_manforce']['allocated_manforce']['overtime_hours'] = null;
                         }
