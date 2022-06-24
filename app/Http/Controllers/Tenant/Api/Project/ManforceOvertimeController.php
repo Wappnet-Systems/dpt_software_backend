@@ -109,7 +109,7 @@ class ManforceOvertimeController extends Controller
 
             if (isset($user) && !empty($user)) {
                 $validator = Validator::make($request->all(), [
-                    'request_date' => 'required|date_format:Y-m-d',
+                    'request_date' => 'required',
                     'activities' => 'required'
 
                 ]);
