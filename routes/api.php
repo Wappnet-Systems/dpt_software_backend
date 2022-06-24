@@ -37,6 +37,7 @@ use App\Http\Controllers\Tenant\Api\Project\MethodStatementController;
 use App\Http\Controllers\Tenant\Api\Project\ManforceProductivityController;
 use App\Http\Controllers\Tenant\Api\NcrSorController;
 use App\Http\Controllers\Tenant\Api\Project\NcrSorRequestController;
+use App\Http\Controllers\Tenant\Api\Project\RaisingInstructionRequestController;
 use App\Http\Controllers\Tenant\Api\Project\ScaffoldController;
 use App\Http\Controllers\Tenant\Api\ReportController;
 use Illuminate\Support\Facades\Route;
@@ -321,4 +322,12 @@ Route::middleware('auth:sanctum')->group(function () {
     /* Project Scaffold Activity Routes */
     Route::get('project/scaffold/activity/lists', [ScaffoldController::class, 'getScaffoldActivity']);
     Route::post('project/scaffold/activity/add', [ScaffoldController::class, 'addScaffoldActivity']);
+    
+    /* project Raising instruction Request Routes */
+    Route::get('project/raising/instruction/request/get/list', [RaisingInstructionRequestController::class, 'getRaisingInstructionRequest']);
+    Route::get('project/raising/instruction/request/get/{id}', [RaisingInstructionRequestController::class, 'getRaisingInstructionRequestDetails']);
+    Route::post('project/raising/instruction/request/add', [RaisingInstructionRequestController::class, 'addRaisingInstructionRequest']);
+    Route::put('project/raising/instruction/request/update/{id}', [RaisingInstructionRequestController::class, 'updateRaisingInstructionRequest']);
+    Route::delete('project/raising/instruction/request/delete/{id}', [RaisingInstructionRequestController::class, 'deleteRaisingInstructionRequest']);
+    Route::patch('project/raising/instruction/request/approve-Reject/{id}', [RaisingInstructionRequestController::class, 'raisingInstructionRequestApproveReject']);
 });
