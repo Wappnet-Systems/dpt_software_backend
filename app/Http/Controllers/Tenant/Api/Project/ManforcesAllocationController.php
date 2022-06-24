@@ -366,11 +366,11 @@ class ManforcesAllocationController extends Controller
     /**
      * Date wise get project activity
      */
-    public function getDateWiseActivityMaforces(Request $request)
+    public function getDateWiseActivityManforces(Request $request)
     {
         try {
             $user = $request->user();
-            
+
             if (isset($user) && !empty($user)) {
                 $projectActivity = ProjectActivity::select('id', 'project_id', 'project_main_activity_id', 'activity_sub_category_id', 'manforce_type_id', 'name', 'start_date', 'end_date', 'actual_start_date', 'actual_end_date', 'location', 'level', 'actual_area', 'completed_area', 'unit_type_id', 'cost', 'scaffold_requirement', 'helper', 'status', 'productivity_rate', 'created_by')
                     ->whereProjectId($request->project_id ?? '');
@@ -400,6 +400,7 @@ class ManforcesAllocationController extends Controller
                             $projectActivity[$proActKey]['project_manforce'][$key]['allocated_manforce'] = ProjectActivityAllocateManforce::select('id', 'project_activity_id', 'project_manforce_id', 'date', 'total_assigned', 'total_planned', 'is_overtime', 'total_work', 'total_cost', 'productivity_rate', 'assign_by')
                                 ->whereProjectActivityId($proActVal['id'])
                                 ->whereProjectManforceId($value['id'])
+                                ->where('is_overtime', false)
                                 ->first();
 
                             if (!isset($projectActivity[$proActKey]['project_manforce'][$key]['allocated_manforce']) || empty($projectActivity[$proActKey]['project_manforce'][$key]['allocated_manforce'])) {
@@ -413,6 +414,73 @@ class ManforcesAllocationController extends Controller
                 }
 
                 return $this->sendResponse($projectActivity, 'Project activity manforce allocation list.');
+            } else {
+                return $this->sendError('User not exists.', [], 404);
+            }
+        } catch (\Exception $e) {
+            Log::error($e->getMessage());
+
+            return $this->sendError('Something went wrong!', [], 500);
+        }
+    }
+
+    /**
+     * Project Activity Manforce Update.
+     */
+    public function updateActivityAllocationManforce(Request $request)
+    {
+        try {
+            $user = $request->user();
+
+            if (isset($user) && !empty($user)) {
+                $validator = Validator::make($request->all(), [
+                    'request_date' => 'required|date_format:Y-m-d',
+                    'allocated_manforce' => 'required'
+
+                ]);
+
+                if ($validator->fails()) {
+                    foreach ($validator->errors()->messages() as $key => $value) {
+                        return $this->sendError('Validation Error.', [$key => $value[0]], 400);
+                    }
+                }
+                
+                $request->merge(['allocated_manforce' => json_decode(base64_decode($request->allocated_manforce), true)]);
+
+                foreach ($request->allocated_manforce as $allocatedManforce) {
+                    foreach ($allocatedManforce['project_manforce'] as $manforceValue) {
+                        if (isset($manforceValue['allocated_manforce']['id']) && !empty($manforceValue['allocated_manforce']['id'])) {
+                            $activityAllocatedManforce = ProjectActivityAllocateManforce::whereId($manforceValue['allocated_manforce']['id'])->first();
+                            $activityAllocatedManforce->total_assigned = $manforceValue['allocated_manforce']['total_assigned'];
+                            $activityAllocatedManforce->total_planned = $manforceValue['allocated_manforce']['total_planned'];
+                            $activityAllocatedManforce->updated_ip = $request->ip();
+                            $activityAllocatedManforce->save();
+                        }
+                        if (empty($manforceValue['allocated_manforce']['id']) && ($manforceValue['allocated_manforce']['total_assigned'] > 0) && ($manforceValue['allocated_manforce']['total_planned'] > 0)) {
+                            $activityAllocatedManforce = new ProjectActivityAllocateManforce();
+                            $activityAllocatedManforce->project_activity_id = $allocatedManforce['id'];
+                            $activityAllocatedManforce->project_manforce_id = $manforceValue['id'];
+                            $activityAllocatedManforce->date = date('Y-m-d', strtotime($request->request_date));
+                            $activityAllocatedManforce->is_overtime = false;
+                            $activityAllocatedManforce->total_assigned = $manforceValue['allocated_manforce']['total_assigned'];
+                            $activityAllocatedManforce->total_planned = $manforceValue['allocated_manforce']['total_planned'];
+                            $activityAllocatedManforce->assign_by = $user->id;
+                            $activityAllocatedManforce->created_ip = $request->ip();
+                            $activityAllocatedManforce->updated_ip = $request->ip();
+
+                            if ($activityAllocatedManforce->save()) {
+
+                                $projectActivityAllocate = ProjectActivityAllocateManforce::whereProjectActivityId($allocatedManforce['id'])->orderBy('date', 'asc')->limit(1)->first();
+                                if (isset($projectActivityAllocate) && !empty($projectActivityAllocate)) {
+                                    $projectActivity = ProjectActivity::whereId($projectActivityAllocate->project_activity_id)->first();
+                                    $projectActivity->actual_start_date = date('Y-m-d H:i:s', strtotime($request->request_date));
+                                    $projectActivity->save();
+                                }
+                            }
+                        }
+                    }
+                }
+                return $this->sendResponse([], 'Project activities allocate manforce update successfully.');
             } else {
                 return $this->sendError('User not exists.', [], 404);
             }

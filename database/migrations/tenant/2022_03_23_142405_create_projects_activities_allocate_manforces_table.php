@@ -24,6 +24,7 @@ class CreateProjectsActivitiesAllocateManforcesTable extends Migration
             $table->integer('total_assigned');
             $table->integer('total_planned');
             $table->boolean('is_overtime');
+            $table->integer('overtime_hours')->nullable();
             $table->double('total_work')->nullable();
             $table->double('total_cost')->nullable();
             $table->integer('productivity_rate')->nullable();
