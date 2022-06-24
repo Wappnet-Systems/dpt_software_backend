@@ -50,6 +50,7 @@ class ManforcesController extends Controller
         $orderBy = !empty($request->orderby) ? $request->orderby : config('constants.default_orderby');
 
         $query = ProjectManforce::with('manforce')
+            ->select('id', 'project_id', 'manforce_type_id', 'total_manforce', 'cost', 'cost_type')
             ->whereProjectId($request->project_id ?? null)
             ->orderBy('id', $orderBy);
 
@@ -83,7 +84,7 @@ class ManforcesController extends Controller
     public function getManforceDetails(Request $request)
     {
         $projectManforce = ProjectManforce::with('manforce')
-            ->select('id', 'project_id', 'manforce_type_id', 'total_manforce', 'cost')
+            ->select('id', 'project_id', 'manforce_type_id', 'total_manforce', 'cost', 'cost_type')
             ->whereId($request->id)
             ->first();
 

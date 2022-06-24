@@ -273,7 +273,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('project/allocate/manforce/delete/{id}', [ManforcesAllocationController::class, 'deleteAllocateManforces']);
     
     /* Date wise manforce allocation */
-    Route::get('project/activity/manforce/lists', [ManforcesAllocationController::class, 'getDateWiseActivityMaforces']);
+    Route::get('project/activity/manforce/get/lists', [ManforcesAllocationController::class, 'getDateWiseActivityMaforces']);
 
     /* Activity Manpower Routes */
     Route::get('project/activity/manpower/get/lists', [ManforcesAllocationController::class, 'getActivityManpower']);
