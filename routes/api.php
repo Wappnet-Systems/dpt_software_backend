@@ -272,9 +272,12 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('project/allocate/manforce/add', [ManforcesAllocationController::class, 'addAllocateManforces']);
     Route::put('project/allocate/manforce/update/{id}', [ManforcesAllocationController::class, 'updateAllocateManforces']);
     Route::delete('project/allocate/manforce/delete/{id}', [ManforcesAllocationController::class, 'deleteAllocateManforces']);
-    
+
     /* Date wise manforce allocation */
-    Route::get('project/activity/manforce/get/lists', [ManforcesAllocationController::class, 'getDateWiseActivityMaforces']);
+    Route::get('project/activity/manforce/overtime/get/lists', [ManforcesAllocationController::class, 'getDateWiseActivityManforces']);
+
+    /* update Activity Allocation Manforce Route */
+    Route::post('project/activity/manforce/overtime/update', [ManforcesAllocationController::class, 'updateActivityAllocationManforce']);
 
     /* Activity Manpower Routes */
     Route::get('project/activity/manpower/get/lists', [ManforcesAllocationController::class, 'getActivityManpower']);
@@ -322,7 +325,7 @@ Route::middleware('auth:sanctum')->group(function () {
     /* Project Scaffold Activity Routes */
     Route::get('project/scaffold/activity/lists', [ScaffoldController::class, 'getScaffoldActivity']);
     Route::post('project/scaffold/activity/add', [ScaffoldController::class, 'addScaffoldActivity']);
-    
+
     /* project Raising instruction Request Routes */
     Route::get('project/raising/instruction/request/get/list', [RaisingInstructionRequestController::class, 'getRaisingInstructionRequest']);
     Route::get('project/raising/instruction/request/get/{id}', [RaisingInstructionRequestController::class, 'getRaisingInstructionRequestDetails']);
