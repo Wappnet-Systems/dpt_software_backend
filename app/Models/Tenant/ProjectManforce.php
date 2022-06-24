@@ -54,6 +54,6 @@ class ProjectManforce extends Model
     public function allocatedManforce()
     {
         return $this->hasOne(ProjectActivityAllocateManforce::class, 'project_manforce_id', 'id')
-            ->select('id', 'project_activity_id', 'project_manforce_id', 'date', 'total_assigned', 'total_planned', 'is_overtime', 'total_work', 'total_cost', 'productivity_rate', 'assign_by');
+            ->select('id', 'project_activity_id', 'project_manforce_id', 'date', 'total_assigned', 'total_planned', 'is_overtime', 'overtime_hours', 'total_work', 'total_cost', 'productivity_rate', 'assign_by');
     }
 }

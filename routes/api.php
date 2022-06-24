@@ -32,6 +32,7 @@ use App\Http\Controllers\Tenant\Api\Project\MaterialRaisingRequestsController;
 use App\Http\Controllers\Tenant\Api\Project\MaterialTransferRequestsController;
 use App\Http\Controllers\Tenant\Api\Project\MachineryAllocationController;
 use App\Http\Controllers\Tenant\Api\Project\ManforcesAllocationController;
+use App\Http\Controllers\Tenant\Api\Project\ManforceOvertimeController;
 use App\Http\Controllers\Tenant\Api\Project\InspectionController;
 use App\Http\Controllers\Tenant\Api\Project\MethodStatementController;
 use App\Http\Controllers\Tenant\Api\Project\ManforceProductivityController;
@@ -274,13 +275,15 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('project/allocate/manforce/delete/{id}', [ManforcesAllocationController::class, 'deleteAllocateManforces']);
 
     /* Date wise manforce allocation */
-    Route::get('project/activity/manforce/overtime/get/lists', [ManforcesAllocationController::class, 'getDateWiseActivityManforces']);
-
-    /* update Activity Allocation Manforce Route */
-    Route::post('project/activity/manforce/overtime/update', [ManforcesAllocationController::class, 'updateActivityAllocationManforce']);
-
+    Route::get('project/activity/manforce/get/lists', [ManforcesAllocationController::class, 'getDateWiseActivityManforces']);
+    Route::post('project/activity/manforce/allocation/update', [ManforcesAllocationController::class, 'updateActivityAllocationManforce']);
+    
     /* Activity Manpower Routes */
     Route::get('project/activity/manpower/get/lists', [ManforcesAllocationController::class, 'getActivityManpower']);
+
+    /* Manforce Overtime Routes */
+    Route::get('project/activity/manforce/overtime/get/lists', [ManforceOvertimeController::class, 'getManforceOvertimeByDate']);
+    Route::post('project/activity/manforce/overtime/update', [ManforceOvertimeController::class, 'updateManforceOvertimeByDate']);
 
     /* Manforce Productivity Routes */
     Route::get('project/manforce/productivity/get/lists', [ManforceProductivityController::class, 'getManforceProductivity']);

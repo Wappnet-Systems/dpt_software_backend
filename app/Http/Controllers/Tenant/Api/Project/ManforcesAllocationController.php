@@ -436,7 +436,6 @@ class ManforcesAllocationController extends Controller
                 $validator = Validator::make($request->all(), [
                     'request_date' => 'required|date_format:Y-m-d',
                     'allocated_manforce' => 'required'
-
                 ]);
 
                 if ($validator->fails()) {
