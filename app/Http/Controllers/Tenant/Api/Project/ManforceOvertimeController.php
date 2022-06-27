@@ -84,7 +84,7 @@ class ManforceOvertimeController extends Controller
                             $projectActivity[$proActKey]['project_manforce'] = $projectActivity[$proActKey]['project_manforce']->toArray();
 
                             if (empty($projectActivity[$proActKey]['project_manforce']['allocated_manforce'])) {
-                                $projectActivity[$proActKey]['project_manforce']['allocated_manforce']['total_assigned'] = 0;
+                                $projectActivity[$proActKey]['project_manforce']['allocated_manforce']['total_assigned'] = null;
                                 $projectActivity[$proActKey]['project_manforce']['allocated_manforce']['overtime_hours'] = null;
                             }
                         } else {
@@ -133,6 +133,10 @@ class ManforceOvertimeController extends Controller
                         $overtime = ProjectActivityAllocateManforce::whereId($activity['project_manforce']['allocated_manforce']['id'])->first();
                         $overtime->updated_ip = $request->ip();
                     } else {
+                        if (empty($activity['project_manforce']['allocated_manforce']['total_assigned']) && empty($activity['project_manforce']['allocated_manforce']['overtime_hours'])) {
+                            continue;
+                        }
+
                         $overtime->created_ip = $request->ip();
                         $overtime->updated_ip = $request->ip();
                     }
@@ -142,7 +146,7 @@ class ManforceOvertimeController extends Controller
                     $overtime->date = date('Y-m-d', strtotime($request->request_date));
                     $overtime->total_assigned = $activity['project_manforce']['allocated_manforce']['total_assigned'] ?? 0;
                     $overtime->total_planned = 0;
-                    $overtime->is_overtime = false;
+                    $overtime->is_overtime = true;
                     $overtime->overtime_hours = $activity['project_manforce']['allocated_manforce']['overtime_hours'];
                     $overtime->assign_by = $user->id;
                     $overtime->created_ip = $request->ip();

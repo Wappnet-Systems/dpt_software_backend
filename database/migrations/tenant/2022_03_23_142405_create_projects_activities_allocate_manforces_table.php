@@ -21,9 +21,9 @@ class CreateProjectsActivitiesAllocateManforcesTable extends Migration
             $table->unsignedBigInteger('project_activity_id');
             $table->unsignedBigInteger('project_manforce_id');
             $table->date('date');
-            $table->integer('total_assigned');
-            $table->integer('total_planned');
-            $table->boolean('is_overtime');
+            $table->integer('total_assigned')->nullable();
+            $table->integer('total_planned')->nullable();
+            $table->boolean('is_overtime')->default(false);
             $table->integer('overtime_hours')->nullable();
             $table->double('total_work')->nullable();
             $table->double('total_cost')->nullable();
