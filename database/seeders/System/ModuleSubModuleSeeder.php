@@ -92,7 +92,6 @@ class ModuleSubModuleSeeder extends Seeder
             [
                 'name' => 'HSE',
                 'sub_module' => [
-                    ['name' => 'Risk Assessment Panel'],
                     ['name' => 'Method Statement'],
                     ['name' => 'HSE Permits'],
                 ]

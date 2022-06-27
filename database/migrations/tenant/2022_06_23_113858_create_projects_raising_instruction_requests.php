@@ -16,7 +16,7 @@ class CreateProjectsRaisingInstructionRequests extends Migration
         Schema::create('projects_raising_instruction_requests', function (Blueprint $table) {
             $table->id();
             $table->foreignId('project_id')->constrained('projects')->cascadeOnUpdate()->cascadeOnDelete();
-            $table->bigInteger('request_no')->nullable();
+            $table->string('request_no', 30)->nullable();
             $table->longText('message');
             $table->tinyInteger('status')->default(1)->comment('1 - Pending, 2 - Approved, 3 - Rejected');
             $table->longText('reason')->nullable();

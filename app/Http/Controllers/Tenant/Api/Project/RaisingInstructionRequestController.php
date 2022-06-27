@@ -83,7 +83,7 @@ class RaisingInstructionRequestController extends Controller
         $raisingInstructionRequest = ProjectRaisingInstructionRequest::whereId($request->id)->first();
 
         if (!isset($raisingInstructionRequest) || empty($raisingInstructionRequest)) {
-            return $this->sendError('Project raising instruction request does not exist.');
+            return $this->sendError('Project raising instruction request does not exist.', [], 404);
         }
 
         return $this->sendResponse($raisingInstructionRequest, 'Project raising instruction request details.');
@@ -97,8 +97,8 @@ class RaisingInstructionRequestController extends Controller
             if (isset($user) && !empty($user)) {
                 $validator = Validator::make($request->all(), [
                     'project_id' => 'required|exists:projects,id',
-                    'request_no' => 'required|numeric|gt:0',
-                    'message' => 'required|max:255',
+                    'request_no' => 'required',
+                    'message' => 'required',
                 ]);
 
                 if ($validator->fails()) {
@@ -110,13 +110,13 @@ class RaisingInstructionRequestController extends Controller
                 $raisingInstructionRequest = new ProjectRaisingInstructionRequest();
                 $raisingInstructionRequest->project_id = $request->project_id;
                 $raisingInstructionRequest->request_no = !empty($request->request_no) ? $request->request_no : null;
-                $raisingInstructionRequest->message =  $request->message;
-                $raisingInstructionRequest->created_by =  $user->id;
+                $raisingInstructionRequest->message = $request->message;
+                $raisingInstructionRequest->created_by = $user->id;
                 $raisingInstructionRequest->created_ip = $request->ip();
                 $raisingInstructionRequest->updated_ip = $request->ip();
 
                 if (!$raisingInstructionRequest->save()) {
-                    return $this->sendError('Something went wrong while creating the project raising instruction request.');
+                    return $this->sendError('Something went wrong while creating the project raising instruction request.', [], 500);
                 }
 
                 return $this->sendResponse([], 'Project raising instruction request created successfully.');
@@ -137,8 +137,8 @@ class RaisingInstructionRequestController extends Controller
 
             if (isset($user) && !empty($user)) {
                 $validator = Validator::make($request->all(), [
-                    'request_no' => 'required|numeric|gt:0',
-                    'message' => 'required|max:255',
+                    'request_no' => 'required',
+                    'message' => 'required',
                 ]);
 
                 if ($validator->fails()) {
@@ -150,15 +150,15 @@ class RaisingInstructionRequestController extends Controller
                 $raisingInstructionRequest = ProjectRaisingInstructionRequest::whereId($request->id)->first();
 
                 if (!isset($raisingInstructionRequest) || empty($raisingInstructionRequest)) {
-                    return $this->sendError('Project raising instruction request does not exist.');
+                    return $this->sendError('Project raising instruction request does not exist.', [], 404);
                 }
 
-                $raisingInstructionRequest->request_no = !empty($request->request_no) ? $request->request_no : null;
-                $raisingInstructionRequest->message =  $request->message;
+                if ($request->filled('request_no')) $raisingInstructionRequest->request_no = !empty($request->request_no) ? $request->request_no : null;
+                if ($request->filled('message')) $raisingInstructionRequest->message =  $request->message;
                 $raisingInstructionRequest->updated_ip = $request->ip();
 
                 if (!$raisingInstructionRequest->save()) {
-                    return $this->sendError('Something went wrong while updating the project raising instruction request.');
+                    return $this->sendError('Something went wrong while updating the project raising instruction request.', [], 500);
                 }
 
                 return $this->sendResponse([], 'Project raising instruction request updated successfully.');
@@ -180,11 +180,11 @@ class RaisingInstructionRequestController extends Controller
                 $raisingInstructionRequest = ProjectRaisingInstructionRequest::whereId($request->id)->first();
 
                 if (!isset($raisingInstructionRequest) || empty($raisingInstructionRequest)) {
-                    return $this->sendError('Project raising instruction request does not exist.');
+                    return $this->sendError('Project raising instruction request does not exist.', [], 404);
                 }
 
                 if ($raisingInstructionRequest->status == ProjectRaisingInstructionRequest::STATUS['Approved']) {
-                    return $this->sendError('You can not delete the project raising instruction request.');
+                    return $this->sendError('You can not delete the project raising instruction request.', [], 400);
                 }
 
                 $raisingInstructionRequest->delete();
@@ -200,7 +200,7 @@ class RaisingInstructionRequestController extends Controller
         }
     }
 
-    public function raisingInstructionRequestApproveReject(Request $request)
+    public function changeRaisingInstructionRequestStatus(Request $request)
     {
         try {
             $user = $request->user();
@@ -222,7 +222,7 @@ class RaisingInstructionRequestController extends Controller
                 $raisingInstructionRequest = ProjectRaisingInstructionRequest::whereId($request->id)->first();
 
                 if (!isset($raisingInstructionRequest) || empty($raisingInstructionRequest)) {
-                    return $this->sendError('Project raising instruction request does not exist.');
+                    return $this->sendError('Project raising instruction request does not exist.', [], 404);
                 }
 
                 if ($request->status == ProjectRaisingInstructionRequest::STATUS['Rejected']) {
@@ -248,7 +248,7 @@ class RaisingInstructionRequestController extends Controller
                 $raisingInstructionRequest->updated_ip = $request->ip();
 
                 if (!$raisingInstructionRequest->save()) {
-                    return $this->sendError('Something went wrong while updating the project raising instruction request status.');
+                    return $this->sendError('Something went wrong while updating the project raising instruction request status.', [], 500);
                 }
 
                 return $this->sendResponse($raisingInstructionRequest, 'Status changed successfully.');
