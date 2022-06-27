@@ -80,11 +80,15 @@ class ManforceOvertimeController extends Controller
                             ->orderby('id', 'desc')
                             ->first();
 
-                            $projectActivity[$proActKey] = json_decode(json_encode($projectActivity[$proActKey]), true);
+                        if (isset($projectActivity[$proActKey]['project_manforce']) && !empty($projectActivity[$proActKey]['project_manforce'])) {
+                            $projectActivity[$proActKey]['project_manforce'] = $projectActivity[$proActKey]['project_manforce']->toArray();
 
-                        if (!isset($projectActivity[$proActKey]['project_manforce']['allocated_manforce']) || empty($projectActivity[$proActKey]['project_manforce']['allocated_manforce'])) {
-                            $projectActivity[$proActKey]['project_manforce']['allocated_manforce']['total_assigned'] = 0;
-                            $projectActivity[$proActKey]['project_manforce']['allocated_manforce']['overtime_hours'] = null;
+                            if (empty($projectActivity[$proActKey]['project_manforce']['allocated_manforce'])) {
+                                $projectActivity[$proActKey]['project_manforce']['allocated_manforce']['total_assigned'] = 0;
+                                $projectActivity[$proActKey]['project_manforce']['allocated_manforce']['overtime_hours'] = null;
+                            }
+                        } else {
+                            unset($projectActivity[$proActKey]);
                         }
                     }
                 } else {
