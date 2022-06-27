@@ -267,19 +267,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('project/allocate/machinery', [MachineryAllocationController::class, 'allocateMachinery']);
     Route::patch('project/allocate/machinery/delete/{id}', [MachineryAllocationController::class, 'deleteAllocateMachinery']);
 
-    /* Allocate Manforce to Project Activities Routes */
-    Route::get('project/allocate/manforce/get/lists', [ManforcesAllocationController::class, 'getAllocateManforces']);
-    Route::get('project/allocate/manforce/get/{id}', [ManforcesAllocationController::class, 'getAllocateManforcesDetails']);
-    Route::post('project/allocate/manforce/add', [ManforcesAllocationController::class, 'addAllocateManforces']);
-    Route::put('project/allocate/manforce/update/{id}', [ManforcesAllocationController::class, 'updateAllocateManforces']);
-    Route::delete('project/allocate/manforce/delete/{id}', [ManforcesAllocationController::class, 'deleteAllocateManforces']);
-
-    /* Date wise manforce allocation */
+    /* Allocate Manforce to Project Activities by Date Routes */
     Route::get('project/activity/manforce/get/lists', [ManforcesAllocationController::class, 'getDateWiseActivityManforces']);
     Route::post('project/activity/manforce/allocation/update', [ManforcesAllocationController::class, 'updateActivityAllocationManforce']);
-    
-    /* Activity Manpower Routes */
-    Route::get('project/activity/manpower/get/lists', [ManforcesAllocationController::class, 'getActivityManpower']);
 
     /* Manforce Overtime Routes */
     Route::get('project/activity/manforce/overtime/get/lists', [ManforceOvertimeController::class, 'getManforceOvertimeByDate']);
@@ -329,11 +319,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('project/scaffold/activity/lists', [ScaffoldController::class, 'getScaffoldActivity']);
     Route::post('project/scaffold/activity/add', [ScaffoldController::class, 'addScaffoldActivity']);
 
-    /* project Raising instruction Request Routes */
+    /* Project Raising instruction Request Routes */
     Route::get('project/raising/instruction/request/get/list', [RaisingInstructionRequestController::class, 'getRaisingInstructionRequest']);
     Route::get('project/raising/instruction/request/get/{id}', [RaisingInstructionRequestController::class, 'getRaisingInstructionRequestDetails']);
     Route::post('project/raising/instruction/request/add', [RaisingInstructionRequestController::class, 'addRaisingInstructionRequest']);
     Route::put('project/raising/instruction/request/update/{id}', [RaisingInstructionRequestController::class, 'updateRaisingInstructionRequest']);
     Route::delete('project/raising/instruction/request/delete/{id}', [RaisingInstructionRequestController::class, 'deleteRaisingInstructionRequest']);
-    Route::patch('project/raising/instruction/request/approve-Reject/{id}', [RaisingInstructionRequestController::class, 'raisingInstructionRequestApproveReject']);
+    Route::patch('project/raising/instruction/request/status/change/{id}', [RaisingInstructionRequestController::class, 'changeRaisingInstructionRequestStatus']);
 });
