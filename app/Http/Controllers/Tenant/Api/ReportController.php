@@ -99,7 +99,7 @@ class ReportController extends Controller
 
                 $getProjectManpower = [];
 
-                $projects = Project::select('id', 'uuid', 'name', 'logo', 'address', 'lat', 'long', 'city', 'state', 'country', 'zip_code', 'start_date', 'end_date', 'working_start_time', 'working_end_time', 'cost', 'status');
+                $projects = Project::select('id', 'uuid', 'name', 'logo');
                 if (isset($request->project_id) && !empty($request->project_id)) {
                     $projects = $projects->whereId($request->project_id ?? '');
                 }
@@ -109,23 +109,23 @@ class ReportController extends Controller
                     foreach ($projects as $prKey => $projectValue) {
                         $getProjectManpower['projects'][$prKey] = $projectValue->toArray();
 
-                        $totalManpower = ProjectManforce::with(['manforce'])
+                        $totalManpower = ProjectManforce::with(['manforce', 'allocatedManpower' => function ($query) use ($request) {
+                            $query->select('id', 'date', 'project_manforce_id', DB::raw("SUM(total_assigned) as working_manpower"))
+                                ->groupBy('id', 'date');
+                            if (!empty($request->from_date) && !empty($request->to_date)) {
+                                $query->whereDate('date', '>=', date('Y-m-d', strtotime($request->from_date)))
+                                    ->whereDate('date', '<=', date('Y-m-d', strtotime($request->to_date)));
+                            }
+                        }])
                             ->select('id', 'project_id', 'manforce_type_id', 'total_manforce', 'cost', 'cost_type')
                             ->whereProjectId($getProjectManpower['projects'][$prKey]['id'] ?? '')
                             ->get();
 
                         foreach ($totalManpower as $value) {
-                            $workingAvailableManpower = ProjectActivityAllocateManforce::select('date', DB::raw("SUM(total_assigned) as working_manpower"))
-                                ->whereProjectManforceId($value->id);
-                            if (!empty($request->from_date) && !empty($request->to_date)) {
-                                $workingAvailableManpower = $workingAvailableManpower->whereDate('date', '>=', date('Y-m-d', strtotime($request->from_date)))
-                                    ->whereDate('date', '<=', date('Y-m-d', strtotime($request->to_date)));
-                            }
-                            $workingAvailableManpower = $workingAvailableManpower->groupBy('date')->get();
-
-                            foreach ($workingAvailableManpower as $manpowerValue) {
+                            foreach ($value->allocatedManpower as $manpowerValue) {
                                 $workingManpower = !empty($manpowerValue) ? (int) $manpowerValue->working_manpower : null;
                                 $availableManpower = $value->total_manforce - $workingManpower;
+
                                 $getProjectManpower['projects'][$prKey][$manpowerValue->date][$value->manforce->name]['total_manpower'] = $value->total_manforce;
                                 $getProjectManpower['projects'][$prKey][$manpowerValue->date][$value->manforce->name]['working_manpower'] = !empty($workingManpower) ? $workingManpower : null;
                                 $getProjectManpower['projects'][$prKey][$manpowerValue->date][$value->manforce->name]['available_manpower'] = !empty($availableManpower) ? $availableManpower : null;
