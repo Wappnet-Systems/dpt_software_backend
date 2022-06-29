@@ -81,7 +81,7 @@ class ActivityDocumentController extends Controller
         }
 
         if (isset($request->project_activity_id) && !empty($request->project_activity_id)) {
-            $query->where(function($query) use($request) {
+            $query->where(function ($query) use ($request) {
                 $query->orWhere('project_activity_id', $request->project_activity_id);
                 $query->orWhere('project_activity_id', null);
             });
@@ -165,6 +165,10 @@ class ActivityDocumentController extends Controller
                     }
                 }
 
+                if (!in_array($request->type, ProjectActivityDocument::TYPE)) {
+                    return $this->sendError('Invalid type requested.', [], 400);
+                }
+
                 $projectActivityDocument = new ProjectActivityDocument();
                 $projectActivityDocument->project_id = $request->project_id;
                 $projectActivityDocument->name = $request->name;
@@ -226,6 +230,10 @@ class ActivityDocumentController extends Controller
                     foreach ($validator->errors()->messages() as $key => $value) {
                         return $this->sendError('Validation Error.', [$key => $value[0]], 400);
                     }
+                }
+
+                if (!in_array($request->type, ProjectActivityDocument::TYPE)) {
+                    return $this->sendError('Invalid type requested.', [], 400);
                 }
 
                 $projectActivityDocument = ProjectActivityDocument::whereId($request->id)
