@@ -13,6 +13,7 @@ use App\Models\Tenant\ProjectManforce;
 use App\Models\Tenant\ProjectActivityAllocateManforce;
 use App\Helpers\AppHelper;
 use App\Models\Tenant\ProjectActivity;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 
 class ManforcesAllocationController extends Controller
@@ -45,9 +46,6 @@ class ManforcesAllocationController extends Controller
         });
     }
 
-    /**
-     * Date wise get project activity
-     */
     public function getDateWiseActivityManforces(Request $request)
     {
         try {
@@ -82,6 +80,7 @@ class ManforcesAllocationController extends Controller
                             $projectActivity[$proActKey]['project_manforce'][$key]['allocated_manforce'] = ProjectActivityAllocateManforce::select('id', 'project_activity_id', 'project_manforce_id', 'date', 'total_assigned', 'total_planned', 'is_overtime', 'total_work', 'total_cost', 'productivity_rate', 'assign_by')
                                 ->whereProjectActivityId($proActVal['id'])
                                 ->whereProjectManforceId($value['id'])
+                                ->where('date', date('Y-m-d', strtotime($request->date)))
                                 ->where('is_overtime', false)
                                 ->first();
 
@@ -91,8 +90,6 @@ class ManforcesAllocationController extends Controller
                             }
                         }
                     }
-                } else {
-                    return $this->sendError('Project activity not exists.', [], 400);
                 }
 
                 return $this->sendResponse($projectActivity, 'Project activity manforce allocation list.');
@@ -106,9 +103,6 @@ class ManforcesAllocationController extends Controller
         }
     }
 
-    /**
-     * Project Activity Manforce Update.
-     */
     public function updateActivityAllocationManforce(Request $request)
     {
         try {
@@ -116,7 +110,7 @@ class ManforcesAllocationController extends Controller
 
             if (isset($user) && !empty($user)) {
                 $validator = Validator::make($request->all(), [
-                    'request_date' => 'required|date_format:Y-m-d',
+                    'request_date' => 'required',
                     'allocated_manforce' => 'required'
                 ]);
 
@@ -136,8 +130,11 @@ class ManforcesAllocationController extends Controller
                             $activityAllocatedManforce->total_planned = $manforceValue['allocated_manforce']['total_planned'];
                             $activityAllocatedManforce->updated_ip = $request->ip();
                             $activityAllocatedManforce->save();
-                        }
-                        if (empty($manforceValue['allocated_manforce']['id']) && ($manforceValue['allocated_manforce']['total_assigned'] > 0) && ($manforceValue['allocated_manforce']['total_planned'] > 0)) {
+                        } else {
+                            if (empty($manforceValue['allocated_manforce']['total_assigned']) && empty($manforceValue['allocated_manforce']['total_planned'])) {
+                                continue;
+                            }
+
                             $activityAllocatedManforce = new ProjectActivityAllocateManforce();
                             $activityAllocatedManforce->project_activity_id = $allocatedManforce['id'];
                             $activityAllocatedManforce->project_manforce_id = $manforceValue['id'];
@@ -150,17 +147,31 @@ class ManforcesAllocationController extends Controller
                             $activityAllocatedManforce->updated_ip = $request->ip();
 
                             if ($activityAllocatedManforce->save()) {
-
-                                $projectActivityAllocate = ProjectActivityAllocateManforce::whereProjectActivityId($allocatedManforce['id'])->orderBy('date', 'asc')->limit(1)->first();
+                                $projectActivityAllocate = ProjectActivityAllocateManforce::whereProjectActivityId($allocatedManforce['id'])
+                                    ->orderBy('date', 'asc')
+                                    ->limit(1)
+                                    ->first();
+                                
                                 if (isset($projectActivityAllocate) && !empty($projectActivityAllocate)) {
                                     $projectActivity = ProjectActivity::whereId($projectActivityAllocate->project_activity_id)->first();
-                                    $projectActivity->actual_start_date = date('Y-m-d H:i:s', strtotime($request->request_date));
+
+                                    $startDate = new Carbon($projectActivity->start_date);
+                                    $endDate = new Carbon($projectActivity->end_date);
+                                    $duration = $startDate->diffInDays($endDate);
+
+                                    $actualStartDate = new Carbon($projectActivityAllocate->date);
+                                    $projectActivity->actual_start_date = $actualStartDate->format('Y-m-d H:i:s');
+
+                                    $actualEndDate = $actualStartDate->addDays($duration);
+                                    $projectActivity->actual_end_date = $actualEndDate->format('Y-m-d H:i:s');
+
                                     $projectActivity->save();
                                 }
                             }
                         }
                     }
                 }
+                
                 return $this->sendResponse([], 'Project activities allocate manforce update successfully.');
             } else {
                 return $this->sendError('User not exists.', [], 404);

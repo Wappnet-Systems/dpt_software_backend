@@ -20,6 +20,7 @@ use App\Http\Controllers\Tenant\Api\TimeSlotsController;
 use App\Http\Controllers\Tenant\Api\Project\MachineriesController;
 use App\Http\Controllers\Tenant\Api\Project\MainActivitiesController;
 use App\Http\Controllers\Tenant\Api\Project\ActivitiesController;
+use App\Http\Controllers\Tenant\Api\Project\ActivitiesDailyProgressController;
 use App\Http\Controllers\Tenant\Api\Project\NonWorkingDaysController;
 use App\Http\Controllers\Tenant\Api\Project\ManforcesController;
 use App\Http\Controllers\Tenant\Api\Project\GangsController;
@@ -326,4 +327,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('project/raising/instruction/request/update/{id}', [RaisingInstructionRequestController::class, 'updateRaisingInstructionRequest']);
     Route::delete('project/raising/instruction/request/delete/{id}', [RaisingInstructionRequestController::class, 'deleteRaisingInstructionRequest']);
     Route::patch('project/raising/instruction/request/status/change/{id}', [RaisingInstructionRequestController::class, 'changeRaisingInstructionRequestStatus']);
+
+    /* Daily Activity Track Routes */
+    Route::get('project/activity/daily/progress/get/list', [ActivitiesDailyProgressController::class, 'getActivitiesDailyProgress']);
+    Route::post('project/activity/daily/progress/update', [ActivitiesDailyProgressController::class, 'updateActivitiesDailyProgress']);
 });

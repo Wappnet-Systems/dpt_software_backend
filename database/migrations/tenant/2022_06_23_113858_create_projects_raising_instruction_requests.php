@@ -14,6 +14,9 @@ class CreateProjectsRaisingInstructionRequests extends Migration
     public function up()
     {
         Schema::create('projects_raising_instruction_requests', function (Blueprint $table) {
+            $table->charset = 'utf8';
+            $table->collation = 'utf8_general_ci';
+            
             $table->id();
             $table->foreignId('project_id')->constrained('projects')->cascadeOnUpdate()->cascadeOnDelete();
             $table->string('request_no', 30)->nullable();
