@@ -8,10 +8,13 @@ use App\Models\System\Organization;
 use App\Models\System\User;
 use App\Models\Tenant\Project;
 use App\Models\Tenant\ProjectActivity;
+use App\Models\Tenant\ProjectActivityAllocateManforce;
 use App\Models\Tenant\ProjectAssignedUser;
+use App\Models\Tenant\ProjectManforce;
 use Hyn\Tenancy\Models\Hostname;
 use Hyn\Tenancy\Models\Website;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class ReportController extends Controller
@@ -76,6 +79,67 @@ class ReportController extends Controller
                     }
                 } else {
                     return $this->sendError('Project does not exists.', [], 400);
+                }
+            } else {
+                return $this->sendError('User does not exists.', [], 400);
+            }
+        } catch (\Exception $e) {
+            Log::error($e->getMessage());
+
+            return $this->sendError('Something went wrong!', [], 500);
+        }
+    }
+
+    public function availableManpower(Request $request)
+    {
+        try {
+            $user = $request->user();
+
+            if (isset($user) && !empty($user)) {
+
+                $getProjectManpower = [];
+
+                $projects = Project::select('id', 'uuid', 'name', 'logo');
+                if (isset($request->project_id) && !empty($request->project_id)) {
+                    $projects = $projects->whereId($request->project_id ?? '');
+                }
+                $projects = $projects->get();
+
+                if (isset($projects) && !empty($projects)) {
+                    foreach ($projects as $prKey => $projectValue) {
+                        $getProjectManpower['projects'][$prKey] = $projectValue->toArray();
+
+                        $totalManpower = ProjectManforce::with(['manforce', 'allocatedManpower' => function ($query) use ($request) {
+                            $query->select('id', 'date', 'project_manforce_id', DB::raw("SUM(total_assigned) as working_manpower"))
+                                ->groupBy('id', 'date');
+                            if (!empty($request->from_date) && !empty($request->to_date)) {
+                                $query->whereDate('date', '>=', date('Y-m-d', strtotime($request->from_date)))
+                                    ->whereDate('date', '<=', date('Y-m-d', strtotime($request->to_date)));
+                            }
+                        }])
+                            ->select('id', 'project_id', 'manforce_type_id', 'total_manforce', 'cost', 'cost_type')
+                            ->whereProjectId($getProjectManpower['projects'][$prKey]['id'] ?? '')
+                            ->get();
+
+                        foreach ($totalManpower as $value) {
+                            foreach ($value->allocatedManpower as $manpowerValue) {
+                                $workingManpower = !empty($manpowerValue) ? (int) $manpowerValue->working_manpower : null;
+                                $availableManpower = $value->total_manforce - $workingManpower;
+
+                                $getProjectManpower['projects'][$prKey][$manpowerValue->date][$value->manforce->name]['total_manpower'] = $value->total_manforce;
+                                $getProjectManpower['projects'][$prKey][$manpowerValue->date][$value->manforce->name]['working_manpower'] = !empty($workingManpower) ? $workingManpower : null;
+                                $getProjectManpower['projects'][$prKey][$manpowerValue->date][$value->manforce->name]['available_manpower'] = !empty($availableManpower) ? $availableManpower : null;
+                            }
+                        }
+                    }
+                } else {
+                    return $this->sendError('Project does not exists.', [], 400);
+                }
+
+                if (isset($getProjectManpower) && !empty($getProjectManpower)) {
+                    return $this->sendResponse($getProjectManpower, 'Project manpower list.');
+                } else {
+                    return $this->sendError('No project manpower found.', [], 200);
                 }
             } else {
                 return $this->sendError('User does not exists.', [], 400);
