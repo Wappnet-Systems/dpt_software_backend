@@ -51,6 +51,7 @@ class ModuleSubModuleSeeder extends Seeder
                     ['name' => 'Gantt Chart'],
                     ['name' => 'Activity Settings'],
                     ['name' => 'Scaffold Requirement'],
+                    ['name' => 'Activity Progress'],
                     ['name' => 'Planned Manpower'],
                     ['name' => 'Material Sheet'],
                     ['name' => 'Actual Manpower'],
