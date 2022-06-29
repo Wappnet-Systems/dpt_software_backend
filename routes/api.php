@@ -314,6 +314,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     /* Project KPI and Reports Routes */
     Route::get('project/KPI-reports/lists', [ReportController::class, 'KpiReports']);
+    Route::get('project/KPI-reports/available-manpower', [ReportController::class, 'availableManpower']);
 
     /* Project Scaffold Activity Routes */
     Route::get('project/scaffold/activity/lists', [ScaffoldController::class, 'getScaffoldActivity']);
