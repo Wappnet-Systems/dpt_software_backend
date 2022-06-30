@@ -9,6 +9,7 @@ use App\Models\System\User;
 use App\Models\Tenant\Project;
 use App\Models\Tenant\ProjectActivity;
 use App\Models\Tenant\ProjectActivityAllocateManforce;
+use App\Models\Tenant\ProjectActivityTrack;
 use App\Models\Tenant\ProjectAssignedUser;
 use App\Models\Tenant\ProjectManforce;
 use Hyn\Tenancy\Models\Hostname;
@@ -140,6 +141,56 @@ class ReportController extends Controller
                     return $this->sendResponse($getProjectManpower, 'Project manpower list.');
                 } else {
                     return $this->sendError('No project manpower found.', [], 200);
+                }
+            } else {
+                return $this->sendError('User does not exists.', [], 400);
+            }
+        } catch (\Exception $e) {
+            Log::error($e->getMessage());
+
+            return $this->sendError('Something went wrong!', [], 500);
+        }
+    }
+
+    public function comparisonActivity(Request $request)
+    {
+        try {
+            $user = $request->user();
+
+            if (isset($user) && !empty($user)) {
+
+                $comparisonActivity = [];
+
+                $projects = Project::select('id', 'uuid', 'name', 'logo');
+                if (isset($request->project_id) && !empty($request->project_id)) {
+                    $projects = $projects->whereId($request->project_id ?? '');
+                }
+                $projects = $projects->get();
+
+                if (isset($projects) && !empty($projects)) {
+
+                    foreach ($projects as $PKey => $projectValue) {
+                        $comparisonActivity[$PKey] = $projectValue->toArray();
+
+                        $proActivity = ProjectActivity::with(['activityTrack' => function ($tQuery) {
+                            $tQuery->select('id', 'project_activity_id', 'date', 'responsible_party', 'status', 'reason')->whereStatus(ProjectActivityTrack::STATUS['Hold']);
+                        }])
+                            ->whereProjectId($comparisonActivity[$PKey]['id'])
+                            ->select('id', 'project_id', 'project_main_activity_id', 'activity_sub_category_id', 'manforce_type_id', 'name', 'start_date', 'end_date', 'actual_start_date', 'actual_end_date', 'status');
+                        if (isset($request->end_date) && !empty($request->end_date)) {
+                            $proActivity = $proActivity->whereDate('end_date', '!=', date('Y-m-d', strtotime($request->end_date)))
+                                ->whereDate('actual_end_date', '!=', date('Y-m-d', strtotime($request->end_date)));
+                        }
+                        $proActivity = $proActivity->get();
+
+                        foreach ($proActivity as $key => $value) {
+                            $comparisonActivity[$PKey]['activity'][$key] = $value;
+                        }
+                    }
+
+                    return $this->sendResponse($comparisonActivity, 'Project comparison activity list.');
+                } else {
+                    return $this->sendError('Project does not exists.', [], 400);
                 }
             } else {
                 return $this->sendError('User does not exists.', [], 400);

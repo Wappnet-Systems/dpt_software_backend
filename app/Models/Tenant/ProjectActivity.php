@@ -40,13 +40,15 @@ class ProjectActivity extends Model
 
         return null;
     }
-    
-    public function scopeProjectActivities($query, $relation, $data) {
-        return $query->addSelect(DB::raw(
+
+    public function scopeProjectActivities($query, $relation, $data)
+    {
+        return $query->addSelect(
+            DB::raw(
                 sprintf('(EXISTS (SELECT * FROM projects_activities_assigned_users WHERE projects_activities_assigned_users.project_activity_id = projects_activities.id AND user_id = %s)) as is_assigned', auth()->user()->id)
             )
         );
-        
+
         /* $query->whereHas(
             $relation,
             function ($query) use ($data) {
@@ -107,5 +109,9 @@ class ProjectActivity extends Model
     {
         return $this->hasMany(ProjectActivityAllocateManforce::class, 'project_activity_id', 'id')
             ->select('id', 'project_activity_id', 'project_manforce_id', 'date', 'total_assigned', 'total_planned', 'is_overtime', 'total_work', 'total_cost', 'productivity_rate');
+    }
+    public function activityTrack()
+    {
+        return $this->hasMany(ProjectActivityTrack::class, 'project_activity_id', 'id');
     }
 }
