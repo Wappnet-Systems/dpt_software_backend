@@ -66,33 +66,29 @@ class ManforceOvertimeController extends Controller
 
                 $projectActivity = $projectActivity->get()->toArray();
 
-                if (isset($projectActivity) && !empty($projectActivity)) {
-                    foreach ($projectActivity as $proActKey => $proActVal) {
-                        $projectActivity[$proActKey]['project_manforce'] = ProjectManforce::with([
-                                'allocatedManforce' => function($query) use($proActVal) {
-                                    $query->whereProjectActivityId($proActVal['id'])
-                                        ->where('is_overtime', true);
-                                }
-                            ])
-                            ->select('id', 'project_id', 'manforce_type_id', 'total_manforce', 'cost', 'cost_type')
-                            ->whereProjectId($proActVal['project_id'] ?? '')
-                            ->whereManforceTypeId($proActVal['manforce_type_id'] ?? '')
-                            ->orderby('id', 'desc')
-                            ->first();
-
-                        if (isset($projectActivity[$proActKey]['project_manforce']) && !empty($projectActivity[$proActKey]['project_manforce'])) {
-                            $projectActivity[$proActKey]['project_manforce'] = $projectActivity[$proActKey]['project_manforce']->toArray();
-
-                            if (empty($projectActivity[$proActKey]['project_manforce']['allocated_manforce'])) {
-                                $projectActivity[$proActKey]['project_manforce']['allocated_manforce']['total_assigned'] = null;
-                                $projectActivity[$proActKey]['project_manforce']['allocated_manforce']['overtime_hours'] = null;
+                foreach ($projectActivity as $proActKey => $proActVal) {
+                    $projectActivity[$proActKey]['project_manforce'] = ProjectManforce::with([
+                            'allocatedManforce' => function($query) use($proActVal) {
+                                $query->whereProjectActivityId($proActVal['id'])
+                                    ->where('is_overtime', true);
                             }
-                        } else {
-                            unset($projectActivity[$proActKey]);
+                        ])
+                        ->select('id', 'project_id', 'manforce_type_id', 'total_manforce', 'cost', 'cost_type')
+                        ->whereProjectId($proActVal['project_id'] ?? '')
+                        ->whereManforceTypeId($proActVal['manforce_type_id'] ?? '')
+                        ->orderby('id', 'desc')
+                        ->first();
+
+                    if (isset($projectActivity[$proActKey]['project_manforce']) && !empty($projectActivity[$proActKey]['project_manforce'])) {
+                        $projectActivity[$proActKey]['project_manforce'] = $projectActivity[$proActKey]['project_manforce']->toArray();
+
+                        if (empty($projectActivity[$proActKey]['project_manforce']['allocated_manforce'])) {
+                            $projectActivity[$proActKey]['project_manforce']['allocated_manforce']['total_assigned'] = null;
+                            $projectActivity[$proActKey]['project_manforce']['allocated_manforce']['overtime_hours'] = null;
                         }
+                    } else {
+                        unset($projectActivity[$proActKey]);
                     }
-                } else {
-                    return $this->sendError('Project activity not exists.', [], 400);
                 }
 
                 return $this->sendResponse($projectActivity, 'Project activity manforce allocation list.');
