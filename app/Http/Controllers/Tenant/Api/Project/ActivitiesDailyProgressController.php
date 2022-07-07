@@ -8,6 +8,7 @@ use App\Models\System\Organization;
 use App\Models\System\User;
 use App\Models\Tenant\ProjectActivity;
 use App\Models\Tenant\ProjectActivityTrack;
+use Carbon\Carbon;
 use Hyn\Tenancy\Models\Hostname;
 use Hyn\Tenancy\Models\Website;
 use Illuminate\Http\Request;
@@ -52,7 +53,7 @@ class ActivitiesDailyProgressController extends Controller
             ->whereHas('projectActivity', function($query) use($request) {
                 $query->whereProjectId($request->project_id);
             })
-            ->select('id', 'project_activity_id', 'date', 'completed_area', 'status', 'comment', 'reason', 'responsible_party', 'created_by');
+            ->select('id', 'project_activity_id', 'date', 'completed_area', 'productivity_rate', 'status', 'comment', 'reason', 'responsible_party', 'created_by');
 
         if (isset($request->date) && !empty($request->date)) {
             $query->where('date', date('Y-m-d', strtotime($request->date)));
@@ -94,11 +95,18 @@ class ActivitiesDailyProgressController extends Controller
                         $actTrack->updated_ip = $request->ip();
 
                         if ($actTrack->isDirty('completed_area')) {
-                            $proActivity = ProjectActivity::whereId($activityTrack['project_activity']['id'])->first();
+                            $proActivity = ProjectActivity::with('project')->whereId($activityTrack['project_activity']['id'])->first();
 
                             if (isset($proActivity) && !empty($proActivity)) {
                                 $proActivity->completed_area = ($proActivity->completed_area - $actTrack->getOriginal('completed_area')) + $actTrack->completed_area;
                                 $proActivity->save();
+
+                                $workingStartTime = Carbon::parse($proActivity->project->working_start_time);
+                                $workingEndTime = Carbon::parse($proActivity->project->working_end_time);
+                                $duration = $workingStartTime->diffInHours($workingEndTime);
+
+                                // Activity Productivity = (Total output the manforce) / (Total # of hours worked by the workforce)
+                                $actTrack->productivity_rate = round($actTrack->completed_area / $duration, 2);
                             }
                         }
 

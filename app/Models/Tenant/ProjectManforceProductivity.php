@@ -9,7 +9,7 @@ class ProjectManforceProductivity extends Model
 {
     use HasFactory;
 
-    protected $table = "project_manforces_productivities";
+    protected $table = "projects_manforces_productivities";
 
     protected $guarded = [];
 }
