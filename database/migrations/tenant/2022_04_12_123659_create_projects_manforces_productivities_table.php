@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateProjectManforcesProductivitiesTable extends Migration
+class CreateProjectsManforcesProductivitiesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,7 +13,7 @@ class CreateProjectManforcesProductivitiesTable extends Migration
      */
     public function up()
     {
-        Schema::create('project_manforces_productivities', function (Blueprint $table) {
+        Schema::create('projects_manforces_productivities', function (Blueprint $table) {
             $table->charset = 'utf8';
             $table->collation = 'utf8_general_ci';
 
@@ -33,6 +33,6 @@ class CreateProjectManforcesProductivitiesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('project_manforces_productivities');
+        Schema::dropIfExists('projects_manforces_productivities');
     }
 }

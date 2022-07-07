@@ -36,7 +36,7 @@ class CreateProjectsActivitiesTable extends Migration
             $table->boolean('scaffold_requirement')->default(false);
             $table->boolean('helper')->default(false);
             $table->tinyInteger('status')->default(1)->comment('1 - Pending, 2 - Start, 3 - Hold, 4 - Completed');
-            $table->integer('productivity_rate')->nullable();
+            $table->double('productivity_rate')->nullable();
             $table->unsignedBigInteger('created_by')->nullable();
             $table->ipAddress('created_ip')->nullable();
             $table->ipAddress('updated_ip')->nullable();
