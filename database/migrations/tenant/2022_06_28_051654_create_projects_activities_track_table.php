@@ -21,7 +21,6 @@ class CreateProjectsActivitiesTrackTable extends Migration
             $table->foreignId('project_activity_id')->constrained('projects_activities')->cascadeOnUpdate()->cascadeOnDelete();
             $table->date('date')->nullable();
             $table->double('completed_area')->nullable();
-            $table->double('productivity_rate')->nullable();
             $table->tinyInteger('status')->default(1)->comment('1 - Progress, 2 - Hold');
             $table->longText('comment')->nullable();
             $table->longText('reason')->nullable();
