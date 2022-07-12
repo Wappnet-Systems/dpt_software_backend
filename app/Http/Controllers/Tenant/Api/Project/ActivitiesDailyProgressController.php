@@ -8,6 +8,7 @@ use App\Models\System\Organization;
 use App\Models\System\User;
 use App\Models\Tenant\ProjectActivity;
 use App\Models\Tenant\ProjectActivityTrack;
+use App\Models\Tenant\ProjectManforce;
 use Carbon\Carbon;
 use Hyn\Tenancy\Models\Hostname;
 use Hyn\Tenancy\Models\Website;
@@ -95,13 +96,24 @@ class ActivitiesDailyProgressController extends Controller
                         $actTrack->updated_ip = $request->ip();
 
                         if ($actTrack->isDirty('completed_area')) {
-                            $proActivity = ProjectActivity::with('project', 'allocatedManforce')->whereId($activityTrack['project_activity']['id'])->first();
+                            $proActivity = ProjectActivity::with([
+                                    'project',
+                                    'allocatedManforce' => function($query) {
+                                        $query->whereIsOvertime(false);
+                                    }
+                                ])
+                                ->whereId($activityTrack['project_activity']['id'])
+                                ->first();
 
                             if (isset($proActivity) && !empty($proActivity)) {
                                 $proActivity->completed_area = ($proActivity->completed_area - $actTrack->getOriginal('completed_area')) + $actTrack->completed_area;
                                 $proActivity->save();
+                                
+                                $actTrack->save();
 
                                 if (!empty($proActivity->allocatedManforce)) {
+                                    $projectManforce = ProjectManforce::whereId($proActivity->allocatedManforce->project_manforce_id)->first();
+
                                     $workingStartTime = Carbon::parse($proActivity->project->working_start_time);
                                     $workingEndTime = Carbon::parse($proActivity->project->working_end_time);
                                     $duration = $workingStartTime->diffInHours($workingEndTime);
@@ -111,13 +123,20 @@ class ActivitiesDailyProgressController extends Controller
 
                                     // Total work done by manforce for the activity
                                     $proActivity->allocatedManforce->total_work = ProjectActivityTrack::whereProjectActivityId($proActivity->id)->sum('completed_area');
+                                
+                                    // Total cost of manforce for the activity
+                                    $proActivity->allocatedManforce->total_cost = AppHelper::calculateManforeCost(
+                                        $projectManforce->cost,
+                                        $projectManforce->cost_type,
+                                        $proActivity->allocatedManforce->total_assigned,
+                                        $duration,
+                                        null
+                                    );
                                     
                                     $proActivity->allocatedManforce->save();
                                 }
                             }
                         }
-
-                        $actTrack->save();
                     }
                 }
                 

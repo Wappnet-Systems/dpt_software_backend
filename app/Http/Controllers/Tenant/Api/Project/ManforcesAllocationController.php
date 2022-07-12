@@ -56,8 +56,8 @@ class ManforcesAllocationController extends Controller
                     ->whereProjectId($request->project_id ?? '');
 
                 if (isset($request->date) && !empty($request->date)) {
-                    $projectActivity = $projectActivity->whereDate('start_date', '<=', date('Y-m-d', strtotime($request->date)))
-                        ->whereDate('end_date', '>=', date('Y-m-d', strtotime($request->date)));
+                    $projectActivity = $projectActivity->where('start_date', '<=', date('Y-m-d', strtotime($request->date)))
+                        ->where('end_date', '>=', date('Y-m-d', strtotime($request->date)));
                 }
 
                 $projectActivity = $projectActivity->get()->toArray();

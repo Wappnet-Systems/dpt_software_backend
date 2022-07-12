@@ -52,7 +52,7 @@ class ActivityProductivity extends Command
             return 0;
         }
 
-        // $currDateTime = new \DateTime('2022-07-18 11:00:00');
+        // $currDateTime = new \DateTime('2022-07-19 11:00:00');
         $currDateTime = new \DateTime('NOW', new \DateTimeZone('UTC'));
 
         // One day before date
@@ -72,7 +72,8 @@ class ActivityProductivity extends Command
                 $activityVal->productivity_rate = 0;
 
                 if ($allocatedManforce->count()) {
-                    $activityVal->productivity_rate = $allocatedManforce->sum('productivity_rate') / $allocatedManforce->count();
+                    $activityVal->productivity_rate = round($allocatedManforce->sum('productivity_rate') / $allocatedManforce->count(), 2);
+                    $activityVal->save();
                 }
             }
         }
