@@ -2,7 +2,13 @@
 
 namespace App\Console\Commands;
 
+use App\Helpers\TenantUtils;
+use App\Models\Tenant\ProjectActivity;
+use App\Models\Tenant\ProjectManforce;
+use App\Models\Tenant\ProjectManforceProductivity;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class ActivityManforceProductivity extends Command
 {
@@ -37,6 +43,51 @@ class ActivityManforceProductivity extends Command
      */
     public function handle()
     {
+        $orgId = $this->argument('org_id');
+
+        $organization = app(TenantUtils::class)->changeById($orgId);
+        
+        if (!isset($organization) || empty($organization)) {
+            Log::error("Unable to change site for ( $orgId )");
+
+            return 0;
+        }
+
+        // $currDateTime = new \DateTime('2022-07-19 11:00:00');
+        $currDateTime = new \DateTime('NOW', new \DateTimeZone('UTC'));
+
+        Log::info("ActivityManforceProductivity Start At " . $currDateTime->format('Y-m-d H:i:s'));
+
+        $aveProductivities = ProjectActivity::whereStatus(ProjectActivity::STATUS['Completed'])
+            ->select('activity_sub_category_id', 'manforce_type_id', 'project_id', DB::raw("avg(productivity_rate) as productivity_rate"))
+            ->groupBy('activity_sub_category_id', 'manforce_type_id', 'project_id')
+            ->get();
+
+        if (isset($aveProductivities) && !empty($aveProductivities)) {
+            foreach ($aveProductivities as $avgProdKey => $avgProdValue) {
+                $projectManforce = ProjectManforce::whereProjectId($avgProdValue->project_id)
+                    ->whereManforceTypeId($avgProdValue->manforce_type_id)
+                    ->first();
+
+                $manforceProductivity = ProjectManforceProductivity::whereActivitySubCategoryId($avgProdValue->activity_sub_category_id)
+                    ->whereProjectManforceId($projectManforce->id)
+                    ->whereProjectId($avgProdValue->project_id)
+                    ->first();
+
+                if (!isset($manforceProductivity) || empty($manforceProductivity)) {
+                    $manforceProductivity = new ProjectManforceProductivity();
+                }
+
+                $manforceProductivity->project_id = $avgProdValue->project_id;
+                $manforceProductivity->activity_sub_category_id = $avgProdValue->activity_sub_category_id;
+                $manforceProductivity->project_manforce_id = $projectManforce->id;
+                $manforceProductivity->rate = $avgProdValue->productivity_rate;
+                $manforceProductivity->save();
+            }
+        }
+
+        Log::info("ActivityManforceProductivity End At " . $currDateTime->format('Y-m-d H:i:s'));
+
         return 0;
     }
 }
