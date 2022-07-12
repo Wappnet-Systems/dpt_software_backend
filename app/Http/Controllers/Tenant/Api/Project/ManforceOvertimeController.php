@@ -6,9 +6,11 @@ use App\Helpers\AppHelper;
 use App\Http\Controllers\Controller;
 use App\Models\System\Organization;
 use App\Models\System\User;
+use App\Models\Tenant\Project;
 use App\Models\Tenant\ProjectActivity;
 use App\Models\Tenant\ProjectActivityAllocateManforce;
 use App\Models\Tenant\ProjectManforce;
+use Carbon\Carbon;
 use Hyn\Tenancy\Models\Hostname;
 use Hyn\Tenancy\Models\Website;
 use Illuminate\Http\Request;
@@ -60,8 +62,8 @@ class ManforceOvertimeController extends Controller
                     ->whereProjectId($request->project_id ?? '');
 
                 if (isset($request->date) && !empty($request->date)) {
-                    $projectActivity = $projectActivity->whereDate('start_date', '<=', date('Y-m-d', strtotime($request->date)))
-                        ->whereDate('end_date', '>=', date('Y-m-d', strtotime($request->date)));
+                    $projectActivity = $projectActivity->where('start_date', '<=', date('Y-m-d', strtotime($request->date)))
+                        ->where('actual_end_date', '>=', date('Y-m-d', strtotime($request->date)));
                 }
 
                 $projectActivity = $projectActivity->get()->toArray();
@@ -85,6 +87,7 @@ class ManforceOvertimeController extends Controller
                         if (empty($projectActivity[$proActKey]['project_manforce']['allocated_manforce'])) {
                             $projectActivity[$proActKey]['project_manforce']['allocated_manforce']['total_assigned'] = null;
                             $projectActivity[$proActKey]['project_manforce']['allocated_manforce']['overtime_hours'] = null;
+                            $projectActivity[$proActKey]['project_manforce']['allocated_manforce']['total_work'] = null;
                         }
                     } else {
                         unset($projectActivity[$proActKey]);
@@ -123,6 +126,10 @@ class ManforceOvertimeController extends Controller
                 $request->merge(['activities' => json_decode(base64_decode($request->activities), true)]);
 
                 foreach ($request->activities as $activity) {
+                    $project = Project::whereId($activity['project_id'])->first();
+                    $proActivity = ProjectActivity::whereId($activity['id'])->first();
+                    $projectManforce = ProjectManforce::whereId($activity['project_manforce']['id'])->first();
+
                     $overtime = new ProjectActivityAllocateManforce();
 
                     if (isset($activity['project_manforce']['allocated_manforce']['id']) && !empty($activity['project_manforce']['allocated_manforce']['id'])) {
@@ -137,6 +144,10 @@ class ManforceOvertimeController extends Controller
                         $overtime->updated_ip = $request->ip();
                     }
 
+                    $workingStartTime = Carbon::parse($project->working_start_time);
+                    $workingEndTime = Carbon::parse($project->working_end_time);
+                    $duration = $workingStartTime->diffInHours($workingEndTime);
+
                     $overtime->project_activity_id = $activity['id'];
                     $overtime->project_manforce_id = $activity['project_manforce']['id'];
                     $overtime->date = date('Y-m-d', strtotime($request->request_date));
@@ -144,9 +155,26 @@ class ManforceOvertimeController extends Controller
                     $overtime->total_planned = 0;
                     $overtime->is_overtime = true;
                     $overtime->overtime_hours = $activity['project_manforce']['allocated_manforce']['overtime_hours'];
+                    $overtime->total_work = $activity['project_manforce']['allocated_manforce']['total_work'];
+
+                    $overtime->total_cost = AppHelper::calculateManforeCost(
+                        $projectManforce->cost,
+                        $projectManforce->cost_type,
+                        $activity['project_manforce']['allocated_manforce']['total_assigned'],
+                        $duration,
+                        $activity['project_manforce']['allocated_manforce']['overtime_hours']
+                    );
+
+                    // Activity Productivity = (Total output the manforce) / (Total # of hours worked by the workforce)
+                    $overtime->productivity_rate = round($overtime->total_work / $duration, 2);
+
                     $overtime->assign_by = $user->id;
                     $overtime->created_ip = $request->ip();
                     $overtime->created_ip = $request->ip();
+
+                    $proActivity->completed_area = ($proActivity->completed_area - $overtime->getOriginal('total_work')) + $overtime->total_work;
+                    $proActivity->save();
+
                     $overtime->save();
                 }
                 
