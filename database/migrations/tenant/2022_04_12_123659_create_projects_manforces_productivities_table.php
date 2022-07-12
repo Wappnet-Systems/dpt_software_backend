@@ -19,10 +19,12 @@ class CreateProjectsManforcesProductivitiesTable extends Migration
 
             $table->id();
             $table->foreignId('project_id')->constrained('projects')->cascadeOnUpdate()->cascadeOnDelete();
-            $table->foreignId('activity_subcategory_id')->constrained('activity_sub_categories')->cascadeOnUpdate()->cascadeOnDelete();
-            $table->foreignId('project_manforces_id')->constrained('projects_manforces')->cascadeOnUpdate()->cascadeOnDelete();
+            $table->unsignedBigInteger('activity_sub_category_id');
+            $table->foreignId('project_manforce_id')->constrained('projects_manforces')->cascadeOnUpdate()->cascadeOnDelete();
             $table->double('rate')->nullable();
             $table->timestamps();
+
+            $table->foreign('activity_sub_category_id','pro_manforce_productivity_act_sub_cate_id_foreign')->references('id')->on('activity_sub_categories')->onUpdate('cascade')->onDelete('cascade');
         });
     }
 
