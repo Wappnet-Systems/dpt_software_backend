@@ -59,19 +59,16 @@ class ActivityManforceProductivity extends Command
         Log::info("ActivityManforceProductivity Start At " . $currDateTime->format('Y-m-d H:i:s'));
 
         $aveProductivities = ProjectActivity::whereStatus(ProjectActivity::STATUS['Completed'])
-            ->select('activity_sub_category_id', 'manforce_type_id', 'project_id', DB::raw("avg(productivity_rate) as productivity_rate"))
-            ->groupBy('activity_sub_category_id', 'manforce_type_id', 'project_id')
+            ->select('activity_sub_category_id', 'manforce_type_id', 'unit_type_id', 'project_id', DB::raw("avg(productivity_rate) as productivity_rate"))
+            ->groupBy('activity_sub_category_id', 'manforce_type_id', 'unit_type_id', 'project_id')
             ->get();
 
         if (isset($aveProductivities) && !empty($aveProductivities)) {
             foreach ($aveProductivities as $avgProdKey => $avgProdValue) {
-                $projectManforce = ProjectManforce::whereProjectId($avgProdValue->project_id)
+                $manforceProductivity = ProjectManforceProductivity::whereProjectId($avgProdValue->project_id)
+                    ->whereActivitySubCategoryId($avgProdValue->activity_sub_category_id)
                     ->whereManforceTypeId($avgProdValue->manforce_type_id)
-                    ->first();
-
-                $manforceProductivity = ProjectManforceProductivity::whereActivitySubCategoryId($avgProdValue->activity_sub_category_id)
-                    ->whereProjectManforceId($projectManforce->id)
-                    ->whereProjectId($avgProdValue->project_id)
+                    ->whereUnitTypeId($avgProdValue->unit_type_id)
                     ->first();
 
                 if (!isset($manforceProductivity) || empty($manforceProductivity)) {
@@ -80,8 +77,9 @@ class ActivityManforceProductivity extends Command
 
                 $manforceProductivity->project_id = $avgProdValue->project_id;
                 $manforceProductivity->activity_sub_category_id = $avgProdValue->activity_sub_category_id;
-                $manforceProductivity->project_manforce_id = $projectManforce->id;
-                $manforceProductivity->rate = $avgProdValue->productivity_rate;
+                $manforceProductivity->manforce_type_id = $avgProdValue->manforce_type_id;
+                $manforceProductivity->unit_type_id = $avgProdValue->unit_type_id;
+                $manforceProductivity->productivity_rate = $avgProdValue->productivity_rate;
                 $manforceProductivity->save();
             }
         }
