@@ -66,4 +66,14 @@ class Project extends Model
     {
         return $this->hasMany(ProjectAssignedUser::class, 'project_id', 'id');
     }
+
+    /**
+     * Get all of the activity of the Project
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function activity(): HasMany
+    {
+        return $this->hasMany(ProjectActivity::class, 'project_id', 'id');
+    }
 }
