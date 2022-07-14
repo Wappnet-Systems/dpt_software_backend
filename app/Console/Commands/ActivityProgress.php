@@ -104,6 +104,7 @@ class ActivityProgress extends Command
                     $activityTrack->responsible_party = $assignedProEng ?? null;
 
                     if ($activityTrack->save()) {
+                        $activityVal->actual_end_date = date('Y-m-d H:i:s', strtotime($activityVal->actual_end_date . ' +1 day'));
                         $activityVal->status = ProjectActivity::STATUS['Hold'];
                         $activityVal->save();
                     }
