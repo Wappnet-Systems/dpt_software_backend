@@ -110,6 +110,7 @@ class ProjectActivity extends Model
         return $this->hasOne(ProjectActivityAllocateManforce::class, 'project_activity_id', 'id')
             ->select('id', 'project_activity_id', 'project_manforce_id', 'date', 'total_assigned', 'total_planned', 'is_overtime', 'total_work', 'total_cost', 'productivity_rate');
     }
+    
     public function activityTrack()
     {
         return $this->hasMany(ProjectActivityTrack::class, 'project_activity_id', 'id');
