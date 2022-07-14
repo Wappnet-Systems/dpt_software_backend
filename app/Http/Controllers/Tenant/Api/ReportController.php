@@ -54,12 +54,9 @@ class ReportController extends Controller
             $user = $request->user();
 
             if (isset($user) && !empty($user)) {
-
-                $assignedProjectIds = ProjectAssignedUser::whereUserId($user->id)
-                    ->pluck('project_id');
+                $assignedProjectIds = ProjectAssignedUser::whereUserId($user->id)->pluck('project_id');
 
                 $getStatistics = [];
-
                 if (isset($assignedProjectIds) && count($assignedProjectIds)) {
                     $getStatistics['projects']['yet_to_start'] = Project::whereIn('id', $assignedProjectIds)->whereStatus(Project::STATUS['Yet to Start'])->count();
                     $getStatistics['projects']['in_progress'] = Project::whereIn('id', $assignedProjectIds)->whereStatus(Project::STATUS['In Progress'])->count();
@@ -97,27 +94,31 @@ class ReportController extends Controller
             $user = $request->user();
 
             if (isset($user) && !empty($user)) {
-
                 $getProjectManpower = [];
-
                 $projects = Project::select('id', 'uuid', 'name', 'logo');
+
                 if (isset($request->project_id) && !empty($request->project_id)) {
                     $projects = $projects->whereId($request->project_id ?? '');
                 }
+
                 $projects = $projects->get();
 
                 if (isset($projects) && !empty($projects)) {
                     foreach ($projects as $prKey => $projectValue) {
                         $getProjectManpower['projects'][$prKey] = $projectValue->toArray();
 
-                        $totalManpower = ProjectManforce::with(['manforce', 'allocatedManpower' => function ($query) use ($request) {
-                            $query->select('id', 'date', 'project_manforce_id', DB::raw("SUM(total_assigned) as working_manpower"))
-                                ->groupBy('id', 'date');
-                            if (!empty($request->from_date) && !empty($request->to_date)) {
-                                $query->whereDate('date', '>=', date('Y-m-d', strtotime($request->from_date)))
-                                    ->whereDate('date', '<=', date('Y-m-d', strtotime($request->to_date)));
-                            }
-                        }])
+                        $totalManpower = ProjectManforce::with([
+                                'manforce',
+                                'allocatedManpower' => function ($query) use ($request) {
+                                    $query->select('id', 'date', 'project_manforce_id', DB::raw("SUM(total_assigned) as working_manpower"))
+                                        ->groupBy('id', 'date');
+
+                                    if (!empty($request->from_date) && !empty($request->to_date)) {
+                                        $query->whereDate('date', '>=', date('Y-m-d', strtotime($request->from_date)))
+                                            ->whereDate('date', '<=', date('Y-m-d', strtotime($request->to_date)));
+                                    }
+                                }
+                            ])
                             ->select('id', 'project_id', 'manforce_type_id', 'total_manforce', 'cost', 'cost_type')
                             ->whereProjectId($getProjectManpower['projects'][$prKey]['id'] ?? '')
                             ->get();
@@ -125,6 +126,7 @@ class ReportController extends Controller
                         foreach ($totalManpower as $value) {
                             foreach ($value->allocatedManpower as $manpowerValue) {
                                 $workingManpower = !empty($manpowerValue) ? (int) $manpowerValue->working_manpower : null;
+
                                 $availableManpower = $value->total_manforce - $workingManpower;
 
                                 $getProjectManpower['projects'][$prKey][$manpowerValue->date][$value->manforce->name]['total_manpower'] = $value->total_manforce;
@@ -158,29 +160,33 @@ class ReportController extends Controller
             $user = $request->user();
 
             if (isset($user) && !empty($user)) {
-
                 $comparisonActivity = [];
 
                 $projects = Project::select('id', 'uuid', 'name', 'logo');
+
                 if (isset($request->project_id) && !empty($request->project_id)) {
                     $projects = $projects->whereId($request->project_id ?? '');
                 }
+
                 $projects = $projects->get();
 
                 if (isset($projects) && !empty($projects)) {
-
                     foreach ($projects as $PKey => $projectValue) {
                         $comparisonActivity[$PKey] = $projectValue->toArray();
 
-                        $proActivity = ProjectActivity::with(['activityTrack' => function ($tQuery) {
-                            $tQuery->select('id', 'project_activity_id', 'date', 'responsible_party', 'status', 'reason')->whereStatus(ProjectActivityTrack::STATUS['Hold']);
-                        }])
+                        $proActivity = ProjectActivity::with([
+                                'activityTrack' => function ($tQuery) {
+                                    $tQuery->select('id', 'project_activity_id', 'date', 'responsible_party', 'status', 'reason')->whereStatus(ProjectActivityTrack::STATUS['Hold']);
+                                }
+                            ])
                             ->whereProjectId($comparisonActivity[$PKey]['id'])
                             ->select('id', 'project_id', 'project_main_activity_id', 'activity_sub_category_id', 'manforce_type_id', 'name', 'start_date', 'end_date', 'actual_start_date', 'actual_end_date', 'status');
+
                         if (isset($request->end_date) && !empty($request->end_date)) {
                             $proActivity = $proActivity->whereDate('end_date', '!=', date('Y-m-d', strtotime($request->end_date)))
                                 ->whereDate('actual_end_date', '!=', date('Y-m-d', strtotime($request->end_date)));
                         }
+                        
                         $proActivity = $proActivity->get();
 
                         foreach ($proActivity as $key => $value) {
