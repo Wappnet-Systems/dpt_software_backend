@@ -61,11 +61,23 @@ class OrganizationCrons extends Command
         foreach ($organizations as $organization) {
             Log::info("Starting ( $organization->id ) cron in background");
 
-            // exec("php artisan dpt:org:acitivity:progress $organization->id > /dev/null &");
-
-            Artisan::call('dpt:org:acitivity:progress', ['org_id' => $organization->id]);
+            // exec("php artisan dpt:org:activity:progress $organization->id > /dev/null &");
             // $this->_schedule->command(ActivityProgress::class, ['org_id' => $organization->id]);
-            // $this->_schedule->command('dpt:org:acitivity:progress 1');
+            // $this->_schedule->command('dpt:org:activity:progress 1');
+
+            Log::info("----------------------------------------");
+
+            Artisan::call('dpt:org:activity:progress', ['org_id' => $organization->id]);
+
+            Log::info("----------------------------------------");
+
+            Artisan::call('dpt:org:activity:productivity', ['org_id' => $organization->id]);
+
+            Log::info("----------------------------------------");
+
+            Artisan::call('dpt:org:activity:manforce:productivity', ['org_id' => $organization->id]);
+
+            Log::info("----------------------------------------");
 
             Log::info("Ending ( $organization->id ) cron in background");
         }

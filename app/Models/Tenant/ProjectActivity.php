@@ -79,7 +79,7 @@ class ProjectActivity extends Model
     public function project()
     {
         return $this->belongsTo(Project::class, 'project_id', 'id')
-            ->select('id', 'name', 'logo', 'address', 'lat', 'long', 'city', 'state', 'country', 'zip_code', 'start_date', 'end_date', 'cost', 'status');
+            ->select('id', 'name', 'logo', 'address', 'lat', 'long', 'city', 'state', 'country', 'zip_code', 'start_date', 'end_date', 'working_start_time', 'working_end_time', 'cost', 'status');
     }
 
     public function mainActivity()
@@ -105,9 +105,9 @@ class ProjectActivity extends Model
             ->select('id', 'project_activity_id', 'scaffold_number', 'on_hire_date', 'off_hire_date', 'width', 'length', 'height', 'area', 'volume');
     }
 
-    public function AllocatedManforce()
+    public function allocatedManforce()
     {
-        return $this->hasMany(ProjectActivityAllocateManforce::class, 'project_activity_id', 'id')
+        return $this->hasOne(ProjectActivityAllocateManforce::class, 'project_activity_id', 'id')
             ->select('id', 'project_activity_id', 'project_manforce_id', 'date', 'total_assigned', 'total_planned', 'is_overtime', 'total_work', 'total_cost', 'productivity_rate');
     }
     public function activityTrack()

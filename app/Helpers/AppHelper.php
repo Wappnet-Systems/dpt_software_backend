@@ -12,7 +12,9 @@ use Illuminate\Support\Facades\Config;
 use App\Models\System\RoleHasModule;
 use App\Models\System\Module;
 use App\Models\System\SubModule;
+use App\Models\Tenant\ProjectManforce;
 use App\Models\Tenant\RoleHasSubModule;
+use Illuminate\Support\Facades\Log;
 
 /**
  * Description of CommonTask
@@ -82,5 +84,36 @@ class AppHelper
             ->whereRoleId($user->role_id)
             ->where($action, true)
             ->exists();
+    }
+
+    public static function calculateManforeCost($cost = 0, $costType = null, $assinedManforce = 0, $projectWorkingHour = 0, $overtimeHours = 0)
+    {
+        if (!isset($costType) || empty($costType)) {
+            return 0;
+        }
+
+        $totalCost = 0;
+
+        if (isset($overtimeHours) && !empty($overtimeHours)) {
+            if ($costType == ProjectManforce::COST_TYPE['Per Hour']) {
+                $totalCost = $cost * $assinedManforce * $overtimeHours * ProjectManforce::OVERTIME_COST_RATE;
+            }
+            
+            if ($costType == ProjectManforce::COST_TYPE['Per Day']) {
+                $perManCost = ($cost * $overtimeHours / $projectWorkingHour) * ProjectManforce::OVERTIME_COST_RATE;
+
+                $totalCost = $perManCost * $assinedManforce;
+            }
+        } else {
+            if ($costType == ProjectManforce::COST_TYPE['Per Hour']) {
+                $totalCost = $cost * $projectWorkingHour * $assinedManforce;
+            }
+
+            if ($costType == ProjectManforce::COST_TYPE['Per Day']) {
+                $totalCost = $cost * $assinedManforce;
+            }
+        }
+        
+        return round($totalCost, 2);
     }
 }

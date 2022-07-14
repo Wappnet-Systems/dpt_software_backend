@@ -19,7 +19,7 @@ class ActivityProgress extends Command
      *
      * @var string
      */
-    protected $signature = 'dpt:org:acitivity:progress {org_id}';
+    protected $signature = 'dpt:org:activity:progress {org_id}';
 
     /**
      * The console command description.
@@ -55,7 +55,7 @@ class ActivityProgress extends Command
             return 0;
         }
 
-        // $currDateTime = new \DateTime('2020-08-29 11:00:00 AM');
+        // $currDateTime = new \DateTime('2022-07-18 11:00:00 AM');
         $currDateTime = new \DateTime('NOW', new \DateTimeZone('UTC'));
         $currDate = $currDateTime->format('Y-m-d');
 

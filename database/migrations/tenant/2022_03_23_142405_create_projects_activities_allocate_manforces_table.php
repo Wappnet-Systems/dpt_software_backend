@@ -27,7 +27,7 @@ class CreateProjectsActivitiesAllocateManforcesTable extends Migration
             $table->integer('overtime_hours')->nullable();
             $table->double('total_work')->nullable();
             $table->double('total_cost')->nullable();
-            $table->integer('productivity_rate')->nullable();
+            $table->double('productivity_rate')->nullable();
             $table->unsignedBigInteger('assign_by');
             $table->ipAddress('created_ip')->nullable();
             $table->ipAddress('updated_ip')->nullable();
