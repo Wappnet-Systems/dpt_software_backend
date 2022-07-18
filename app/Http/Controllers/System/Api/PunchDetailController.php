@@ -9,10 +9,12 @@ use Illuminate\Http\Request;
 use App\Models\System\PunchDetail;
 use App\Models\System\User;
 use App\Models\Tenant\Project;
+use DateTime;
 use Hyn\Tenancy\Models\Hostname;
 use Hyn\Tenancy\Models\Website;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Validator;
 
 class PunchDetailController extends Controller
 {
@@ -117,21 +119,19 @@ class PunchDetailController extends Controller
                     if (isset($punchDetails) && !empty($punchDetails)) {
                         if ($punchDetails->punch_type == PunchDetail::PUNCH_TYPE['In']) {
                             $punchDetails = new PunchDetail();
-                            $punchDetails->user_id = $user->id;
                             $punchDetails->punch_date_time = date('Y-m-d h:i:s');
                             $punchDetails->punch_type = PunchDetail::PUNCH_TYPE['Out'];
                         } elseif ($punchDetails->punch_type == PunchDetail::PUNCH_TYPE['Out']) {
                             $punchDetails = new PunchDetail();
-                            $punchDetails->user_id = $user->id;
                             $punchDetails->punch_date_time = date('Y-m-d h:i:s');
                             $punchDetails->punch_type = PunchDetail::PUNCH_TYPE['In'];
                         }
                     } else {
                         $punchDetails = new PunchDetail();
-                        $punchDetails->user_id = $user->id;
                         $punchDetails->punch_date_time = date('Y-m-d h:i:s');
                         $punchDetails->punch_type = PunchDetail::PUNCH_TYPE['In'];
                     }
+                    $punchDetails->user_id = $user->id;
                     $punchDetails->latitude = $request->latitude;
                     $punchDetails->longitude = $request->longitude;
                     $punchDetails->created_ip = $request->ip();
@@ -145,6 +145,72 @@ class PunchDetailController extends Controller
                 } else {
                     return $this->sendError('Your are not under radius of project working location.', [], 400);
                 }
+            } else {
+                return $this->sendError('User does not exists.');
+            }
+        } catch (\Exception $e) {
+            Log::error($e->getMessage());
+
+            return $this->sendError('Something went wrong!', [], 500);
+        }
+    }
+
+    public function dailyManforceAttendence(Request $request)
+    {
+        try {
+            $user = $request->user();
+            $year = $request->year ? $request->year : date('Y');
+            $monthName = $request->month ? DateTime::createFromFormat('!m', $request->month)->format('F') : '';
+
+            AppHelper::setDefaultDBConnection(true);
+
+            if (isset($user) && !empty($user)) {
+                $validator = Validator::make($request->all(), [
+                    'user_id' => 'required|exists:users,id',
+                ]);
+
+                if ($validator->fails()) {
+                    foreach ($validator->errors()->messages() as $key => $value) {
+                        return $this->sendError('Validation Error.', [$key => $value[0]], 400);
+                    }
+                }
+
+                $attendence = PunchDetail::whereUserId($request->user_id)->whereYear('punch_date_time', $year ?? '');
+
+                if (isset($request->month) && !empty($request->month)) {
+                    $attendence = $attendence->whereMonth('punch_date_time', $request->month);
+                }
+
+                $attendence = $attendence->get()->toArray();
+
+                $attendenceArr = [];
+                foreach ($attendence as $key => $value) {
+                    $punchDate = date('Y-m-d', strtotime($value['punch_date_time']));
+                    if (isset($request->month) && !empty($request->month)) {
+                        $attendenceArr[$monthName][$punchDate][] = [
+                            'id' => $value['id'] ?? null,
+                            'user_id' => $value['user_id'] ?? null,
+                            'punch_date_time' => $value['punch_date_time'] ?? null,
+                            'punch_type' => $value['punch_type'] ?? null,
+                            'punch_name' => $value['punch_name'] ?? null,
+                            'latitude' => $value['latitude'] ?? null,
+                            'longitude' => $value['longitude'] ?? null
+                        ];
+                    } elseif (isset($year) && !empty($year)) {
+                        $month = date("F", strtotime($value['punch_date_time']));
+                        $attendenceArr[$month][$punchDate][] = [
+                            'id' => $value['id'] ?? null,
+                            'user_id' => $value['user_id'] ?? null,
+                            'punch_date_time' => $value['punch_date_time'] ?? null,
+                            'punch_type' => $value['punch_type'] ?? null,
+                            'punch_name' => $value['punch_name'] ?? null,
+                            'latitude' => $value['latitude'] ?? null,
+                            'longitude' => $value['longitude'] ?? null
+                        ];
+                    }
+                }
+
+                return $this->sendResponse($attendenceArr, 'Manforce attendence list.');
             } else {
                 return $this->sendError('User does not exists.');
             }

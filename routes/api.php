@@ -108,6 +108,7 @@ Route::middleware('auth:sanctum')->group(function () {
     /* Punch In-Out Routes */
     Route::get('user/get-punch-in-out', [PunchDetailController::class, 'getUserPunchDetails']);
     Route::post('user/punch-in-out', [PunchDetailController::class, 'punchInOut']);
+    Route::post('user/daily-manforce-attendence', [PunchDetailController::class, 'dailyManforceAttendence']);
 
     /* Unit Types Routes */
     Route::get('unit-type/get/lists', [UnitTypesController::class, 'getUnitTypes']);
