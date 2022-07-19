@@ -30,6 +30,8 @@ class CreateProjectsTable extends Migration
             $table->string('zip_code', 10)->nullable();
             $table->date('start_date')->nullable();
             $table->date('end_date')->nullable();
+            $table->time('working_start_time')->nullable();
+            $table->time('working_end_time')->nullable();
             $table->double('cost')->nullable();
             $table->tinyInteger('status')->default(1)->comment('1 - Yet to Start, 2 - In Progress, 3 - Completed');
             $table->unsignedBigInteger('created_by')->nullable();

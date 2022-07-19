@@ -141,8 +141,8 @@ class ProjectsController extends Controller
                         'address' => 'required',
                         'start_date' => 'required|date',
                         'end_date' => 'required|date',
-                        'working_start_time' => 'required|date_format:H:i',
-                        'working_end_time' => 'required|date_format:H:i',
+                        'working_start_time' => 'required',
+                        'working_end_time' => 'required',
                         'cost' => 'required',
                     ], [
                         'logo.max' => 'The logo must not be greater than 5mb.',
@@ -216,8 +216,8 @@ class ProjectsController extends Controller
                         'address' => 'required',
                         'start_date' => 'required|date',
                         'end_date' => 'required|date',
-                        'working_start_time' => 'required|date_format:H:i',
-                        'working_end_time' => 'required|date_format:H:i',
+                        'working_start_time' => 'required',
+                        'working_end_time' => 'required',
                         'cost' => 'required',
                     ], [
                         'logo.max' => 'The logo must not be greater than 5mb.',
@@ -243,8 +243,8 @@ class ProjectsController extends Controller
                     if ($request->filled('zip_code')) $project->zip_code = $request->zip_code;
                     if ($request->filled('start_date')) $project->start_date = $request->start_date;
                     if ($request->filled('end_date')) $project->end_date = $request->end_date;
-                    if ($request->filled('working_start_time')) $project->working_start_time = $request->working_start_time;
-                    if ($request->filled('working_end_time')) $project->working_end_time = $request->working_end_time;
+                    if ($request->filled('working_start_time')) $project->working_start_time = date('H:i:s', strtotime($request->working_start_time));
+                    if ($request->filled('working_end_time')) $project->working_end_time = date('H:i:s', strtotime($request->working_end_time));
                     if ($request->filled('cost')) $project->cost = $request->cost;
 
                     if ($request->hasFile('logo')) {
