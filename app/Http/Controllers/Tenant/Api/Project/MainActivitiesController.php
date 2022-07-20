@@ -150,6 +150,10 @@ class MainActivitiesController extends Controller
                 $proMainActivity->created_ip = $request->ip();
                 $proMainActivity->updated_ip = $request->ip();
 
+                if (!ProjectMainActivity::whereNull('parent_id')->exists()) {
+                    $proMainActivity->sort_by = 1;
+                }
+
                 if (!$proMainActivity->save()) {
                     return $this->sendError('Something went wrong while creating the activity.', [], 500);
                 }
@@ -157,8 +161,11 @@ class MainActivitiesController extends Controller
                 if (isset($request->order_activity_by) && !empty($request->order_activity_by)) {
                     foreach ($request->order_activity_by as $actSort) {
                         $proMainActivity = ProjectMainActivity::whereName($actSort['name'])->first();
-                        $proMainActivity->sort_by = $actSort['index'];
-                        $proMainActivity->save();
+                        
+                        if (isset($proMainActivity) && !empty($proMainActivity)) {
+                            $proMainActivity->sort_by = $actSort['index'];
+                            $proMainActivity->save();
+                        }
                     }
                 }
 
@@ -212,8 +219,11 @@ class MainActivitiesController extends Controller
                 if (isset($request->order_activity_by) && !empty($request->order_activity_by)) {
                     foreach ($request->order_activity_by as $actSort) {
                         $proMainActivity = ProjectMainActivity::whereName($actSort['name'])->first();
-                        $proMainActivity->sort_by = $actSort['index'];
-                        $proMainActivity->save();
+
+                        if (isset($proMainActivity) && !empty($proMainActivity)) {
+                            $proMainActivity->sort_by = $actSort['index'];
+                            $proMainActivity->save();
+                        }
                     }
                 }
 
