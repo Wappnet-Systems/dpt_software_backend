@@ -180,7 +180,7 @@ class ReportController extends Controller
                                 }
                             ])
                             ->whereProjectId($comparisonActivity[$PKey]['id'])
-                            ->select('id', 'project_id', 'project_main_activity_id', 'activity_sub_category_id', 'manforce_type_id', 'name', 'start_date', 'end_date', 'actual_start_date', 'actual_end_date', 'status');
+                            ->select('id', 'project_id', 'project_main_activity_id', 'activity_sub_category_id', 'manforce_type_id', 'name', 'start_date', 'end_date', 'actual_start_date', 'actual_end_date', 'status', 'sort_by');
 
                         if (isset($request->end_date) && !empty($request->end_date)) {
                             $proActivity = $proActivity->whereDate('end_date', '!=', date('Y-m-d', strtotime($request->end_date)))

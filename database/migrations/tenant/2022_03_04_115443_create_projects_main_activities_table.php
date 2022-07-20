@@ -20,6 +20,7 @@ class CreateProjectsMainActivitiesTable extends Migration
             $table->string('name', 50);
             $table->tinyInteger('status')->default(1)->comment('1 - Active, 2 - In Active, 3 - Deleted');
             $table->unsignedBigInteger('created_by')->nullable();
+            $table->unsignedBigInteger('sort_by')->nullable();
             $table->ipAddress('created_ip')->nullable();
             $table->ipAddress('updated_ip')->nullable();
             $table->softDeletes();

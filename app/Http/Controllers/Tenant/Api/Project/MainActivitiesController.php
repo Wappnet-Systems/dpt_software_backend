@@ -154,6 +154,14 @@ class MainActivitiesController extends Controller
                     return $this->sendError('Something went wrong while creating the activity.', [], 500);
                 }
 
+                if (isset($request->order_activity_by) && !empty($request->order_activity_by)) {
+                    foreach ($request->order_activity_by as $actSort) {
+                        $proMainActivity = ProjectMainActivity::whereName($actSort['name'])->first();
+                        $proMainActivity->sort_by = $actSort['index'];
+                        $proMainActivity->save();
+                    }
+                }
+
                 return $this->sendResponse([], 'Main activity created successfully.');
             } else {
                 return $this->sendError('User not exists.', [], 404);
@@ -199,6 +207,14 @@ class MainActivitiesController extends Controller
 
                 if (!$proMainActivity->save()) {
                     return $this->sendError('Something went wrong while creating the activity.', [], 500);
+                }
+
+                if (isset($request->order_activity_by) && !empty($request->order_activity_by)) {
+                    foreach ($request->order_activity_by as $actSort) {
+                        $proMainActivity = ProjectMainActivity::whereName($actSort['name'])->first();
+                        $proMainActivity->sort_by = $actSort['index'];
+                        $proMainActivity->save();
+                    }
                 }
 
                 return $this->sendResponse([], 'Activity updated successfully.');
