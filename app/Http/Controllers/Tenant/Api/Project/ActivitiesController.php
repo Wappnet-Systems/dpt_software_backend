@@ -79,10 +79,6 @@ class ActivitiesController extends Controller
                 $query->orWhereIn('id', $assignProActivityIds)
                     ->orderBy('sort_by', 'ASC');
             });
-        } else {
-            $proActivitiesQuery->whereHas('parents.projectActivities', function ($query) {
-                $query->orderBy('sort_by', 'ASC');
-            });
         }
 
         $proActivities = $proActivitiesQuery->get();
@@ -193,8 +189,11 @@ class ActivitiesController extends Controller
                 if (isset($request->order_activity_by) && !empty($request->order_activity_by)) {
                     foreach ($request->order_activity_by as $actSort) {
                         $proActivity = ProjectActivity::whereName($actSort['name'])->first();
-                        $proActivity->sort_by = $actSort['index'];
-                        $proActivity->save();
+
+                        if (isset($proActivity) && !empty($proActivity)) {
+                            $proActivity->sort_by = $actSort['index'];
+                            $proActivity->save();
+                        }
                     }
                 }
 
@@ -293,8 +292,11 @@ class ActivitiesController extends Controller
                 if (isset($request->order_activity_by) && !empty($request->order_activity_by)) {
                     foreach ($request->order_activity_by as $actSort) {
                         $proActivity = ProjectActivity::whereName($actSort['name'])->first();
-                        $proActivity->sort_by = $actSort['index'];
-                        $proActivity->save();
+                        
+                        if (isset($proActivity) && !empty($proActivity)) {
+                            $proActivity->sort_by = $actSort['index'];
+                            $proActivity->save();
+                        }
                     }
                 }
 
