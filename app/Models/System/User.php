@@ -74,7 +74,8 @@ class User extends Authenticatable
         'CONSTRUCATION_SITE_ADMIN' => 3,
         'MANAGER' => 4,
         'PROJECT_ENGINEER' => 5,
-        'ENGINEER' => 10
+        'QS_DEPARTMENT' => 6,
+        'ENGINEER' => 10,
     ];
 
     const USER_ROLE_GROUP = [
