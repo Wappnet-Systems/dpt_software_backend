@@ -95,11 +95,19 @@ class RaisingInstructionRequestController extends Controller
             $user = $request->user();
 
             if (isset($user) && !empty($user)) {
-                $validator = Validator::make($request->all(), [
-                    'project_id' => 'required|exists:projects,id',
-                    'request_no' => 'required',
-                    'message' => 'required',
-                ]);
+                $validationRules = [
+                    'project_id' => 'required'
+                ];
+
+                if (in_array($user->role_id, [User::USER_ROLE['QS_DEPARTMENT']])) {
+                    $validationRules['reference_no'] = 'required';
+                }
+
+                if (in_array($user->role_id, [User::USER_ROLE['ENGINEER']])) {
+                    $validationRules['message'] = 'required';
+                }
+
+                $validator = Validator::make($request->all(), $validationRules);
 
                 if ($validator->fails()) {
                     foreach ($validator->errors()->messages() as $key => $value) {
@@ -109,8 +117,8 @@ class RaisingInstructionRequestController extends Controller
 
                 $raisingInstructionRequest = new ProjectRaisingInstructionRequest();
                 $raisingInstructionRequest->project_id = $request->project_id;
-                $raisingInstructionRequest->request_no = !empty($request->request_no) ? $request->request_no : null;
-                $raisingInstructionRequest->message = $request->message;
+                $raisingInstructionRequest->reference_no = $request->reference_no ?? null;
+                $raisingInstructionRequest->message = $request->message ?? null;
                 $raisingInstructionRequest->created_by = $user->id;
                 $raisingInstructionRequest->created_ip = $request->ip();
                 $raisingInstructionRequest->updated_ip = $request->ip();
@@ -136,10 +144,17 @@ class RaisingInstructionRequestController extends Controller
             $user = $request->user();
 
             if (isset($user) && !empty($user)) {
-                $validator = Validator::make($request->all(), [
-                    'request_no' => 'required',
-                    'message' => 'required',
-                ]);
+                $validationRules = [];
+
+                if (in_array($user->role_id, [User::USER_ROLE['QS_DEPARTMENT']])) {
+                    $validationRules['reference_no'] = 'required';
+                }
+
+                if (in_array($user->role_id, [User::USER_ROLE['ENGINEER']])) {
+                    $validationRules['message'] = 'required';
+                }
+
+                $validator = Validator::make($request->all(), $validationRules);
 
                 if ($validator->fails()) {
                     foreach ($validator->errors()->messages() as $key => $value) {
@@ -153,8 +168,8 @@ class RaisingInstructionRequestController extends Controller
                     return $this->sendError('Project raising instruction request does not exist.', [], 404);
                 }
 
-                if ($request->filled('request_no')) $raisingInstructionRequest->request_no = !empty($request->request_no) ? $request->request_no : null;
-                if ($request->filled('message')) $raisingInstructionRequest->message =  $request->message;
+                if ($request->filled('reference_no')) $raisingInstructionRequest->reference_no = $request->reference_no ?? null;
+                if ($request->filled('message')) $raisingInstructionRequest->message =  $request->message ?? null;
                 $raisingInstructionRequest->updated_ip = $request->ip();
 
                 if (!$raisingInstructionRequest->save()) {

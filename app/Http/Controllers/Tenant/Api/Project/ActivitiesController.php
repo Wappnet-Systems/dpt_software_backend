@@ -67,8 +67,8 @@ class ActivitiesController extends Controller
         $proActivitiesQuery = ProjectMainActivity::with('parents', 'projectActivities')
             ->whereProjectId($request->project_id ?? '')
             ->whereNull('parent_id')
-            ->select('id', 'project_id', 'parent_id', 'name', 'status', 'created_by')
-            ->orderBy('id', 'DESC');
+            ->select('id', 'project_id', 'parent_id', 'name', 'status', 'created_by', 'sort_by')
+            ->orderBy('sort_by', 'ASC');
 
         if ($user->role_id != User::USER_ROLE['MANAGER']) {
             $assignProActivityIds = ProjectActivityAssignedUser::whereUserId($user->id)
@@ -76,7 +76,8 @@ class ActivitiesController extends Controller
                 ->toArray();
 
             $proActivitiesQuery->whereHas('parents.projectActivities', function ($query) use($assignProActivityIds) {
-                $query->orWhereIn('id', $assignProActivityIds);
+                $query->orWhereIn('id', $assignProActivityIds)
+                    ->orderBy('sort_by', 'ASC');
             });
         }
 
@@ -185,6 +186,17 @@ class ActivitiesController extends Controller
                     return $this->sendError('Something went wrong while creating the activity.', [], 500);
                 }
 
+                if (isset($request->order_activity_by) && !empty($request->order_activity_by)) {
+                    foreach ($request->order_activity_by as $actSort) {
+                        $proActivity = ProjectActivity::whereName($actSort['name'])->first();
+
+                        if (isset($proActivity) && !empty($proActivity)) {
+                            $proActivity->sort_by = $actSort['index'];
+                            $proActivity->save();
+                        }
+                    }
+                }
+
                 return $this->sendResponse([], 'Activity created successfully.');
             } else {
                 return $this->sendError('User not exists.', [], 404);
@@ -274,6 +286,17 @@ class ActivitiesController extends Controller
     
                     if (!$proActivity->save()) {
                         return $this->sendError('Something went wrong while updating the activity.', [], 500);
+                    }
+                }
+
+                if (isset($request->order_activity_by) && !empty($request->order_activity_by)) {
+                    foreach ($request->order_activity_by as $actSort) {
+                        $proActivity = ProjectActivity::whereName($actSort['name'])->first();
+                        
+                        if (isset($proActivity) && !empty($proActivity)) {
+                            $proActivity->sort_by = $actSort['index'];
+                            $proActivity->save();
+                        }
                     }
                 }
 
