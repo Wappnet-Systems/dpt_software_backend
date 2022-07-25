@@ -76,6 +76,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('organization/update/{orgId}', [OrganizationController::class, 'updateOrganization']);
     Route::patch('organization/status/change/{orgId}', [OrganizationController::class, 'changeOrganizationStatus']);
     Route::post('organization/recovery-email', [OrganizationController::class, 'recoveryEmail']);
+    Route::post('organization/re-generate', [OrganizationController::class, 'organizationRegenerate']);
 
     /** Organizations Management Routes */
     // Route::get('role/get/lists', [RoleController::class, 'getRoles']);

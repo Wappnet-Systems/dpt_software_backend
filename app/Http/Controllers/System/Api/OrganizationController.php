@@ -13,6 +13,7 @@ use App\Models\System\Organization;
 use App\Models\System\User;
 use App\Helpers\AppHelper;
 use App\Helpers\UploadFile;
+use App\Jobs\CreateOrganizationJob;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Password;
 
@@ -130,26 +131,8 @@ class OrganizationController extends Controller
                     return $this->sendError('Organization already exists please try using another one.', [], 400);
                 }
 
-                // Create new website
-                $website = new Website;
-                $website->uuid = Organization::generateUuid($request->org_domain);
-
-                if (!app(WebsiteRepository::class)->create($website)) {
-                    return $this->sendError('Something went wrong while creating the organization.');
-                }
-
-                // Create new hostname
-                $hostname = new Hostname();
-                $hostname->fqdn = $request->org_domain;
-                $hostname->website_id = $website->id;
-
-                if (!$hostname->save()) {
-                    return $this->sendError('Something went wrong while creating the organization.');
-                }
-
                 // Create new organization
                 $organization = new Organization();
-                $organization->hostname_id = $hostname->id;
                 $organization->name = $request->name;
                 $organization->email = strtolower($request->email);
                 $organization->phone_no = $request->phone_no;
@@ -158,6 +141,7 @@ class OrganizationController extends Controller
                 $organization->state = $request->state;
                 $organization->country = $request->country;
                 $organization->zip_code = $request->zip_code;
+                $organization->org_domain = Organization::generateUuid($request->org_domain);
                 $organization->is_details_visible = $request->is_details_visible;
                 $organization->created_ip = $request->ip();
                 $organization->updated_ip = $request->ip();
@@ -197,6 +181,11 @@ class OrganizationController extends Controller
                     return $this->sendError('Something went wrong while creating the organization.');
                 }
 
+                $details['org_domain'] = $request->org_domain;
+                $details['org_id'] = $organization->id;
+
+                CreateOrganizationJob::dispatch($details);
+
                 $status = Password::sendResetLink(
                     $orgUser->only('email')
                 );
@@ -205,7 +194,7 @@ class OrganizationController extends Controller
 
                 $orgUser->notify(new ResetPassword($token)); */
 
-                return $this->sendResponse([], 'Organization register successfully, also sent reset password link on organization mail.');
+                return $this->sendResponse([], 'Organization register in process, also sent reset password link on organization mail.');
             } else {
                 return $this->sendError('User not exists.', [], 404);
             }
@@ -372,6 +361,50 @@ class OrganizationController extends Controller
                     return $this->sendResponse([], 'Organization email recovery successfully.');
                 }
                 return $this->sendError('Something went wrong while recover the organization email.', [], 400);
+            } else {
+                return $this->sendError('User not exists.', [], 404);
+            }
+        } catch (\Exception $e) {
+            Log::error($e->getMessage());
+
+            return $this->sendError('Something went wrong!', [], 500);
+        }
+    }
+
+    // organization re-generated 
+    public function organizationRegenerate(Request $request)
+    {
+        try {
+            $user = $request->user();
+
+            if (isset($user) && !empty($user)) {
+                $validator = Validator::make($request->all(), [
+                    'orgId' => "required|exists:organizations,id",
+                ]);
+
+                if ($validator->fails()) {
+                    foreach ($validator->errors()->messages() as $key => $value) {
+                        return $this->sendError('Validation Error.', [$key => $value[0]], 400);
+                    }
+                }
+
+                $organization = Organization::whereId($request->orgId)
+                    ->whereNotNull('org_domain')
+                    ->whereStatus(Organization::STATUS['Failure'])
+                    ->first();
+
+                if (!isset($organization) || empty($organization)) {
+                    return $this->sendError('Organization already exists.', [], 400);
+                }
+
+                $organization->status = Organization::STATUS['Active'];
+                if ($organization->save()) {
+                    $details['org_domain'] = $organization->org_domain;
+                    $details['org_id'] = $organization->id;
+
+                    CreateOrganizationJob::dispatch($details);
+                }
+                return $this->sendResponse([], 'Organization regenerate successfully.');
             } else {
                 return $this->sendError('User not exists.', [], 404);
             }

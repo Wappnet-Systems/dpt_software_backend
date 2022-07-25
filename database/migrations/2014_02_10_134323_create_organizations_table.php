@@ -18,7 +18,7 @@ class CreateOrganizationsTable extends Migration
             $table->collation = 'utf8_general_ci';
 
             $table->id();
-            $table->foreignId('hostname_id')->constrained('hostnames')->cascadeOnUpdate()->cascadeOnDelete();
+            $table->foreignId('hostname_id')->nullable()->constrained('hostnames')->cascadeOnUpdate()->cascadeOnDelete();
             $table->string('name', 100);
             $table->string('email', 50)->unique();
             $table->string('logo', 255)->nullable();
@@ -28,9 +28,10 @@ class CreateOrganizationsTable extends Migration
             $table->string('state', 25)->nullable();
             $table->string('country', 25)->nullable();
             $table->string('zip_code', 10)->nullable();
-            $table->tinyInteger('status')->default(1)->comment('1 - Active, 2 - In Active, 3 - Deleted');
+            $table->tinyInteger('status')->default(1)->comment('1 - Active, 2 - In Active, 3 - Deleted, 4 - Failure');
             $table->boolean('is_details_visible');
             $table->unsignedBigInteger('subscription_id')->nullable();
+            $table->string('org_domain', 255);
             $table->ipAddress('created_ip')->nullable();
             $table->ipAddress('updated_ip')->nullable();
             $table->softDeletes();
