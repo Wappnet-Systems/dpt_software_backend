@@ -26,6 +26,7 @@ class Organization extends Model
         'Active' => 1,
         'In Active' => 2,
         'Deleted' => 3,
+        'Failure' => 4,
     ];
 
     /**
