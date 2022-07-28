@@ -12,6 +12,8 @@ use App\Models\System\User;
 use App\Models\Tenant\ProjectInspection;
 use App\Helpers\AppHelper;
 use App\Helpers\UploadFile;
+use App\Jobs\SendPushJob;
+use App\Models\Tenant\ProjectActivity;
 use App\Models\Tenant\ProjectActivityAllocateMaterial;
 use Illuminate\Support\Facades\Log;
 
@@ -230,6 +232,32 @@ class InspectionController extends Controller
 
                 if (!in_array($request->type, ProjectInspection::TYPE)) {
                     return $this->sendError('Invalid type requested.', [], 400);
+                }
+
+                if ($projectInspection->project_activity_id != null) {
+
+                    AppHelper::setDefaultDBConnection(true);
+
+                    $assignUsers = User::select('id', 'role_id', 'name', 'created_by')
+                        ->whereIn('role_id', [User::USER_ROLE['QA/QC']])
+                        ->get()->toArray();
+
+                    foreach ($assignUsers as $assignUserKey => $assignUserValue) {
+                        AppHelper::setDefaultDBConnection();
+
+                        $activityVal = ProjectActivity::whereId($projectInspection->project_activity_id)
+                            ->value('name');
+                            
+                        /** Send Push Notification */
+                        $title = 'Activity Inspection Updated';
+                        $message = $activityVal . ', inspection has been updated by ' . $assignUserValue['name'];
+                        $data = [
+                            'type' => 'Activity Inspection Updated',
+                            'data' => $assignUserValue
+                        ];
+                        dispatch(new SendPushJob($assignUserValue, $title, $message, $data));
+                        /** End of Send Push Notification */
+                    }
                 }
 
                 if ($request->filled('project_allocate_material_id')) $projectInspection->project_allocate_material_id = $request->project_allocate_material_id ?? null;
