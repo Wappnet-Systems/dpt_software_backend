@@ -38,10 +38,12 @@ use App\Http\Controllers\Tenant\Api\Project\InspectionController;
 use App\Http\Controllers\Tenant\Api\Project\MethodStatementController;
 use App\Http\Controllers\Tenant\Api\Project\ManforceProductivityController;
 use App\Http\Controllers\Tenant\Api\NcrSorController;
+use App\Http\Controllers\Tenant\Api\Project\MaterialApprovalLogController;
 use App\Http\Controllers\Tenant\Api\Project\NcrSorRequestController;
 use App\Http\Controllers\Tenant\Api\Project\RaisingInstructionRequestController;
 use App\Http\Controllers\Tenant\Api\Project\ScaffoldController;
 use App\Http\Controllers\Tenant\Api\ReportController;
+use App\Models\System\Role;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -335,4 +337,12 @@ Route::middleware('auth:sanctum')->group(function () {
     /* Daily Activity Track Routes */
     Route::get('project/activity/daily/progress/get/list', [ActivitiesDailyProgressController::class, 'getActivitiesDailyProgress']);
     Route::post('project/activity/daily/progress/update', [ActivitiesDailyProgressController::class, 'updateActivitiesDailyProgress']);
+
+    /** Project Material Approval Log Route */
+    Route::get('project/material/approval-log/get/list', [MaterialApprovalLogController::class, 'getMaterialApprovalLog']);
+    Route::get('project/material/approval-log/get/{id}', [MaterialApprovalLogController::class,'getMaterialApprovalLogDetails']);
+    Route::post('project/material/approval-log/add', [MaterialApprovalLogController::class, 'addMaterialApprovalLog']);
+    Route::put('project/material/approval-log/update/{id}', [MaterialApprovalLogController::class, 'updateMaterialApprovalLog']);
+    Route::patch('project/material/approval-log/approve-reject/{id}', [MaterialApprovalLogController::class,'changeApprovalStatus']);
+    Route::patch('project/material/approval-log/status/change/{id}', [MaterialApprovalLogController::class,'changeMaterialStatus']);
 });

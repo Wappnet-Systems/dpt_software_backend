@@ -49,7 +49,7 @@ class MaterialRaisingRequestsController extends Controller
         $limit = !empty($request->limit) ? $request->limit : config('constants.default_per_page_limit');
         $orderBy = !empty($request->orderby) ? $request->orderby : config('constants.default_orderby');
 
-        $query = ProjectMaterialRaisingRequest::with('project', 'materialType', 'unitType')
+        $query = ProjectMaterialRaisingRequest::with('project', 'materialType', 'unitType','materialApprovalLog')
             ->whereProjectId($request->project_id ?? '')
             ->orderby('id', $orderBy);
 
@@ -82,7 +82,7 @@ class MaterialRaisingRequestsController extends Controller
 
     public function getMaterialRaisingRequestDetails(Request $request)
     {
-        $materialRaisingRequest = ProjectMaterialRaisingRequest::with('project', 'materialType', 'unitType')
+        $materialRaisingRequest = ProjectMaterialRaisingRequest::with('project', 'materialType', 'unitType','materialApprovalLog')
             ->whereId($request->id)
             ->first();
 
@@ -103,6 +103,7 @@ class MaterialRaisingRequestsController extends Controller
                     'project_id' => 'required|exists:projects,id',
                     'material_type_id' => 'required|exists:material_types,id',
                     'unit_type_id' => 'required|exists:unit_types,id',
+                    'material_approval_id' => 'required|exists:material_approval_logs,id',
                     'quantity' => 'required|numeric|gt:0'
                 ]);
 
@@ -116,6 +117,7 @@ class MaterialRaisingRequestsController extends Controller
                 $materialRaisingRequest->project_id = $request->project_id;
                 $materialRaisingRequest->material_type_id = $request->material_type_id;
                 $materialRaisingRequest->unit_type_id = $request->unit_type_id;
+                $materialRaisingRequest->material_approval_id = $request->material_approval_id;
                 $materialRaisingRequest->quantity = $request->quantity;
                 $materialRaisingRequest->created_by = $user->id;
                 $materialRaisingRequest->created_ip = $request->ip();
@@ -145,6 +147,7 @@ class MaterialRaisingRequestsController extends Controller
                 $validator = Validator::make($request->all(), [
                     'material_type_id' => 'required|exists:material_types,id',
                     'unit_type_id' => 'required|exists:unit_types,id',
+                    'material_approval_id' => 'required|exists:material_approval_logs,id',
                     'quantity' => 'required|numeric|gt:0'
                 ]);
 
@@ -163,11 +166,12 @@ class MaterialRaisingRequestsController extends Controller
 
                 $materialRaisingRequest->material_type_id = $request->material_type_id;
                 $materialRaisingRequest->unit_type_id = $request->unit_type_id;
+                $materialRaisingRequest->material_approval_id = $request->material_approval_id;
                 $materialRaisingRequest->quantity = $request->quantity;
                 $materialRaisingRequest->updated_ip = $request->ip();
 
                 if (!$materialRaisingRequest->save()) {
-                    return $this->sendError('Something went wrong while creating the project material raising request.');
+                    return $this->sendError('Something went wrong while updating the project material raising request.');
                 }
 
                 return $this->sendResponse([], 'Project material raising request updated successfully.');
