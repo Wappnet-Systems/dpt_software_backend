@@ -55,4 +55,10 @@ class ProjectMaterialRaisingRequest extends Model
         return $this->belongsTo(UnitType::class, 'unit_type_id', 'id')
             ->select('id', 'name', 'status');
     }
+
+    public function materialApprovalLog()
+    {
+        return $this->belongsTo(MaterialApprovalLog::class, 'material_approval_id', 'id')
+            ->select('id', 'name', 'reference_number', 'approval_status', 'status');
+    }
 }
