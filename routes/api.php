@@ -230,6 +230,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('project/activity/property/update/{id}', [ActivitiesController::class, 'updateActivityProperty']);
     Route::patch('project/activity/status/change/{id}', [ActivitiesController::class, 'changeActivityStatus']);
     Route::delete('project/activity/delete/{id}', [ActivitiesController::class, 'deleteActivity']);
+    Route::get('project/activity/daily/task/list', [ActivitiesController::class, 'dailyActivityTaskList']);
 
     /* Projects Material Transfer Request Routes */
     Route::get('project/material/transfer/request/get/lists', [MaterialTransferRequestsController::class, 'getMaterialTransferRequests']);

@@ -51,7 +51,7 @@ class ActivitiesDailyProgressController extends Controller
         $user = $request->user();
 
         $query = ProjectActivityTrack::with('projectActivity')
-            ->whereHas('projectActivity', function($query) use($request) {
+            ->whereHas('projectActivity', function ($query) use ($request) {
                 $query->whereProjectId($request->project_id)
                     ->where('status', '!=', ProjectActivity::STATUS['Completed']);
             })
@@ -63,7 +63,7 @@ class ActivitiesDailyProgressController extends Controller
 
         $dailyActivitiesTrack = $query->get();
 
-        return $this->sendResponse($dailyActivitiesTrack, 'Daily Activity Tracking List');
+        return $this->sendResponse($dailyActivitiesTrack, 'Daily Activity Tracking List.');
     }
 
     public function updateActivitiesDailyProgress(Request $request)
@@ -82,7 +82,7 @@ class ActivitiesDailyProgressController extends Controller
                         return $this->sendError('Validation Error.', [$key => $value[0]], 400);
                     }
                 }
-                
+
                 $request->merge(['activities_track' => json_decode(base64_decode($request->activities_track), true)]);
 
                 foreach ($request->activities_track as $activityTrack) {
@@ -97,11 +97,11 @@ class ActivitiesDailyProgressController extends Controller
                         $actTrack->updated_ip = $request->ip();
 
                         $proActivity = ProjectActivity::with([
-                                'project',
-                                'allocatedManforce' => function($query) {
-                                    $query->whereIsOvertime(false);
-                                }
-                            ])
+                            'project',
+                            'allocatedManforce' => function ($query) {
+                                $query->whereIsOvertime(false);
+                            }
+                        ])
                             ->whereId($activityTrack['project_activity']['id'])
                             ->first();
 
@@ -109,7 +109,7 @@ class ActivitiesDailyProgressController extends Controller
                             $proActivity->status = !empty($activityTrack['is_completed']) ? ProjectActivity::STATUS['Completed'] : $proActivity->status;
                             $proActivity->completed_area = ($proActivity->completed_area - $actTrack->getOriginal('completed_area')) + $actTrack->completed_area;
                             $proActivity->save();
-                            
+
                             $actTrack->save();
 
                             if (!empty($proActivity->allocatedManforce)) {
@@ -124,7 +124,7 @@ class ActivitiesDailyProgressController extends Controller
 
                                 // Total work done by manforce for the activity
                                 $proActivity->allocatedManforce->total_work = ProjectActivityTrack::whereProjectActivityId($proActivity->id)->sum('completed_area');
-                            
+
                                 // Total cost of manforce for the activity
                                 $proActivity->allocatedManforce->total_cost = AppHelper::calculateManforeCost(
                                     $projectManforce->cost,
@@ -133,13 +133,13 @@ class ActivitiesDailyProgressController extends Controller
                                     $duration,
                                     null
                                 );
-                                
+
                                 $proActivity->allocatedManforce->save();
                             }
                         }
                     }
                 }
-                
+
                 return $this->sendResponse([], 'Activity daily tracking update successfully.');
             } else {
                 return $this->sendError('User not exists.', [], 404);

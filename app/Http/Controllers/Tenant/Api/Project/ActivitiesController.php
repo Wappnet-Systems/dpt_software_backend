@@ -63,7 +63,7 @@ class ActivitiesController extends Controller
         $request->merge([
             'project_id' => Project::whereUuid($request->project_id ?? '')->value('id')
         ]);
-        
+
         $proActivitiesQuery = ProjectMainActivity::with('parents', 'projectActivities')
             ->whereProjectId($request->project_id ?? '')
             ->whereNull('parent_id')
@@ -75,7 +75,7 @@ class ActivitiesController extends Controller
                 ->pluck('project_activity_id')
                 ->toArray();
 
-            $proActivitiesQuery->whereHas('parents.projectActivities', function ($query) use($assignProActivityIds) {
+            $proActivitiesQuery->whereHas('parents.projectActivities', function ($query) use ($assignProActivityIds) {
                 $query->orWhereIn('id', $assignProActivityIds)
                     ->orderBy('sort_by', 'ASC');
             });
@@ -239,7 +239,7 @@ class ActivitiesController extends Controller
 
                 if ($request->boolean('is_remove')) {
                     $proMainActivity = ProjectMainActivity::whereId($request->id)->first();
-                    
+
                     if (isset($proMainActivity) && !empty($proMainActivity)) {
                         $proMainActivity->forcedelete();
 
@@ -255,18 +255,18 @@ class ActivitiesController extends Controller
                         $proActivity->created_by = $user->id;
                         $proActivity->created_ip = $request->ip();
                         $proActivity->updated_ip = $request->ip();
-    
+
                         if (!$proActivity->save()) {
                             return $this->sendError('Something went wrong while updating the activity.', [], 500);
                         }
                     }
                 } else {
                     $proActivity = ProjectActivity::whereId($request->id)->first();
-    
+
                     if (!isset($proActivity) || empty($proActivity)) {
                         return $this->sendError('Activity does not exists.', [], 404);
                     }
-    
+
                     if ($request->filled('project_main_activity_id')) $proActivity->project_main_activity_id = $request->project_main_activity_id;
                     if ($request->filled('activity_sub_category_id')) $proActivity->activity_sub_category_id = $request->activity_sub_category_id ?? null;
                     if ($request->filled('manforce_type_id')) $proActivity->manforce_type_id = $request->manforce_type_id ?? null;
@@ -283,7 +283,7 @@ class ActivitiesController extends Controller
                     if ($request->filled('scaffold_requirement')) $proActivity->scaffold_requirement = boolval($request->scaffold_requirement);
                     if ($request->filled('helper')) $proActivity->helper = boolval($request->helper);
                     $proActivity->updated_ip = $request->ip();
-    
+
                     if (!$proActivity->save()) {
                         return $this->sendError('Something went wrong while updating the activity.', [], 500);
                     }
@@ -292,7 +292,7 @@ class ActivitiesController extends Controller
                 if (isset($request->order_activity_by) && !empty($request->order_activity_by)) {
                     foreach ($request->order_activity_by as $actSort) {
                         $proActivity = ProjectActivity::whereName($actSort['name'])->first();
-                        
+
                         if (isset($proActivity) && !empty($proActivity)) {
                             $proActivity->sort_by = $actSort['index'];
                             $proActivity->save();
@@ -384,7 +384,8 @@ class ActivitiesController extends Controller
         }
     }
 
-    public function updateActivityProperty(Request $request, $id = null) {
+    public function updateActivityProperty(Request $request, $id = null)
+    {
         try {
             $user = $request->user();
 
@@ -410,7 +411,7 @@ class ActivitiesController extends Controller
                         $proActivity->start_date = date('Y-m-d H:i:s', strtotime($activity['start_date']));
                         $proActivity->actual_start_date = date('Y-m-d H:i:s', strtotime($activity['start_date']));
                     }
-                    
+
                     if (isset($activity['end_date']) && !empty($activity['end_date'])) {
                         $proActivity->end_date = date('Y-m-d H:i:s', strtotime($activity['end_date']));
                         $proActivity->actual_end_date = date('Y-m-d H:i:s', strtotime($activity['end_date']));
@@ -432,12 +433,12 @@ class ActivitiesController extends Controller
                         $projAssignUser = ProjectActivityAssignedUser::whereProjectActivityId($activity['id'])
                             ->where('user_id', '!=', $user->id)
                             ->delete();
-    
+
                         foreach ($activity['assigned_users_ids'] as $userId) {
                             $projAssignUser = ProjectActivityAssignedUser::whereProjectActivityId($activity['id'])
                                 ->whereUserId($userId)
                                 ->first();
-    
+
                             if (isset($projAssignUser) && !empty($projAssignUser)) {
                                 $projAssignUser->updated_ip = $request->ip();
                                 $projAssignUser->save();
@@ -459,7 +460,37 @@ class ActivitiesController extends Controller
         } catch (\Exception $e) {
             Log::error($e->getMessage());
 
-            echo '<pre>'; print_r($e->getMessage()); echo '</pre>'; die;
+            return $this->sendError('Something went wrong!', [], 500);
+        }
+    }
+
+    /**
+     * daily activity task list
+     */
+    public function dailyActivityTaskList(Request $request)
+    {
+        try {
+            $user = $request->user();
+
+            if (isset($user) && !empty($user)) {
+
+                $activityDailyTask = ProjectActivity::select('id', 'project_id', 'project_main_activity_id', 'activity_sub_category_id', 'manforce_type_id', 'name', 'start_date', 'end_date', 'actual_start_date', 'actual_end_date', 'location', 'level', 'actual_area', 'completed_area', 'unit_type_id', 'cost', 'scaffold_requirement', 'helper', 'status', 'productivity_rate', 'created_by', 'sort_by')
+                    ->with(['unitType', 'manforceType', 'allocatedManforce', 'allocateMachinery', 'allocateMaterial', 'assignedUsers', 'materialUses', 'activityTrack'])
+                    ->whereId($request->activity_id ?? '')
+                    ->whereProjectId($request->project_id ?? '');
+
+                if (isset($request->status) && !empty($request->status)) {
+                    $activityDailyTask = $activityDailyTask->whereStatus($request->status);
+                }
+
+                $activityDailyTaskList = $activityDailyTask->get()->toArray();
+
+                return $this->sendResponse($activityDailyTaskList, 'Activities daily task list.');
+            } else {
+                return $this->sendError('User does not exist.');
+            }
+        } catch (\Exception $e) {
+            Log::error($e->getMessage());
 
             return $this->sendError('Something went wrong!', [], 500);
         }
