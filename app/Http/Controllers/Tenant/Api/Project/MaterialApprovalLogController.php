@@ -12,8 +12,6 @@ use Hyn\Tenancy\Models\Website;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Validation\Rule;
-use phpseclib\Crypt\RC2;
 
 class MaterialApprovalLogController extends Controller
 {

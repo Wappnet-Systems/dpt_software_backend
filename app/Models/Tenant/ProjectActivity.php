@@ -110,9 +110,27 @@ class ProjectActivity extends Model
         return $this->hasOne(ProjectActivityAllocateManforce::class, 'project_activity_id', 'id')
             ->select('id', 'project_activity_id', 'project_manforce_id', 'date', 'total_assigned', 'total_planned', 'is_overtime', 'total_work', 'total_cost', 'productivity_rate');
     }
-    
+
+    public function allocateMachinery()
+    {
+        return $this->hasOne(ProjectActivityAllocateMachinery::class, 'project_activity_id', 'id')
+            ->select('id', 'project_activity_id', 'project_machinery_id', 'date', 'time_slots', 'assign_by');
+    }
+    public function allocateMaterial()
+    {
+        return $this->hasOne(ProjectActivityAllocateMaterial::class, 'project_activity_id', 'id')
+            ->select('id', 'project_activity_id', 'project_inventory_id', 'total_quantity', 'remaining_quantity', 'cost', 'assign_by');
+    }
+
+    public function materialUses()
+    {
+        return $this->hasOne(ProjectActivityMaterialUses::class, 'project_activity_id', 'id')
+            ->select('id', 'project_activity_id', 'project_allocate_material_id', 'date', 'quantity', 'assign_by');
+    }
+
     public function activityTrack()
     {
-        return $this->hasMany(ProjectActivityTrack::class, 'project_activity_id', 'id');
+        return $this->hasMany(ProjectActivityTrack::class, 'project_activity_id', 'id')
+            ->select('id', 'project_activity_id', 'date', 'completed_area', 'status', 'comment', 'reason', 'responsible_party', 'created_by');
     }
 }
