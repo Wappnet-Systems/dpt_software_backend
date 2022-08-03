@@ -27,9 +27,9 @@ class MaterialTransferRequestsController extends Controller
                     return $this->sendError('You have no rights to access this module.', [], 401);
                 }
 
-                if (!AppHelper::roleHasModulePermission('Planning and Scheduling', $user)) {
-                    return $this->sendError('You have no rights to access this module.', [], 401);
-                }
+                // if (!AppHelper::roleHasModulePermission('Planning and Scheduling', $user)) {
+                //     return $this->sendError('You have no rights to access this module.', [], 401);
+                // }
 
                 $hostnameId = Organization::whereId($user->organization_id)->value('hostname_id');
 
@@ -53,9 +53,9 @@ class MaterialTransferRequestsController extends Controller
     {
         $user = $request->user();
 
-        if (!AppHelper::roleHasSubModulePermission('Material Transfer Request', RoleHasSubModule::ACTIONS['list'], $user)) {
-            return $this->sendError('You have no rights to access this action.', [], 401);
-        }
+        // if (!AppHelper::roleHasSubModulePermission('Material Transfer Request', RoleHasSubModule::ACTIONS['list'], $user)) {
+        //     return $this->sendError('You have no rights to access this action.', [], 401);
+        // }
 
         $status = !empty($request->status) ? $request->status : ProjectMaterialTransferRequest::STATUS['Pending'];
         $limit = !empty($request->limit) ? $request->limit : config('constants.default_per_page_limit');
@@ -101,9 +101,9 @@ class MaterialTransferRequestsController extends Controller
     {
         $user = $request->user();
 
-        if (!AppHelper::roleHasSubModulePermission('Material Transfer Request', RoleHasSubModule::ACTIONS['view'], $user)) {
-            return $this->sendError('You have no rights to access this action.', [], 401);
-        }
+        // if (!AppHelper::roleHasSubModulePermission('Material Transfer Request', RoleHasSubModule::ACTIONS['view'], $user)) {
+        //     return $this->sendError('You have no rights to access this action.', [], 401);
+        // }
 
         $transferReq = ProjectMaterialTransferRequest::with('fromProject', 'toProject', 'unitType', 'materialType')
             ->whereId($request->id)
@@ -122,9 +122,9 @@ class MaterialTransferRequestsController extends Controller
             $user = $request->user();
 
             if (isset($user) && !empty($user)) {
-                if (!AppHelper::roleHasSubModulePermission('Material Transfer Request', RoleHasSubModule::ACTIONS['create'], $user)) {
-                    return $this->sendError('You have no rights to access this action.', [], 401);
-                }
+                // if (!AppHelper::roleHasSubModulePermission('Material Transfer Request', RoleHasSubModule::ACTIONS['create'], $user)) {
+                //     return $this->sendError('You have no rights to access this action.', [], 401);
+                // }
 
                 $validator = Validator::make($request->all(), [
                     'from_project_id' => 'required|exists:projects,id',
@@ -187,9 +187,9 @@ class MaterialTransferRequestsController extends Controller
             $user = $request->user();
 
             if (isset($user) && !empty($user)) {
-                if (!AppHelper::roleHasSubModulePermission('Material Transfer Request', RoleHasSubModule::ACTIONS['edit'], $user)) {
-                    return $this->sendError('You have no rights to access this action.', [], 401);
-                }
+                // if (!AppHelper::roleHasSubModulePermission('Material Transfer Request', RoleHasSubModule::ACTIONS['edit'], $user)) {
+                //     return $this->sendError('You have no rights to access this action.', [], 401);
+                // }
 
                 $validator = Validator::make($request->all(), [
                     'from_project_id' => 'exists:projects,id',
@@ -261,9 +261,9 @@ class MaterialTransferRequestsController extends Controller
             $user = $request->user();
 
             if (isset($user) && !empty($user)) {
-                if (!AppHelper::roleHasSubModulePermission('Material Transfer Request', RoleHasSubModule::ACTIONS['delete'], $user)) {
-                    return $this->sendError('You have no rights to access this action.', [], 401);
-                }
+                // if (!AppHelper::roleHasSubModulePermission('Material Transfer Request', RoleHasSubModule::ACTIONS['delete'], $user)) {
+                //     return $this->sendError('You have no rights to access this action.', [], 401);
+                // }
 
                 $transferReq = ProjectMaterialTransferRequest::whereId($request->id)->first();
 
@@ -293,9 +293,9 @@ class MaterialTransferRequestsController extends Controller
         try {
             $user = $request->user();
             
-            if (!AppHelper::roleHasSubModulePermission('Material Transfer Request', RoleHasSubModule::ACTIONS['approve_reject'], $user)) {
-                return $this->sendError('You have no rights to access this action.', [], 401);
-            }
+            // if (!AppHelper::roleHasSubModulePermission('Material Transfer Request', RoleHasSubModule::ACTIONS['approve_reject'], $user)) {
+            //     return $this->sendError('You have no rights to access this action.', [], 401);
+            // }
 
             $validator = Validator::make($request->all(), [
                 'status' => 'required'
