@@ -26,9 +26,9 @@ class MaterialTypesController extends Controller
                     return $this->sendError('You have no rights to access this module.', [], 401);
                 }
 
-                if (!AppHelper::roleHasModulePermission('Masters', $user)) {
-                    return $this->sendError('You have no rights to access this module.', [], 401);
-                }
+                // if (!AppHelper::roleHasModulePermission('Masters', $user)) {
+                //     return $this->sendError('You have no rights to access this module.', [], 401);
+                // }
 
                 $hostnameId = Organization::whereId($user->organization_id)->value('hostname_id');
 
@@ -52,9 +52,9 @@ class MaterialTypesController extends Controller
     {
         $user = $request->user();
 
-        if (!AppHelper::roleHasSubModulePermission('Material Type Management', RoleHasSubModule::ACTIONS['list'], $user)) {
-            return $this->sendError('You have no rights to access this action.', [], 401);
-        }
+        // if (!AppHelper::roleHasSubModulePermission('Material Type Management', RoleHasSubModule::ACTIONS['list'], $user)) {
+        //     return $this->sendError('You have no rights to access this action.', [], 401);
+        // }
 
         $limit = !empty($request->limit) ? $request->limit : config('constants.default_per_page_limit');
         $orderBy = !empty($request->orderby) ? $request->orderby : config('constants.default_orderby');
@@ -99,9 +99,9 @@ class MaterialTypesController extends Controller
     {
         $user = $request->user();
 
-        if (!AppHelper::roleHasSubModulePermission('Material Type Management', RoleHasSubModule::ACTIONS['view'], $user)) {
-            return $this->sendError('You have no rights to access this action.', [], 401);
-        }
+        // if (!AppHelper::roleHasSubModulePermission('Material Type Management', RoleHasSubModule::ACTIONS['view'], $user)) {
+        //     return $this->sendError('You have no rights to access this action.', [], 401);
+        // }
 
         $materialType = MaterialType::whereId($request->id)->first();
 
@@ -159,9 +159,9 @@ class MaterialTypesController extends Controller
             $user = $request->user();
 
             if (isset($user) && !empty($user)) {
-                if (!AppHelper::roleHasSubModulePermission('Material Type Management', RoleHasSubModule::ACTIONS['edit'], $user)) {
-                    return $this->sendError('You have no rights to access this action.', [], 401);
-                }
+                // if (!AppHelper::roleHasSubModulePermission('Material Type Management', RoleHasSubModule::ACTIONS['edit'], $user)) {
+                //     return $this->sendError('You have no rights to access this action.', [], 401);
+                // }
 
                 $validator = Validator::make($request->all(), [
                     'name' => 'required',
@@ -202,11 +202,11 @@ class MaterialTypesController extends Controller
         try {
             $user = $request->user();
 
-            if ($request->status == MaterialType::STATUS['Deleted']) {
-                if (!AppHelper::roleHasSubModulePermission('Material Type Management', RoleHasSubModule::ACTIONS['delete'], $user)) {
-                    return $this->sendError('You have no rights to access this action.', [], 401);
-                }
-            }
+            // if ($request->status == MaterialType::STATUS['Deleted']) {
+            //     if (!AppHelper::roleHasSubModulePermission('Material Type Management', RoleHasSubModule::ACTIONS['delete'], $user)) {
+            //         return $this->sendError('You have no rights to access this action.', [], 401);
+            //     }
+            // }
 
             $materialType = MaterialType::whereId($request->id)->first();
 

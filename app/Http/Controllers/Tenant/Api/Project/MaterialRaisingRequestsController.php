@@ -27,9 +27,9 @@ class MaterialRaisingRequestsController extends Controller
                     return $this->sendError('You have no rights to access this module.', [], 401);
                 }
 
-                if (!AppHelper::roleHasModulePermission('Qs', $user)) {
-                    return $this->sendError('You have no rights to access this module.', [], 401);
-                }
+                // if (!AppHelper::roleHasModulePermission('Qs', $user)) {
+                //     return $this->sendError('You have no rights to access this module.', [], 401);
+                // }
 
                 $hostnameId = Organization::whereId($user->organization_id)->value('hostname_id');
 
@@ -53,9 +53,9 @@ class MaterialRaisingRequestsController extends Controller
     {
         $user = $request->user();
 
-        if (!AppHelper::roleHasSubModulePermission('Raising Material Requisition', RoleHasSubModule::ACTIONS['list'], $user)) {
-            return $this->sendError('You have no rights to access this action.', [], 401);
-        }
+        // if (!AppHelper::roleHasSubModulePermission('Raising Material Requisition', RoleHasSubModule::ACTIONS['list'], $user)) {
+        //     return $this->sendError('You have no rights to access this action.', [], 401);
+        // }
 
         $limit = !empty($request->limit) ? $request->limit : config('constants.default_per_page_limit');
         $orderBy = !empty($request->orderby) ? $request->orderby : config('constants.default_orderby');
@@ -95,9 +95,9 @@ class MaterialRaisingRequestsController extends Controller
     {
         $user = $request->user();
 
-        if (!AppHelper::roleHasSubModulePermission('Raising Material Requisition', RoleHasSubModule::ACTIONS['view'], $user)) {
-            return $this->sendError('You have no rights to access this action.', [], 401);
-        }
+        // if (!AppHelper::roleHasSubModulePermission('Raising Material Requisition', RoleHasSubModule::ACTIONS['view'], $user)) {
+        //     return $this->sendError('You have no rights to access this action.', [], 401);
+        // }
 
         $materialRaisingRequest = ProjectMaterialRaisingRequest::with('project', 'materialType', 'unitType', 'materialApprovalLog')
             ->whereId($request->id)
@@ -115,9 +115,9 @@ class MaterialRaisingRequestsController extends Controller
         try {
             $user = $request->user();
 
-            if (!AppHelper::roleHasSubModulePermission('Raising Material Requisition', RoleHasSubModule::ACTIONS['create'], $user)) {
-                return $this->sendError('You have no rights to access this action.', [], 401);
-            }
+            // if (!AppHelper::roleHasSubModulePermission('Raising Material Requisition', RoleHasSubModule::ACTIONS['create'], $user)) {
+            //     return $this->sendError('You have no rights to access this action.', [], 401);
+            // }
 
             if (isset($user) && !empty($user)) {
                 $validator = Validator::make($request->all(), [
@@ -164,9 +164,9 @@ class MaterialRaisingRequestsController extends Controller
         try {
             $user = $request->user();
 
-            if (!AppHelper::roleHasSubModulePermission('Raising Material Requisition', RoleHasSubModule::ACTIONS['edit'], $user)) {
-                return $this->sendError('You have no rights to access this action.', [], 401);
-            }
+            // if (!AppHelper::roleHasSubModulePermission('Raising Material Requisition', RoleHasSubModule::ACTIONS['edit'], $user)) {
+            //     return $this->sendError('You have no rights to access this action.', [], 401);
+            // }
 
             if (isset($user) && !empty($user)) {
                 $validator = Validator::make($request->all(), [
@@ -215,9 +215,9 @@ class MaterialRaisingRequestsController extends Controller
         try {
             $user = $request->user();
 
-            if (!AppHelper::roleHasSubModulePermission('Raising Material Requisition', RoleHasSubModule::ACTIONS['delete'], $user)) {
-                return $this->sendError('You have no rights to access this action.', [], 401);
-            }
+            // if (!AppHelper::roleHasSubModulePermission('Raising Material Requisition', RoleHasSubModule::ACTIONS['delete'], $user)) {
+            //     return $this->sendError('You have no rights to access this action.', [], 401);
+            // }
 
             if (isset($user) && !empty($user)) {
                 $materialRaisingRequest = ProjectMaterialRaisingRequest::whereId($request->id)
@@ -249,9 +249,9 @@ class MaterialRaisingRequestsController extends Controller
         try {
             $user = $request->user();
 
-            if (!AppHelper::roleHasSubModulePermission('Raising Material Requisition', RoleHasSubModule::ACTIONS['approve_reject'], $user)) {
-                return $this->sendError('You have no rights to access this action.', [], 401);
-            }
+            // if (!AppHelper::roleHasSubModulePermission('Raising Material Requisition', RoleHasSubModule::ACTIONS['approve_reject'], $user)) {
+            //     return $this->sendError('You have no rights to access this action.', [], 401);
+            // }
 
             if (isset($user) && !empty($user)) {
                 $validator = Validator::make($request->all(), [

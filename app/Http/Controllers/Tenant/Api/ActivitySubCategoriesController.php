@@ -27,9 +27,9 @@ class ActivitySubCategoriesController extends Controller
                     return $this->sendError('You have no rights to access this module.', [], 401);
                 }
 
-                if (!AppHelper::roleHasModulePermission('Masters', $user)) {
-                    return $this->sendError('You have no rights to access this module.', [], 401);
-                }
+                // if (!AppHelper::roleHasModulePermission('Masters', $user)) {
+                //     return $this->sendError('You have no rights to access this module.', [], 401);
+                // }
 
                 $hostnameId = Organization::whereId($user->organization_id)->value('hostname_id');
 
@@ -53,9 +53,9 @@ class ActivitySubCategoriesController extends Controller
     {
         $user = $request->user();
 
-        if (!AppHelper::roleHasSubModulePermission('Activity Sub Category Management', RoleHasSubModule::ACTIONS['list'], $user)) {
-            return $this->sendError('You have no rights to access this action.', [], 401);
-        }
+        // if (!AppHelper::roleHasSubModulePermission('Activity Sub Category Management', RoleHasSubModule::ACTIONS['list'], $user)) {
+        //     return $this->sendError('You have no rights to access this action.', [], 401);
+        // }
 
         $limit = !empty($request->limit) ? $request->limit : config('constants.default_per_page_limit');
         $orderBy = !empty($request->orderby) ? $request->orderby : config('constants.default_orderby');
@@ -106,9 +106,9 @@ class ActivitySubCategoriesController extends Controller
     {
         $user = $request->user();
 
-        if (!AppHelper::roleHasSubModulePermission('Activity Sub Category Management', RoleHasSubModule::ACTIONS['view'], $user)) {
-            return $this->sendError('You have no rights to access this action.', [], 401);
-        }
+        // if (!AppHelper::roleHasSubModulePermission('Activity Sub Category Management', RoleHasSubModule::ACTIONS['view'], $user)) {
+        //     return $this->sendError('You have no rights to access this action.', [], 401);
+        // }
 
         $subActivityCategory = ActivitySubCategory::select('id', 'activity_category_id', 'name', 'unit_type_id', 'status')
             ->whereId($request->id)
@@ -127,9 +127,9 @@ class ActivitySubCategoriesController extends Controller
             $user = $request->user();
 
             if (isset($user) && !empty($user)) {
-                if (!AppHelper::roleHasSubModulePermission('Activity Sub Category Management', RoleHasSubModule::ACTIONS['create'], $user)) {
-                    return $this->sendError('You have no rights to access this action.', [], 401);
-                }
+                // if (!AppHelper::roleHasSubModulePermission('Activity Sub Category Management', RoleHasSubModule::ACTIONS['create'], $user)) {
+                //     return $this->sendError('You have no rights to access this action.', [], 401);
+                // }
 
                 $validator = Validator::make($request->all(), [
                     'activity_category_id' => 'required|exists:activity_categories,id',
@@ -171,9 +171,9 @@ class ActivitySubCategoriesController extends Controller
             $user = $request->user();
 
             if (isset($user) && !empty($user)) {
-                if (!AppHelper::roleHasSubModulePermission('Activity Sub Category Management', RoleHasSubModule::ACTIONS['edit'], $user)) {
-                    return $this->sendError('You have no rights to access this action.', [], 401);
-                }
+                // if (!AppHelper::roleHasSubModulePermission('Activity Sub Category Management', RoleHasSubModule::ACTIONS['edit'], $user)) {
+                //     return $this->sendError('You have no rights to access this action.', [], 401);
+                // }
 
                 $validator = Validator::make($request->all(), [
                     'activity_category_id' => 'required|exists:activity_categories,id',
@@ -217,11 +217,11 @@ class ActivitySubCategoriesController extends Controller
         try {
             $user = $request->user();
 
-            if ($request->status == ActivityCategory::STATUS['Deleted']) {
-                if (!AppHelper::roleHasSubModulePermission('Activity Sub Category Management', RoleHasSubModule::ACTIONS['delete'], $user)) {
-                    return $this->sendError('You have no rights to access this action.', [], 401);
-                }
-            }
+            // if ($request->status == ActivityCategory::STATUS['Deleted']) {
+            //     if (!AppHelper::roleHasSubModulePermission('Activity Sub Category Management', RoleHasSubModule::ACTIONS['delete'], $user)) {
+            //         return $this->sendError('You have no rights to access this action.', [], 401);
+            //     }
+            // }
             
             $subActivityCategory = ActivitySubCategory::whereId($request->id)->first();
 

@@ -31,9 +31,9 @@ class NcrSorController extends Controller
                     return $this->sendError('You have no rights to access this module.', [], 401);
                 }
 
-                if (!AppHelper::roleHasModulePermission('Masters', $user)) {
-                    return $this->sendError('You have no rights to access this module.', [], 401);
-                }
+                // if (!AppHelper::roleHasModulePermission('Masters', $user)) {
+                //     return $this->sendError('You have no rights to access this module.', [], 401);
+                // }
 
                 $hostnameId = Organization::whereId($user->organization_id)->value('hostname_id');
 
@@ -60,9 +60,9 @@ class NcrSorController extends Controller
         try {
             $user = $request->user();
 
-            if (!AppHelper::roleHasSubModulePermission('NCR/SOR Management', RoleHasSubModule::ACTIONS['list'], $user)) {
-                return $this->sendError('You have no rights to access this action.', [], 401);
-            }
+            // if (!AppHelper::roleHasSubModulePermission('NCR/SOR Management', RoleHasSubModule::ACTIONS['list'], $user)) {
+            //     return $this->sendError('You have no rights to access this action.', [], 401);
+            // }
 
             $query = NcrSor::select('id', 'type', 'path', 'updated_at')
                 ->orderBy('id', $orderBy);
@@ -87,9 +87,9 @@ class NcrSorController extends Controller
     {
         $user = $request->user();
 
-        if (!AppHelper::roleHasSubModulePermission('NCR/SOR Management', RoleHasSubModule::ACTIONS['view'], $user)) {
-            return $this->sendError('You have no rights to access this action.', [], 401);
-        }
+        // if (!AppHelper::roleHasSubModulePermission('NCR/SOR Management', RoleHasSubModule::ACTIONS['view'], $user)) {
+        //     return $this->sendError('You have no rights to access this action.', [], 401);
+        // }
 
         $ncrsor = NcrSor::where("type", $request->type)
             ->select('id', 'type', 'path')
@@ -108,9 +108,9 @@ class NcrSorController extends Controller
             $user = $request->user();
 
             if (isset($user) && !empty($user)) {
-                if (!AppHelper::roleHasSubModulePermission('NCR/SOR Management', RoleHasSubModule::ACTIONS['create'], $user)) {
-                    return $this->sendError('You have no rights to access this action.', [], 401);
-                }
+                // if (!AppHelper::roleHasSubModulePermission('NCR/SOR Management', RoleHasSubModule::ACTIONS['create'], $user)) {
+                //     return $this->sendError('You have no rights to access this action.', [], 401);
+                // }
 
                 $validator = Validator::make($request->all(), [
                     'type' => 'required|numeric|min:1|max:2',

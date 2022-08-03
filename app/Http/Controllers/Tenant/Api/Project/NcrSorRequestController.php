@@ -30,9 +30,9 @@ class NcrSorRequestController extends Controller
                     return $this->sendError('You have no rights to access this module.', [], 401);
                 }
 
-                if (!AppHelper::roleHasModulePermission('Qa/Qc', $user)) {
-                    return $this->sendError('You have no rights to access this module.', [], 401);
-                }
+                // if (!AppHelper::roleHasModulePermission('Qa/Qc', $user)) {
+                //     return $this->sendError('You have no rights to access this module.', [], 401);
+                // }
 
                 $hostnameId = Organization::whereId($user->organization_id)->value('hostname_id');
 
@@ -56,9 +56,9 @@ class NcrSorRequestController extends Controller
     {
         $user = $request->user();
 
-        if (!AppHelper::roleHasSubModulePermission('NCR/SOR Request', RoleHasSubModule::ACTIONS['list'], $user)) {
-            return $this->sendError('You have no rights to access this action.');
-        }
+        // if (!AppHelper::roleHasSubModulePermission('NCR/SOR Request', RoleHasSubModule::ACTIONS['list'], $user)) {
+        //     return $this->sendError('You have no rights to access this action.');
+        // }
 
         $limit = !empty($request->limit) ? $request->limit : config('constants.default_per_page_limit');
         $orderBy = !empty($request->orderby) ? $request->orderby : config('constants.default_orderby');
@@ -110,9 +110,9 @@ class NcrSorRequestController extends Controller
     {
         $user = $request->user();
 
-        if (!AppHelper::roleHasSubModulePermission('NCR/SOR Request', RoleHasSubModule::ACTIONS['view'], $user)) {
-            return $this->sendError('You have no rights to access this action.');
-        }
+        // if (!AppHelper::roleHasSubModulePermission('NCR/SOR Request', RoleHasSubModule::ACTIONS['view'], $user)) {
+        //     return $this->sendError('You have no rights to access this action.');
+        // }
 
         $projectNcrSorRequest = ProjectNcrSorRequest::with('projectActivity')
             ->select('id', 'project_id', 'project_activity_id', 'path', 'type', 'status')
@@ -131,9 +131,9 @@ class NcrSorRequestController extends Controller
         try {
             $user = $request->user();
 
-            if (!AppHelper::roleHasSubModulePermission('NCR/SOR Request', RoleHasSubModule::ACTIONS['create'], $user)) {
-                return $this->sendError('You have no rights to access this action.');
-            }
+            // if (!AppHelper::roleHasSubModulePermission('NCR/SOR Request', RoleHasSubModule::ACTIONS['create'], $user)) {
+            //     return $this->sendError('You have no rights to access this action.');
+            // }
 
             if (isset($user) && !empty($user)) {
                 $validator = Validator::make($request->all(), [
@@ -185,9 +185,9 @@ class NcrSorRequestController extends Controller
         try {
             $user = $request->user();
 
-            if (!AppHelper::roleHasSubModulePermission('NCR/SOR Request', RoleHasSubModule::ACTIONS['edit'], $user)) {
-                return $this->sendError('You have no rights to access this action.');
-            }
+            // if (!AppHelper::roleHasSubModulePermission('NCR/SOR Request', RoleHasSubModule::ACTIONS['edit'], $user)) {
+            //     return $this->sendError('You have no rights to access this action.');
+            // }
 
             if (isset($user) && !empty($user)) {
                 // $validator = Validator::make($request->all(), [
@@ -288,9 +288,9 @@ class NcrSorRequestController extends Controller
     {
         $user = $request->user();
 
-        if (!AppHelper::roleHasSubModulePermission('NCR/SOR Request', RoleHasSubModule::ACTIONS['delete'], $user)) {
-            return $this->sendError('You have no rights to access this action.');
-        }
+        // if (!AppHelper::roleHasSubModulePermission('NCR/SOR Request', RoleHasSubModule::ACTIONS['delete'], $user)) {
+        //     return $this->sendError('You have no rights to access this action.');
+        // }
 
         $projectNcrSorRequest = ProjectNcrSorRequest::with('projectActivity')
             ->select('id', 'project_id', 'project_activity_id', 'path', 'type', 'status')

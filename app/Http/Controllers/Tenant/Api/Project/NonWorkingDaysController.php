@@ -26,9 +26,9 @@ class NonWorkingDaysController extends Controller
                     return $this->sendError('You have no rights to access this module.');
                 }
 
-                if (!AppHelper::roleHasModulePermission('Planning and Scheduling', $user)) {
-                    return $this->sendError('You have no rights to access this module.', [], 401);
-                }
+                // if (!AppHelper::roleHasModulePermission('Planning and Scheduling', $user)) {
+                //     return $this->sendError('You have no rights to access this module.', [], 401);
+                // }
 
                 $hostnameId = Organization::whereId($user->organization_id)->value('hostname_id');
 
@@ -52,9 +52,9 @@ class NonWorkingDaysController extends Controller
     {
         $user = $request->user();
 
-        if (!AppHelper::roleHasSubModulePermission('Non Working Day', RoleHasSubModule::ACTIONS['list'], $user)) {
-            return $this->sendError('You have no rights to access this action.', [], 401);
-        }
+        // if (!AppHelper::roleHasSubModulePermission('Non Working Day', RoleHasSubModule::ACTIONS['list'], $user)) {
+        //     return $this->sendError('You have no rights to access this action.', [], 401);
+        // }
 
         $limit = !empty($request->limit) ? $request->limit : config('constants.default_per_page_limit');
         $orderBy = !empty($request->orderby) ? $request->orderby : config('constants.default_orderby');
@@ -108,9 +108,9 @@ class NonWorkingDaysController extends Controller
     {
         $user = $request->user();
 
-        if (!AppHelper::roleHasSubModulePermission('Non Working Day', RoleHasSubModule::ACTIONS['view'], $user)) {
-            return $this->sendError('You have no rights to access this action.', [], 401);
-        }
+        // if (!AppHelper::roleHasSubModulePermission('Non Working Day', RoleHasSubModule::ACTIONS['view'], $user)) {
+        //     return $this->sendError('You have no rights to access this action.', [], 401);
+        // }
 
         $nonWorkingDays = ProjectNonWorkingDay::select('id', 'project_id', 'name', 'start_date_time', 'end_date_time', 'status')
             ->whereId($request->id)
@@ -129,9 +129,9 @@ class NonWorkingDaysController extends Controller
             $user = $request->user();
 
             if (isset($user) && !empty($user)) {
-                if (!AppHelper::roleHasSubModulePermission('Non Working Day', RoleHasSubModule::ACTIONS['create'], $user)) {
-                    return $this->sendError('You have no rights to access this action.', [], 401);
-                }
+                // if (!AppHelper::roleHasSubModulePermission('Non Working Day', RoleHasSubModule::ACTIONS['create'], $user)) {
+                //     return $this->sendError('You have no rights to access this action.', [], 401);
+                // }
 
                 $validator = Validator::make($request->all(), [
                     'project_id' => 'required|exists:projects,id',
@@ -176,9 +176,9 @@ class NonWorkingDaysController extends Controller
             $user = $request->user();
 
             if (isset($user) && !empty($user)) {
-                if (!AppHelper::roleHasSubModulePermission('Non Working Day', RoleHasSubModule::ACTIONS['edit'], $user)) {
-                    return $this->sendError('You have no rights to access this action.', [], 401);
-                }
+                // if (!AppHelper::roleHasSubModulePermission('Non Working Day', RoleHasSubModule::ACTIONS['edit'], $user)) {
+                //     return $this->sendError('You have no rights to access this action.', [], 401);
+                // }
 
                 $validator = Validator::make($request->all(), [
                     'name' => 'required',

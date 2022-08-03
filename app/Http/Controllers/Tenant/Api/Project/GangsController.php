@@ -26,9 +26,9 @@ class GangsController extends Controller
                     return $this->sendError('You have no rights to access this module.', [], 401);
                 }
 
-                if (!AppHelper::roleHasModulePermission('Planning and Scheduling', $user)) {
-                    return $this->sendError('You have no rights to access this module.', [], 401);
-                }
+                // if (!AppHelper::roleHasModulePermission('Planning and Scheduling', $user)) {
+                //     return $this->sendError('You have no rights to access this module.', [], 401);
+                // }
 
                 $hostnameId = Organization::whereId($user->organization_id)->value('hostname_id');
 
@@ -52,9 +52,9 @@ class GangsController extends Controller
     {
         $user = $request->user();
 
-        if (!AppHelper::roleHasSubModulePermission('Gangs Management', RoleHasSubModule::ACTIONS['list'], $user)) {
-            return $this->sendError('You have no rights to access this action.', [], 401);
-        }
+        // if (!AppHelper::roleHasSubModulePermission('Gangs Management', RoleHasSubModule::ACTIONS['list'], $user)) {
+        //     return $this->sendError('You have no rights to access this action.', [], 401);
+        // }
 
         $limit = !empty($request->limit) ? $request->limit : config('constants.default_per_page_limit');
         $orderBy = !empty($request->orderby) ? $request->orderby : config('constants.default_orderby');
@@ -100,9 +100,9 @@ class GangsController extends Controller
     {
         $user = $request->user();
 
-        if (!AppHelper::roleHasSubModulePermission('Gangs Management', RoleHasSubModule::ACTIONS['view'], $user)) {
-            return $this->sendError('You have no rights to access this action.', [], 401);
-        }
+        // if (!AppHelper::roleHasSubModulePermission('Gangs Management', RoleHasSubModule::ACTIONS['view'], $user)) {
+        //     return $this->sendError('You have no rights to access this action.', [], 401);
+        // }
 
         $projectGangs = ProjectGang::select('id', 'project_id', 'name', 'status')
             ->whereId($request->id)
@@ -121,9 +121,9 @@ class GangsController extends Controller
             $user = $request->user();
 
             if (isset($user) && !empty($user)) {
-                if (!AppHelper::roleHasSubModulePermission('Gangs Management', RoleHasSubModule::ACTIONS['create'], $user)) {
-                    return $this->sendError('You have no rights to access this action.', [], 401);
-                }
+                // if (!AppHelper::roleHasSubModulePermission('Gangs Management', RoleHasSubModule::ACTIONS['create'], $user)) {
+                //     return $this->sendError('You have no rights to access this action.', [], 401);
+                // }
 
                 $validator = Validator::make($request->all(), [
                     'project_id' => 'required|exists:projects,id',
@@ -162,9 +162,9 @@ class GangsController extends Controller
             $user = $request->user();
 
             if (isset($user) && !empty($user)) {
-                if (!AppHelper::roleHasSubModulePermission('Gangs Management', RoleHasSubModule::ACTIONS['edit'], $user)) {
-                    return $this->sendError('You have no rights to access this action.', [], 401);
-                }
+                // if (!AppHelper::roleHasSubModulePermission('Gangs Management', RoleHasSubModule::ACTIONS['edit'], $user)) {
+                //     return $this->sendError('You have no rights to access this action.', [], 401);
+                // }
 
                 $validator = Validator::make($request->all(), [
                     'name' => 'required',
