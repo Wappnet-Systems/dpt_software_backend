@@ -90,8 +90,8 @@ class ProfileController extends Controller
             'name' => 'required',
             'email' => 'required|email|regex:/^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,4}$/|unique:users,email,' . $user->id,
             'personal_email' => 'email|regex:/^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,4}$/|unique:users,personal_email,' . $user->id,
-            'phone_number' => 'numeric|digits_between:10,15',
-            'zip_code' => 'numeric|digits_between:5,10',
+            'phone_number' => 'min:10|max:15',
+            'zip_code' => 'min:5|max:10',
             'profile_image' => sprintf('mimes:%s|max:%s', config('constants.upload_image_types'), config('constants.upload_image_max_size'))
         ], [
             'profile_image.max' => 'The profile image must not be greater than 5mb.'
