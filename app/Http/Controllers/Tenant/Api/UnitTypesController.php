@@ -11,6 +11,7 @@ use App\Models\System\Organization;
 use App\Models\System\User;
 use App\Models\Tenant\UnitType;
 use App\Helpers\AppHelper;
+use App\Models\Tenant\RoleHasSubModule;
 use Illuminate\Support\Facades\Log;
 
 class UnitTypesController extends Controller
@@ -22,6 +23,10 @@ class UnitTypesController extends Controller
 
             if (isset($user) && !empty($user)) {
                 if ($user->role_id == User::USER_ROLE['SUPER_ADMIN']) {
+                    return $this->sendError('You have no rights to access this module.', [], 401);
+                }
+
+                if (!AppHelper::roleHasModulePermission('Masters', $user)) {
                     return $this->sendError('You have no rights to access this module.', [], 401);
                 }
 
@@ -45,6 +50,12 @@ class UnitTypesController extends Controller
 
     public function getUnitTypes(Request $request)
     {
+        $user = $request->user();
+
+        if (!AppHelper::roleHasSubModulePermission('Unit Type Management', RoleHasSubModule::ACTIONS['list'], $user)) {
+            return $this->sendError('You have no rights to access this action.', [], 401);
+        }
+
         $limit = !empty($request->limit) ? $request->limit : config('constants.default_per_page_limit');
         $orderBy = !empty($request->orderby) ? $request->orderby : config('constants.default_orderby');
 
@@ -86,7 +97,16 @@ class UnitTypesController extends Controller
 
     public function getDetails(Request $request)
     {
-        $unitTypes = UnitType::select('id', 'name', 'status')->whereStatus(UnitType::STATUS['Active'])->whereId($request->id)->first();
+        $user = $request->user();
+
+        if (!AppHelper::roleHasSubModulePermission('Unit Type Management', RoleHasSubModule::ACTIONS['view'], $user)) {
+            return $this->sendError('You have no rights to access this action.', [], 401);
+        }
+
+        $unitTypes = UnitType::select('id', 'name', 'status')
+            ->whereStatus(UnitType::STATUS['Active'])
+            ->whereId($request->id)
+            ->first();
 
         if (!isset($unitTypes) || empty($unitTypes)) {
             return $this->sendError('Unit type does not exists.');
@@ -98,26 +118,37 @@ class UnitTypesController extends Controller
     public function addUnitType(Request $request)
     {
         try {
-            $validator = Validator::make($request->all(), [
-                'name' => 'required',
-            ]);
+            $user = $request->user();
 
-            if ($validator->fails()) {
-                foreach ($validator->errors()->messages() as $key => $value) {
-                    return $this->sendError('Validation Error.', [$key => $value[0]], 400);
+            if (isset($user) && !empty($user)) {
+
+                if (!AppHelper::roleHasSubModulePermission('Unit Type Management', RoleHasSubModule::ACTIONS['create'], $user)) {
+                    return $this->sendError('You have no rights to access this action.', [], 401);
                 }
+
+                $validator = Validator::make($request->all(), [
+                    'name' => 'required',
+                ]);
+
+                if ($validator->fails()) {
+                    foreach ($validator->errors()->messages() as $key => $value) {
+                        return $this->sendError('Validation Error.', [$key => $value[0]], 400);
+                    }
+                }
+
+                $unitType = new UnitType();
+                $unitType->name = $request->name;
+                $unitType->created_ip = $request->ip();
+                $unitType->updated_ip = $request->ip();
+
+                if (!$unitType->save()) {
+                    return $this->sendError('Something went wrong while creating the unit Type.');
+                }
+
+                return $this->sendResponse([], 'Unit Type created successfully.');
+            } else {
+                return $this->sendError('User not exists.', [], 404);
             }
-
-            $unitType = new UnitType();
-            $unitType->name = $request->name;
-            $unitType->created_ip = $request->ip();
-            $unitType->updated_ip = $request->ip();
-
-            if (!$unitType->save()) {
-                return $this->sendError('Something went wrong while creating the unit Type.');
-            }
-
-            return $this->sendResponse([], 'Unit Type created successfully.');
         } catch (\Exception $e) {
             Log::error($e->getMessage());
 
@@ -128,30 +159,41 @@ class UnitTypesController extends Controller
     public function updateUnitType(Request $request, $id = null)
     {
         try {
-            $validator = Validator::make($request->all(), [
-                'name' => 'required',
-            ]);
+            $user = $request->user();
 
-            if ($validator->fails()) {
-                foreach ($validator->errors()->messages() as $key => $value) {
-                    return $this->sendError('Validation Error.', [$key => $value[0]], 400);
+            if (isset($user) && !empty($user)) {
+
+                if (!AppHelper::roleHasSubModulePermission('Unit Type Management', RoleHasSubModule::ACTIONS['edit'], $user)) {
+                    return $this->sendError('You have no rights to access this action.', [], 401);
                 }
+
+                $validator = Validator::make($request->all(), [
+                    'name' => 'required',
+                ]);
+
+                if ($validator->fails()) {
+                    foreach ($validator->errors()->messages() as $key => $value) {
+                        return $this->sendError('Validation Error.', [$key => $value[0]], 400);
+                    }
+                }
+
+                $unitTypes = UnitType::whereId($request->id)->first();
+
+                if (!isset($unitTypes) || empty($unitTypes)) {
+                    return $this->sendError('Unit type does not exists.');
+                }
+
+                if ($request->filled('name')) $unitTypes->name = $request->name;
+                $unitTypes->updated_ip = $request->ip();
+
+                if (!$unitTypes->save()) {
+                    return $this->sendError('Something went wrong while updating the unit Type.');
+                }
+
+                return $this->sendResponse([], 'Unit Type details updated successfully.');
+            } else {
+                return $this->sendError('User not exists.', [], 404);
             }
-
-            $unitTypes = UnitType::whereId($request->id)->first();
-
-            if (!isset($unitTypes) || empty($unitTypes)) {
-                return $this->sendError('Unit type does not exists.');
-            }
-
-            if ($request->filled('name')) $unitTypes->name = $request->name;
-            $unitTypes->updated_ip = $request->ip();
-
-            if (!$unitTypes->save()) {
-                return $this->sendError('Something went wrong while updating the unit Type.');
-            }
-
-            return $this->sendResponse([], 'Unit Type details updated successfully.');
         } catch (\Exception $e) {
             Log::error($e->getMessage());
 
@@ -162,6 +204,14 @@ class UnitTypesController extends Controller
     public function changeStatus(Request $request, $id = null)
     {
         try {
+            // $user = $request->user();
+
+            // if ($request->status == UnitType::STATUS['Deleted']) {
+            //     if (!AppHelper::roleHasSubModulePermission('Unit Type Management', RoleHasSubModule::ACTIONS['delete'], $user)) {
+            //         return $this->sendError('You have no rights to access this action.', [], 401);
+            //     }
+            // }
+
             $unitTypes = UnitType::whereId($request->id)->first();
 
             if (!isset($unitTypes) || empty($unitTypes)) {

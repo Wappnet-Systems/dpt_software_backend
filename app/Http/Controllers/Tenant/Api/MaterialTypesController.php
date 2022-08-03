@@ -11,6 +11,7 @@ use App\Models\System\Organization;
 use App\Models\System\User;
 use App\Models\Tenant\MaterialType;
 use App\Helpers\AppHelper;
+use App\Models\Tenant\RoleHasSubModule;
 use Illuminate\Support\Facades\Log;
 
 class MaterialTypesController extends Controller
@@ -22,6 +23,10 @@ class MaterialTypesController extends Controller
 
             if (isset($user) && !empty($user)) {
                 if ($user->role_id == User::USER_ROLE['SUPER_ADMIN']) {
+                    return $this->sendError('You have no rights to access this module.', [], 401);
+                }
+
+                if (!AppHelper::roleHasModulePermission('Masters', $user)) {
                     return $this->sendError('You have no rights to access this module.', [], 401);
                 }
 
@@ -45,6 +50,12 @@ class MaterialTypesController extends Controller
 
     public function getMaterialTypes(Request $request)
     {
+        $user = $request->user();
+
+        if (!AppHelper::roleHasSubModulePermission('Material Type Management', RoleHasSubModule::ACTIONS['list'], $user)) {
+            return $this->sendError('You have no rights to access this action.', [], 401);
+        }
+
         $limit = !empty($request->limit) ? $request->limit : config('constants.default_per_page_limit');
         $orderBy = !empty($request->orderby) ? $request->orderby : config('constants.default_orderby');
 
@@ -86,6 +97,12 @@ class MaterialTypesController extends Controller
 
     public function getDetails(Request $request)
     {
+        $user = $request->user();
+
+        if (!AppHelper::roleHasSubModulePermission('Material Type Management', RoleHasSubModule::ACTIONS['view'], $user)) {
+            return $this->sendError('You have no rights to access this action.', [], 401);
+        }
+
         $materialType = MaterialType::whereId($request->id)->first();
 
         if (!isset($materialType) || empty($materialType)) {
@@ -98,26 +115,37 @@ class MaterialTypesController extends Controller
     public function addMaterialType(Request $request)
     {
         try {
-            $validator = Validator::make($request->all(), [
-                'name' => 'required',
-            ]);
+            $user = $request->user();
 
-            if ($validator->fails()) {
-                foreach ($validator->errors()->messages() as $key => $value) {
-                    return $this->sendError('Validation Error.', [$key => $value[0]], 400);
+            if (isset($user) && !empty($user)) {
+
+                // if (!AppHelper::roleHasSubModulePermission('Material Type Management', RoleHasSubModule::ACTIONS['create'], $user)) {
+                //     return $this->sendError('You have no rights to access this action.', [], 401);
+                // }
+
+                $validator = Validator::make($request->all(), [
+                    'name' => 'required',
+                ]);
+
+                if ($validator->fails()) {
+                    foreach ($validator->errors()->messages() as $key => $value) {
+                        return $this->sendError('Validation Error.', [$key => $value[0]], 400);
+                    }
                 }
+
+                $materialType = new MaterialType();
+                $materialType->name = $request->name;
+                $materialType->created_ip = $request->ip();
+                $materialType->updated_ip = $request->ip();
+
+                if (!$materialType->save()) {
+                    return $this->sendError('Something went wrong while creating the material type.');
+                }
+
+                return $this->sendResponse([], 'Material type created successfully.');
+            } else {
+                return $this->sendError('User not exists.', [], 404);
             }
-
-            $materialType = new MaterialType();
-            $materialType->name = $request->name;
-            $materialType->created_ip = $request->ip();
-            $materialType->updated_ip = $request->ip();
-
-            if (!$materialType->save()) {
-                return $this->sendError('Something went wrong while creating the material type.');
-            }
-
-            return $this->sendResponse([], 'Material type created successfully.');
         } catch (\Exception $e) {
             Log::error($e->getMessage());
 
@@ -128,30 +156,40 @@ class MaterialTypesController extends Controller
     public function updateMaterialType(Request $request, $id = null)
     {
         try {
-            $validator = Validator::make($request->all(), [
-                'name' => 'required',
-            ]);
+            $user = $request->user();
 
-            if ($validator->fails()) {
-                foreach ($validator->errors()->messages() as $key => $value) {
-                    return $this->sendError('Validation Error.', [$key => $value[0]], 400);
+            if (isset($user) && !empty($user)) {
+                if (!AppHelper::roleHasSubModulePermission('Material Type Management', RoleHasSubModule::ACTIONS['edit'], $user)) {
+                    return $this->sendError('You have no rights to access this action.', [], 401);
                 }
+
+                $validator = Validator::make($request->all(), [
+                    'name' => 'required',
+                ]);
+
+                if ($validator->fails()) {
+                    foreach ($validator->errors()->messages() as $key => $value) {
+                        return $this->sendError('Validation Error.', [$key => $value[0]], 400);
+                    }
+                }
+
+                $materialType = MaterialType::whereId($request->id)->first();
+
+                if (!isset($materialType) || empty($materialType)) {
+                    return $this->sendError('Material type dose not exists.');
+                }
+
+                if ($request->filled('name')) $materialType->name = $request->name;
+                $materialType->updated_ip = $request->ip();
+
+                if (!$materialType->save()) {
+                    return $this->sendError('Something went wrong while updating the material type.');
+                }
+
+                return $this->sendResponse([], 'Material type details updated successfully.');
+            } else {
+                return $this->sendError('User not exists.', [], 404);
             }
-
-            $materialType = MaterialType::whereId($request->id)->first();
-
-            if (!isset($materialType) || empty($materialType)) {
-                return $this->sendError('Material type dose not exists.');
-            }
-
-            if ($request->filled('name')) $materialType->name = $request->name;
-            $materialType->updated_ip = $request->ip();
-
-            if (!$materialType->save()) {
-                return $this->sendError('Something went wrong while updating the material type.');
-            }
-
-            return $this->sendResponse([], 'Material type details updated successfully.');
         } catch (\Exception $e) {
             Log::error($e->getMessage());
 
@@ -162,6 +200,14 @@ class MaterialTypesController extends Controller
     public function changeStatus(Request $request, $id = null)
     {
         try {
+            $user = $request->user();
+
+            if ($request->status == MaterialType::STATUS['Deleted']) {
+                if (!AppHelper::roleHasSubModulePermission('Material Type Management', RoleHasSubModule::ACTIONS['delete'], $user)) {
+                    return $this->sendError('You have no rights to access this action.', [], 401);
+                }
+            }
+
             $materialType = MaterialType::whereId($request->id)->first();
 
             if (!isset($materialType) || empty($materialType)) {

@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Models\System\Organization;
 use App\Models\System\User;
 use App\Models\Tenant\ProjectRaisingInstructionRequest;
+use App\Models\Tenant\RoleHasSubModule;
 use Hyn\Tenancy\Models\Hostname;
 use Hyn\Tenancy\Models\Website;
 use Illuminate\Http\Request;
@@ -22,6 +23,10 @@ class RaisingInstructionRequestController extends Controller
 
             if (isset($user) && !empty($user)) {
                 if ($user->role_id == User::USER_ROLE['SUPER_ADMIN']) {
+                    return $this->sendError('You have no rights to access this module.', [], 401);
+                }
+
+                if (!AppHelper::roleHasModulePermission('Qs', $user)) {
                     return $this->sendError('You have no rights to access this module.', [], 401);
                 }
 
@@ -45,6 +50,12 @@ class RaisingInstructionRequestController extends Controller
 
     public function getRaisingInstructionRequest(Request $request)
     {
+        $user = $request->user();
+
+        if (!AppHelper::roleHasSubModulePermission('Raising Site Instruction', RoleHasSubModule::ACTIONS['list'], $user)) {
+            return $this->sendError('You have no rights to access this action.', [], 401);
+        }
+
         $limit = !empty($request->limit) ? $request->limit : config('constants.default_per_page_limit');
         $orderBy = !empty($request->orderby) ? $request->orderby : config('constants.default_orderby');
 
@@ -80,6 +91,12 @@ class RaisingInstructionRequestController extends Controller
 
     public function getRaisingInstructionRequestDetails(Request $request, $id = null)
     {
+        $user = $request->user();
+
+        if (!AppHelper::roleHasSubModulePermission('Raising Site Instruction', RoleHasSubModule::ACTIONS['view'], $user)) {
+            return $this->sendError('You have no rights to access this action.', [], 401);
+        }
+
         $raisingInstructionRequest = ProjectRaisingInstructionRequest::whereId($request->id)->first();
 
         if (!isset($raisingInstructionRequest) || empty($raisingInstructionRequest)) {
@@ -94,9 +111,13 @@ class RaisingInstructionRequestController extends Controller
         try {
             $user = $request->user();
 
+            if (!AppHelper::roleHasSubModulePermission('Raising Site Instruction', RoleHasSubModule::ACTIONS['create'], $user)) {
+                return $this->sendError('You have no rights to access this action.', [], 401);
+            }
+
             if (isset($user) && !empty($user)) {
                 $validationRules = [
-                    'project_id' => 'required'
+                    'project_id' => 'required|exists:projects,id'
                 ];
 
                 if (in_array($user->role_id, [User::USER_ROLE['QS_DEPARTMENT']])) {
@@ -142,6 +163,10 @@ class RaisingInstructionRequestController extends Controller
     {
         try {
             $user = $request->user();
+
+            if (!AppHelper::roleHasSubModulePermission('Raising Site Instruction', RoleHasSubModule::ACTIONS['edit'], $user)) {
+                return $this->sendError('You have no rights to access this action.', [], 401);
+            }
 
             if (isset($user) && !empty($user)) {
                 $validationRules = [];
@@ -191,6 +216,11 @@ class RaisingInstructionRequestController extends Controller
     {
         try {
             $user = $request->user();
+
+            if (!AppHelper::roleHasSubModulePermission('Raising Site Instruction', RoleHasSubModule::ACTIONS['delete'], $user)) {
+                return $this->sendError('You have no rights to access this action.', [], 401);
+            }
+
             if (isset($user) && !empty($user)) {
                 $raisingInstructionRequest = ProjectRaisingInstructionRequest::whereId($request->id)->first();
 
@@ -219,6 +249,11 @@ class RaisingInstructionRequestController extends Controller
     {
         try {
             $user = $request->user();
+
+            if (!AppHelper::roleHasSubModulePermission('Raising Site Instruction', RoleHasSubModule::ACTIONS['approve_reject'], $user)) {
+                return $this->sendError('You have no rights to access this action.', [], 401);
+            }
+
             if (isset($user) && !empty($user)) {
                 $validator = Validator::make($request->all(), [
                     'status' => 'required',
