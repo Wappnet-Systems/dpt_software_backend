@@ -27,9 +27,9 @@ class MachineryAllocationController extends Controller
                     return $this->sendError('You have no rights to access this module.', [], 401);
                 }
 
-                // if (!AppHelper::roleHasModulePermission('Planning and Scheduling', $user)) {
-                //     return $this->sendError('You have no rights to access this module.', [], 401);
-                // }
+                if (!AppHelper::roleHasModulePermission('Planning and Scheduling', $user)) {
+                    return $this->sendError('You have no rights to access this module.', [], 401);
+                }
 
                 $hostnameId = Organization::whereId($user->organization_id)->value('hostname_id');
 
@@ -54,9 +54,9 @@ class MachineryAllocationController extends Controller
         try {
             $user = $request->user();
 
-            // if (!AppHelper::roleHasSubModulePermission('Planned Machinerry', RoleHasSubModule::ACTIONS['list'], $user)) {
-            //     return $this->sendError('You have no rights to access this action.');
-            // }
+            if (!AppHelper::roleHasSubModulePermission('Machinery Allocation', RoleHasSubModule::ACTIONS['list'], $user)) {
+                return $this->sendError('You have no rights to access this action.', [], 401);
+            }
 
             $timeSlots = TimeSlot::get();
 
@@ -115,9 +115,9 @@ class MachineryAllocationController extends Controller
         try {
             $user = $request->user();
 
-            // if (!AppHelper::roleHasSubModulePermission('Planned Machinerry', RoleHasSubModule::ACTIONS['create'], $user)) {
-            //     return $this->sendError('You have no rights to access this action.');
-            // }
+            if (!AppHelper::roleHasSubModulePermission('Machinery Allocation', RoleHasSubModule::ACTIONS['create'], $user)) {
+                return $this->sendError('You have no rights to access this action.', [], 401);
+            }
 
             if (isset($user) && !empty($user)) {
                 $validator = Validator::make($request->all(), [
@@ -191,9 +191,9 @@ class MachineryAllocationController extends Controller
         try {
             $user = $request->user();
 
-            // if (!AppHelper::roleHasSubModulePermission('Planned Machinerry', RoleHasSubModule::ACTIONS['delete'], $user)) {
-            //     return $this->sendError('You have no rights to access this action.');
-            // }
+            if (!AppHelper::roleHasSubModulePermission('Machinery Allocation', RoleHasSubModule::ACTIONS['delete'], $user)) {
+                return $this->sendError('You have no rights to access this action.', [], 401);
+            }
 
             if (isset($user) && !empty($user)) {
                 $validator = Validator::make($request->all(), [

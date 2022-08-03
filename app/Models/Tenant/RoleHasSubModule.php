@@ -20,6 +20,8 @@ class RoleHasSubModule extends Model
         'delete' => 'is_delete',
         'view' => 'is_view',
         'comment' => 'is_comment',
+        'assign' => 'is_assign',
+        'approve_reject' => 'is_approve_reject',
     ];
 
     const ACTION_GROUP = [

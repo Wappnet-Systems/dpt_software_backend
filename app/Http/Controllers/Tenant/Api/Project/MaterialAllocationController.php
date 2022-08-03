@@ -28,9 +28,9 @@ class MaterialAllocationController extends Controller
                     return $this->sendError('You have no rights to access this module.', [], 401);
                 }
 
-                // if (!AppHelper::roleHasModulePermission('Planning and Scheduling', $user)) {
-                //     return $this->sendError('You have no rights to access this module.', [], 401);
-                // }
+                if (!AppHelper::roleHasModulePermission('Planning and Scheduling', $user)) {
+                    return $this->sendError('You have no rights to access this module.', [], 401);
+                }
 
                 $hostnameId = Organization::whereId($user->organization_id)->value('hostname_id');
 
@@ -54,9 +54,9 @@ class MaterialAllocationController extends Controller
     {
         $user = $request->user();
 
-        // if (!AppHelper::roleHasSubModulePermission('Material Sheet', RoleHasSubModule::ACTIONS['list'], $user)) {
-        //     return $this->sendError('You have no rights to access this action.');
-        // }
+        if (!AppHelper::roleHasSubModulePermission('Material Allocation', RoleHasSubModule::ACTIONS['list'], $user)) {
+            return $this->sendError('You have no rights to access this action.', [], 401);
+        }
 
         $limit = !empty($request->limit) ? $request->limit : config('constants.default_per_page_limit');
         $orderBy = !empty($request->orderby) ? $request->orderby : config('constants.default_orderby');
@@ -100,9 +100,9 @@ class MaterialAllocationController extends Controller
     {
         $user = $request->user();
 
-        // if (!AppHelper::roleHasSubModulePermission('Material Sheet', RoleHasSubModule::ACTIONS['view'], $user)) {
-        //     return $this->sendError('You have no rights to access this action.');
-        // }
+        if (!AppHelper::roleHasSubModulePermission('Material Allocation', RoleHasSubModule::ACTIONS['view'], $user)) {
+            return $this->sendError('You have no rights to access this action.', [], 401);
+        }
 
         $allocatedMaterial = ProjectActivityAllocateMaterial::with('projectActivity', 'projectInventory')
             ->whereId($request->id)
@@ -120,11 +120,11 @@ class MaterialAllocationController extends Controller
         try {
             $user = $request->user();
 
-            // if (!AppHelper::roleHasSubModulePermission('Material Sheet', RoleHasSubModule::ACTIONS['create'], $user)) {
-            //     return $this->sendError('You have no rights to access this action.');
-            // }
-
             if (isset($user) && !empty($user)) {
+                if (!AppHelper::roleHasSubModulePermission('Material Allocation', RoleHasSubModule::ACTIONS['create'], $user)) {
+                    return $this->sendError('You have no rights to access this action.', [], 401);
+                }
+
                 $validator = Validator::make($request->all(), [
                     'project_activity_id' => 'required|exists:projects_activities,id',
                     'project_inventory_id' => 'required|exists:projects_inventories,id',
@@ -195,9 +195,9 @@ class MaterialAllocationController extends Controller
         try {
             $user = $request->user();
 
-            // if (!AppHelper::roleHasSubModulePermission('Material Sheet', RoleHasSubModule::ACTIONS['edit'], $user)) {
-            //     return $this->sendError('You have no rights to access this action.');
-            // }
+            if (!AppHelper::roleHasSubModulePermission('Material Allocation', RoleHasSubModule::ACTIONS['edit'], $user)) {
+                return $this->sendError('You have no rights to access this action.', [], 401);
+            }
 
             if (isset($user) && !empty($user)) {
                 $validator = Validator::make($request->all(), [
@@ -278,9 +278,9 @@ class MaterialAllocationController extends Controller
         try {
             $user = $request->user();
 
-            // if (!AppHelper::roleHasSubModulePermission('Material Sheet', RoleHasSubModule::ACTIONS['delete'], $user)) {
-            //     return $this->sendError('You have no rights to access this action.');
-            // }
+            if (!AppHelper::roleHasSubModulePermission('Material Allocation', RoleHasSubModule::ACTIONS['delete'], $user)) {
+                return $this->sendError('You have no rights to access this action.', [], 401);
+            }
 
             if (isset($user) && !empty($user)) {
                 $allocatedMaterial = ProjectActivityAllocateMaterial::whereId($request->id)->first();

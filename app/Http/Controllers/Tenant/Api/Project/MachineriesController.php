@@ -11,6 +11,7 @@ use App\Models\System\Organization;
 use App\Models\System\User;
 use App\Models\Tenant\ProjectMachinery;
 use App\Helpers\AppHelper;
+use App\Models\Tenant\RoleHasSubModule;
 use Illuminate\Support\Facades\Log;
 
 class MachineriesController extends Controller
@@ -22,6 +23,10 @@ class MachineriesController extends Controller
 
             if (isset($user) && !empty($user)) {
                 if ($user->role_id == User::USER_ROLE['SUPER_ADMIN']) {
+                    return $this->sendError('You have no rights to access this module.', [], 401);
+                }
+
+                if (!AppHelper::roleHasModulePermission('Planning and Scheduling', $user)) {
                     return $this->sendError('You have no rights to access this module.', [], 401);
                 }
 
@@ -45,6 +50,12 @@ class MachineriesController extends Controller
 
     public function getMachineries(Request $request)
     {
+        $user = $request->user();
+
+        if (!AppHelper::roleHasSubModulePermission('Machinery Management', RoleHasSubModule::ACTIONS['list'], $user)) {
+            return $this->sendError('You have no rights to access this action.', [], 401);
+        }
+
         $limit = !empty($request->limit) ? $request->limit : config('constants.default_per_page_limit');
         $orderBy = !empty($request->orderby) ? $request->orderby : config('constants.default_orderby');
 
@@ -79,14 +90,20 @@ class MachineriesController extends Controller
                 'per_page' => $machineries['per_page'],
                 'next_page_url' => ltrim(str_replace($machineries['path'], "", $machineries['next_page_url']), "?cursor="),
                 'prev_page_url' => ltrim(str_replace($machineries['path'], "", $machineries['prev_page_url']), "?cursor=")
-            ], 'Machinery List');
+            ], 'Machinery List.');
         } else {
-            return $this->sendResponse($results, 'Machinery List');
+            return $this->sendResponse($results, 'Machinery List.');
         }
     }
 
     public function getDetails(Request $request)
     {
+        $user = $request->user();
+
+        if (!AppHelper::roleHasSubModulePermission('Machinery Management', RoleHasSubModule::ACTIONS['view'], $user)) {
+            return $this->sendError('You have no rights to access this action.', [], 401);
+        }
+
         $machineries = ProjectMachinery::select('id', 'name', 'status')
             ->whereStatus(ProjectMachinery::STATUS['Active'])
             ->whereId($request->id)
@@ -102,28 +119,38 @@ class MachineriesController extends Controller
     public function addMachineryCategory(Request $request)
     {
         try {
-            $validator = Validator::make($request->all(), [
-                'project_id' => 'required|exists:projects,id',
-                'name' => 'required',
-            ]);
+            $user = $request->user();
 
-            if ($validator->fails()) {
-                foreach ($validator->errors()->messages() as $key => $value) {
-                    return $this->sendError('Validation Error.', [$key => $value[0]], 400);
+            if (isset($user) && !empty($user)) {
+                if (!AppHelper::roleHasSubModulePermission('Machinery Management', RoleHasSubModule::ACTIONS['create'], $user)) {
+                    return $this->sendError('You have no rights to access this action.', [], 401);
                 }
+
+                $validator = Validator::make($request->all(), [
+                    'project_id' => 'required|exists:projects,id',
+                    'name' => 'required',
+                ]);
+
+                if ($validator->fails()) {
+                    foreach ($validator->errors()->messages() as $key => $value) {
+                        return $this->sendError('Validation Error.', [$key => $value[0]], 400);
+                    }
+                }
+
+                $machineries = new ProjectMachinery();
+                $machineries->project_id = $request->project_id;
+                $machineries->name = $request->name;
+                $machineries->created_ip = $request->ip();
+                $machineries->updated_ip = $request->ip();
+
+                if (!$machineries->save()) {
+                    return $this->sendError('Something went wrong while creating the machineries.');
+                }
+
+                return $this->sendResponse([], 'Machineries created successfully.');
+            } else {
+                return $this->sendError('User not exists.', [], 404);
             }
-
-            $machineries = new ProjectMachinery();
-            $machineries->project_id = $request->project_id;
-            $machineries->name = $request->name;
-            $machineries->created_ip = $request->ip();
-            $machineries->updated_ip = $request->ip();
-
-            if (!$machineries->save()) {
-                return $this->sendError('Something went wrong while creating the machineries.');
-            }
-
-            return $this->sendResponse([], 'Machineries created successfully.');
         } catch (\Exception $e) {
             Log::error($e->getMessage());
 
@@ -134,30 +161,40 @@ class MachineriesController extends Controller
     public function updateMachineryCategory(Request $request, $id = null)
     {
         try {
-            $validator = Validator::make($request->all(), [
-                'name' => 'required',
-            ]);
+            $user = $request->user();
 
-            if ($validator->fails()) {
-                foreach ($validator->errors()->messages() as $key => $value) {
-                    return $this->sendError('Validation Error.', [$key => $value[0]], 400);
+            if (isset($user) && !empty($user)) {
+                if (!AppHelper::roleHasSubModulePermission('Machinery Management', RoleHasSubModule::ACTIONS['edit'], $user)) {
+                    return $this->sendError('You have no rights to access this action.', [], 401);
                 }
+
+                $validator = Validator::make($request->all(), [
+                    'name' => 'required',
+                ]);
+
+                if ($validator->fails()) {
+                    foreach ($validator->errors()->messages() as $key => $value) {
+                        return $this->sendError('Validation Error.', [$key => $value[0]], 400);
+                    }
+                }
+
+                $machineries = ProjectMachinery::whereId($request->id)->first();
+
+                if (!isset($machineries) || empty($machineries)) {
+                    return $this->sendError('Machinery does not exists.');
+                }
+
+                if ($request->filled('name')) $machineries->name = $request->name;
+                $machineries->updated_ip = $request->ip();
+
+                if (!$machineries->save()) {
+                    return $this->sendError('Something went wrong while updating the machinery');
+                }
+
+                return $this->sendResponse([], 'Machinery details updated successfully.');
+            } else {
+                return $this->sendError('User not exists.', [], 404);
             }
-
-            $machineries = ProjectMachinery::whereId($request->id)->first();
-
-            if (!isset($machineries) || empty($machineries)) {
-                return $this->sendError('Machinery does not exists.');
-            }
-
-            if ($request->filled('name')) $machineries->name = $request->name;
-            $machineries->updated_ip = $request->ip();
-
-            if (!$machineries->save()) {
-                return $this->sendError('Something went wrong while updating the machinery');
-            }
-
-            return $this->sendResponse([], 'Machinery details updated successfully.');
         } catch (\Exception $e) {
             Log::error($e->getMessage());
 
