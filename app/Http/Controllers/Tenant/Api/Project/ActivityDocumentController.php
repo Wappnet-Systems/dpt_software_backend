@@ -155,6 +155,7 @@ class ActivityDocumentController extends Controller
                     'location' => 'required',
                     'area' => 'required',
                     'type' => 'required',
+                    'discipline' => 'required',
                 ], [
                     'path.max' => 'The file must not be greater than 5mb.',
                 ]);
@@ -169,12 +170,17 @@ class ActivityDocumentController extends Controller
                     return $this->sendError('Invalid type requested.', [], 400);
                 }
 
+                if (!in_array($request->discipline, ProjectActivityDocument::DISCIPLINE)) {
+                    return $this->sendError('Invalid discipline requested.', [], 400);
+                }
+
                 $projectActivityDocument = new ProjectActivityDocument();
                 $projectActivityDocument->project_id = $request->project_id;
                 $projectActivityDocument->name = $request->name;
                 $projectActivityDocument->location = $request->location;
                 $projectActivityDocument->area = $request->area;
                 $projectActivityDocument->type = $request->type;
+                $projectActivityDocument->discipline = $request->discipline;
                 $projectActivityDocument->created_by = $user->id;
                 $projectActivityDocument->created_ip = $request->ip();
                 $projectActivityDocument->updated_ip = $request->ip();
@@ -222,6 +228,7 @@ class ActivityDocumentController extends Controller
                     'location' => 'required',
                     'area' => 'required',
                     'type' => 'required',
+                    'discipline' => 'required'
                 ], [
                     'path.max' => 'The file must not be greater than 5mb.',
                 ]);
@@ -236,6 +243,10 @@ class ActivityDocumentController extends Controller
                     return $this->sendError('Invalid type requested.', [], 400);
                 }
 
+                if (!in_array($request->discipline, ProjectActivityDocument::DISCIPLINE)) {
+                    return $this->sendError('Invalid discipline requested.', [], 400);
+                }
+
                 $projectActivityDocument = ProjectActivityDocument::whereId($request->id)
                     ->first();
 
@@ -247,6 +258,7 @@ class ActivityDocumentController extends Controller
                 if ($request->filled('location')) $projectActivityDocument->location = $request->location;
                 if ($request->filled('area')) $projectActivityDocument->area = $request->area;
                 if ($request->filled('type')) $projectActivityDocument->type = $request->type;
+                if ($request->filled('discipline')) $projectActivityDocument->discipline = $request->discipline;
 
                 if ($request->hasFile('path')) {
                     if (isset($projectActivityDocument->path) && !empty($projectActivityDocument->path)) {

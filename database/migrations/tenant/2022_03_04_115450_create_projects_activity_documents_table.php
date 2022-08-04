@@ -27,6 +27,7 @@ class CreateProjectsActivityDocumentsTable extends Migration
             $table->tinyInteger('file_type')->comment('1 - Image, 2 - PDF');
             $table->tinyInteger('type')->comment('1 - Design/Drawings, 2 - Engineering Instruction,3 - Request For Information');
             $table->tinyInteger('status')->default(1)->comment('1 - Active, 2 - In Active, 3 - Deleted');
+            $table->tinyInteger('discipline')->comment('1 - Architectural, 2 - Structural, 3 - Electrical, 4 - Mechanical, 5 - Plumbing, 6 - Interiors, 7 - Others');
             $table->unsignedBigInteger('created_by')->nullable();
             $table->ipAddress('created_ip')->nullable();
             $table->ipAddress('updated_ip')->nullable();
