@@ -46,7 +46,8 @@ class ManforceProductivityController extends Controller
         $limit = !empty($request->limit) ? $request->limit : config('constants.default_per_page_limit');
         $orderBy = !empty($request->orderby) ? $request->orderby : config('constants.default_orderby');
 
-        $query = ProjectManforceProductivity::with('')
+        $query = ProjectManforceProductivity::select('id', 'project_id', 'activity_sub_category_id', 'manforce_type_id', 'unit_type_id', 'productivity_rate')
+            ->with(['manforceType', 'unitType', 'activitySubCategories'])
             ->whereProjectId($request->project_id ?? '')
             ->orderby('id', $orderBy);
 
