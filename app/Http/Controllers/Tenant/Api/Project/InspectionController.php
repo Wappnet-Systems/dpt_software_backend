@@ -410,16 +410,45 @@ class InspectionController extends Controller
                     $projectInspection->inspection_status = ProjectInspection::INC_STATUS['Approved'];
                 } elseif ($request->inspection_status == ProjectInspection::INC_STATUS['Rejected']) {
                     $projectInspection->inspection_status = ProjectInspection::INC_STATUS['Rejected'];
+                    $projectInspection->reason = $request->reason;
                 }
 
                 $projectInspection->approve_reject_date = date('Y-m-d');
-                $projectInspection->reason = $request->reason;
-                $projectInspection->comments = $request->comments;
                 $projectInspection->updated_by = $user->id;
                 $projectInspection->updated_ip = $request->ip();
                 $projectInspection->save();
 
                 return $this->sendResponse($projectInspection, 'Status changed successfully.');
+            } else {
+                return $this->sendError('User does not exists.', [], 404);
+            }
+        } catch (\Exception $e) {
+            Log::error($e->getMessage());
+
+            return $this->sendError('Something went wrong!', [], 500);
+        }
+    }
+
+    public function addComments(Request $request, $id = null)
+    {
+        try {
+            $user = $request->user();
+
+            if (isset($user) && !empty($user)) {
+                $projectInspection = ProjectInspection::whereId($request->id)
+                    ->where('inspection_status', ProjectInspection::INC_STATUS['Pending'])
+                    ->first();
+
+                if (!isset($projectInspection) || empty($projectInspection)) {
+                    return $this->sendError('Project inspection does not exists.', [], 404);
+                }
+                
+                $projectInspection->comments = $request->comments;
+                $projectInspection->updated_by = $user->id;
+                $projectInspection->updated_ip = $request->ip();
+                $projectInspection->save();
+
+                return $this->sendResponse($projectInspection, 'Comment added to inspection successfully.');
             } else {
                 return $this->sendError('User does not exists.', [], 404);
             }

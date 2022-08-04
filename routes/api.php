@@ -292,6 +292,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::patch('project/inspection/status/change/{id}', [InspectionController::class, 'projectInspectionChangeStatus']);
     Route::delete('project/inspection/delete/{id}', [InspectionController::class, 'deleteProjectInspection']);
     Route::patch('project/inspection/approve-reject/{id}', [InspectionController::class, 'projectInspectionApproveReject']);
+    Route::patch('project/inspection/comment/{id}', [InspectionController::class, 'addComments']);
 
     /* Method Statement Routes */
     Route::get('project/method-statements/get/lists', [MethodStatementController::class, 'getMethodStatements']);
