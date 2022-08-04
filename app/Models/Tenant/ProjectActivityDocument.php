@@ -16,7 +16,7 @@ class ProjectActivityDocument extends Model
 
     protected $guarded = [];
 
-    protected $appends = ['status_name', 'file_type_name', 'type_name', 'file_path'];
+    protected $appends = ['status_name', 'file_type_name', 'type_name', 'discipline_name', 'file_path'];
 
     const STATUS = [
         'Active' => 1,
@@ -28,10 +28,21 @@ class ProjectActivityDocument extends Model
         'Image' => 1,
         'PDF' => 2,
     ];
+
     const TYPE = [
         'Design/Drawings' => 1,
         'Engineering Instruction' => 2,
         'Request For Information' => 3,
+    ];
+
+    const DISCIPLINE = [
+        'Architectural' => 1,
+        'Structural' => 2,
+        'Electrical' => 3,
+        'Mechanical' => 4,
+        'Plumbing' => 5,
+        'Interiors' => 6,
+        'Others' => 7,
     ];
 
     /**
@@ -77,6 +88,21 @@ class ProjectActivityDocument extends Model
 
         if (isset($flipType[$this->file_type]) && !empty($flipType[$this->file_type])) {
             return "{$flipType[$this->file_type]}";
+        }
+
+        return null;
+    }
+
+    /**
+     * Get the discipline name.
+     * @return string
+     */
+    public function getDisciplineNameAttribute()
+    {
+        $flipName = array_flip(self::DISCIPLINE);
+
+        if (isset($flipName[$this->discipline]) && !empty($flipName[$this->discipline])) {
+            return "{$flipName[$this->discipline]}";
         }
 
         return null;
