@@ -15,6 +15,7 @@ use App\Helpers\UploadFile;
 use App\Jobs\SendPushJob;
 use App\Models\Tenant\ProjectActivity;
 use App\Models\Tenant\ProjectActivityAllocateMaterial;
+use App\Models\Tenant\RoleHasSubModule;
 use Illuminate\Support\Facades\Log;
 
 class InspectionController extends Controller
@@ -32,6 +33,10 @@ class InspectionController extends Controller
                 if ($user->role_id == User::USER_ROLE['SUPER_ADMIN']) {
                     return $this->sendError('You have no rights to access this module.', [], 401);
                 }
+
+                // if (!AppHelper::roleHasModulePermission('Qa/Qc', $user)) {
+                //     return $this->sendError('You have no rights to access this module.', [], 401);
+                // }
 
                 $hostnameId = Organization::whereId($user->organization_id)->value('hostname_id');
 
@@ -53,6 +58,12 @@ class InspectionController extends Controller
 
     public function getProjectInspection(Request $request)
     {
+        $user = $request->user();
+
+        // if (!AppHelper::roleHasSubModulePermission('Inspection', RoleHasSubModule::ACTIONS['list'], $user)) {
+        //     return $this->sendError('You have no rights to access this action.', [], 401);
+        // }
+
         $limit = !empty($request->limit) ? $request->limit : config('constants.default_per_page_limit');
         $orderBy = !empty($request->orderby) ? $request->orderby : config('constants.default_orderby');
 
@@ -105,6 +116,12 @@ class InspectionController extends Controller
 
     public function getProjectInspectionDetails(Request $request, $id = null)
     {
+        $user = $request->user();
+
+        // if (!AppHelper::roleHasSubModulePermission('Inspection', RoleHasSubModule::ACTIONS['view'], $user)) {
+        //     return $this->sendError('You have no rights to access this action.', [], 401);
+        // }
+
         $projectInspection = ProjectInspection::with('projectActivity')
             ->whereId($request->id)
             ->first();
@@ -122,6 +139,10 @@ class InspectionController extends Controller
             $user = $request->user();
 
             if (isset($user) && !empty($user)) {
+                // if (!AppHelper::roleHasSubModulePermission('Inspection', RoleHasSubModule::ACTIONS['create'], $user)) {
+                //     return $this->sendError('You have no rights to access this action.', [], 401);
+                // }
+
                 $validator = Validator::make($request->all(), [
                     'project_id' => 'required|exists:projects,id',
                     'project_activity_id' => 'required|exists:projects_activities,id',
@@ -196,6 +217,10 @@ class InspectionController extends Controller
             $user = $request->user();
 
             if (isset($user) && !empty($user)) {
+                // if (!AppHelper::roleHasSubModulePermission('Inspection', RoleHasSubModule::ACTIONS['edit'], $user)) {
+                //     return $this->sendError('You have no rights to access this action.', [], 401);
+                // }
+
                 $validator = Validator::make($request->all(), [
                     'inspection_no' => 'required|numeric',
                     'inspection_date' => 'required|date_format:Y-m-d',
@@ -247,7 +272,7 @@ class InspectionController extends Controller
 
                         $activityVal = ProjectActivity::whereId($projectInspection->project_activity_id)
                             ->value('name');
-                            
+
                         /** Send Push Notification */
                         $title = 'Activity Inspection Updated';
                         $message = $activityVal . ', inspection has been updated by ' . $assignUserValue['name'];
@@ -301,6 +326,10 @@ class InspectionController extends Controller
             $user = $request->user();
 
             if (isset($user) && !empty($user)) {
+                // if (!AppHelper::roleHasSubModulePermission('Inspection', RoleHasSubModule::ACTIONS['delete'], $user)) {
+                //     return $this->sendError('You have no rights to access this action.', [], 401);
+                // }
+
                 $projectInspection = ProjectInspection::whereId($request->id)
                     ->where('inspection_status', ProjectInspection::INC_STATUS['Pending'])
                     ->first();
@@ -372,6 +401,10 @@ class InspectionController extends Controller
             $user = $request->user();
 
             if (isset($user) && !empty($user)) {
+                // if (!AppHelper::roleHasSubModulePermission('Inspection', RoleHasSubModule::ACTIONS['approve_reject'], $user)) {
+                //     return $this->sendError('You have no rights to access this action.', [], 401);
+                // }
+
                 $validator = Validator::make($request->all(), [
                     'inspection_status' => 'required'
                 ]);

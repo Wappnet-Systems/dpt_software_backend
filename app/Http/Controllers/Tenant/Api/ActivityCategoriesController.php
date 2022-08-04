@@ -12,6 +12,7 @@ use App\Models\System\User;
 use App\Models\Tenant\ActivityCategory;
 use App\Models\Tenant\ActivitySubCategory;
 use App\Helpers\AppHelper;
+use App\Models\Tenant\RoleHasSubModule;
 use Illuminate\Support\Facades\Log;
 
 class ActivityCategoriesController extends Controller
@@ -25,6 +26,10 @@ class ActivityCategoriesController extends Controller
                 if ($user->role_id == User::USER_ROLE['SUPER_ADMIN']) {
                     return $this->sendError('You have no rights to access this module.', [], 401);
                 }
+
+                // if (!AppHelper::roleHasModulePermission('Masters', $user)) {
+                //     return $this->sendError('You have no rights to access this module.', [], 401);
+                // }
 
                 $hostnameId = Organization::whereId($user->organization_id)->value('hostname_id');
 
@@ -46,10 +51,17 @@ class ActivityCategoriesController extends Controller
 
     public function getActivityCategory(Request $request)
     {
+        $user = $request->user();
+
+        // if (!AppHelper::roleHasSubModulePermission('Activity Category Management', RoleHasSubModule::ACTIONS['list'], $user)) {
+        //     return $this->sendError('You have no rights to access this action.', [], 401);
+        // }
+
         $limit = !empty($request->limit) ? $request->limit : config('constants.default_per_page_limit');
         $orderBy = !empty($request->orderby) ? $request->orderby : config('constants.default_orderby');
 
-        $query = ActivityCategory::with('activitySubCategories')->whereStatus(ActivityCategory::STATUS['Active'])
+        $query = ActivityCategory::with('activitySubCategories')
+            ->whereStatus(ActivityCategory::STATUS['Active'])
             ->orderBy('id', $orderBy);
 
         if (isset($request->search) && !empty($request->search)) {
@@ -92,6 +104,12 @@ class ActivityCategoriesController extends Controller
 
     public function getDetails(Request $request)
     {
+        $user = $request->user();
+
+        // if (!AppHelper::roleHasSubModulePermission('Activity Category Management', RoleHasSubModule::ACTIONS['view'], $user)) {
+        //     return $this->sendError('You have no rights to access this action.', [], 401);
+        // }
+
         $activityCategory = ActivityCategory::whereId($request->id)->first();
 
         if (!isset($activityCategory) || empty($activityCategory)) {
@@ -104,26 +122,36 @@ class ActivityCategoriesController extends Controller
     public function addActivityCategory(Request $request)
     {
         try {
-            $validator = Validator::make($request->all(), [
-                'name' => 'required',
-            ]);
+            $user = $request->user();
 
-            if ($validator->fails()) {
-                foreach ($validator->errors()->messages() as $key => $value) {
-                    return $this->sendError('Validation Error.', [$key => $value[0]], 400);
+            if (isset($user) && !empty($user)) {
+                // if (!AppHelper::roleHasSubModulePermission('Activity Category Management', RoleHasSubModule::ACTIONS['create'], $user)) {
+                //     return $this->sendError('You have no rights to access this action.', [], 401);
+                // }
+
+                $validator = Validator::make($request->all(), [
+                    'name' => 'required',
+                ]);
+
+                if ($validator->fails()) {
+                    foreach ($validator->errors()->messages() as $key => $value) {
+                        return $this->sendError('Validation Error.', [$key => $value[0]], 400);
+                    }
                 }
+
+                $activityCategory = new ActivityCategory();
+                $activityCategory->name = $request->name;
+                $activityCategory->created_ip = $request->ip();
+                $activityCategory->updated_ip = $request->ip();
+
+                if (!$activityCategory->save()) {
+                    return $this->sendError('Something went wrong while creating the activity category.');
+                }
+
+                return $this->sendResponse([], 'Activity category created successfully.');
+            } else {
+                return $this->sendError('User not exists.', [], 404);
             }
-
-            $activityCategory = new ActivityCategory();
-            $activityCategory->name = $request->name;
-            $activityCategory->created_ip = $request->ip();
-            $activityCategory->updated_ip = $request->ip();
-
-            if (!$activityCategory->save()) {
-                return $this->sendError('Something went wrong while creating the activity category.');
-            }
-
-            return $this->sendResponse([], 'Activity category created successfully.');
         } catch (\Exception $e) {
             Log::error($e->getMessage());
 
@@ -134,31 +162,41 @@ class ActivityCategoriesController extends Controller
     public function updateActivityCategory(Request $request, $id = null)
     {
         try {
-            $validator = Validator::make($request->all(), [
-                'name' => 'required',
-            ]);
+            $user = $request->user();
 
-            if ($validator->fails()) {
+            if (isset($user) && !empty($user)) {
+                // if (!AppHelper::roleHasSubModulePermission('Activity Category Management', RoleHasSubModule::ACTIONS['edit'], $user)) {
+                //     return $this->sendError('You have no rights to access this action.', [], 401);
+                // }
 
-                foreach ($validator->errors()->messages() as $key => $value) {
-                    return $this->sendError('Validation Error.', [$key => $value[0]], 400);
+                $validator = Validator::make($request->all(), [
+                    'name' => 'required',
+                ]);
+
+                if ($validator->fails()) {
+
+                    foreach ($validator->errors()->messages() as $key => $value) {
+                        return $this->sendError('Validation Error.', [$key => $value[0]], 400);
+                    }
                 }
+
+                $activityCategory = ActivityCategory::whereId($request->id)->first();
+
+                if (!isset($activityCategory) || empty($activityCategory)) {
+                    return $this->sendError('Activity category dose not exists.');
+                }
+
+                if ($request->filled('name')) $activityCategory->name = $request->name;
+                $activityCategory->updated_ip = $request->ip();
+
+                if (!$activityCategory->save()) {
+                    return $this->sendError('Something went wrong while updating the activity category.');
+                }
+
+                return $this->sendResponse([], 'Activity category details updated successfully.');
+            } else {
+                return $this->sendError('User not exists.', [], 404);
             }
-
-            $activityCategory = ActivityCategory::whereId($request->id)->first();
-
-            if (!isset($activityCategory) || empty($activityCategory)) {
-                return $this->sendError('Activity category dose not exists.');
-            }
-
-            if ($request->filled('name')) $activityCategory->name = $request->name;
-            $activityCategory->updated_ip = $request->ip();
-
-            if (!$activityCategory->save()) {
-                return $this->sendError('Something went wrong while updating the activity category.');
-            }
-
-            return $this->sendResponse([], 'Activity category details updated successfully.');
         } catch (\Exception $e) {
             Log::error($e->getMessage());
 
@@ -169,6 +207,14 @@ class ActivityCategoriesController extends Controller
     public function changeStatus(Request $request, $id = null)
     {
         try {
+            // $user = $request->user();
+            
+            // if ($request->status == ActivityCategory::STATUS['Deleted']) {
+            //     if (!AppHelper::roleHasSubModulePermission('Activity Category Management', RoleHasSubModule::ACTIONS['delete'], $user)) {
+            //         return $this->sendError('You have no rights to access this action.', [], 401);
+            //     }
+            // }
+
             $activityCategory = ActivityCategory::whereId($request->id)->first();
 
             if (!isset($activityCategory) || empty($activityCategory)) {

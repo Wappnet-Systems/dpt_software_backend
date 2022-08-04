@@ -58,8 +58,8 @@ class ActivityDocumentController extends Controller
     {
         $user = $request->user();
 
-        // if (!AppHelper::roleHasSubModulePermission('Upload Drawings', RoleHasSubModule::ACTIONS['list'], $user)) {
-        //     return $this->sendError('You have no rights to access this action.');
+        // if (!AppHelper::roleHasSubModulePermission('Activity Document Management', RoleHasSubModule::ACTIONS['list'], $user)) {
+        //     return $this->sendError('You have no rights to access this action.', [], 401);
         // }
 
         $limit = !empty($request->limit) ? $request->limit : config('constants.default_per_page_limit');
@@ -122,12 +122,12 @@ class ActivityDocumentController extends Controller
     {
         $user = $request->user();
 
-        // if (!AppHelper::roleHasSubModulePermission('Upload Drawings', RoleHasSubModule::ACTIONS['view'], $user)) {
-        //     return $this->sendError('You have no rights to access this action.');
+        // if (!AppHelper::roleHasSubModulePermission('Activity Document Management', RoleHasSubModule::ACTIONS['view'], $user)) {
+        //     return $this->sendError('You have no rights to access this action.', [], 401);
         // }
 
         $projectActivityDocument = ProjectActivityDocument::with('projectActivity')
-            ->select('id', 'project_id', 'name', 'path', 'location', 'area', 'file_type', 'type', 'status')
+            ->select('id', 'project_id', 'project_activity_id', 'name', 'path', 'location', 'area', 'file_type', 'type', 'status')
             ->whereId($request->id)
             ->first();
 
@@ -143,8 +143,8 @@ class ActivityDocumentController extends Controller
         try {
             $user = $request->user();
 
-            // if (!AppHelper::roleHasSubModulePermission('Upload Drawings', RoleHasSubModule::ACTIONS['create'], $user)) {
-            //     return $this->sendError('You have no rights to access this action.');
+            // if (!AppHelper::roleHasSubModulePermission('Activity Document Management', RoleHasSubModule::ACTIONS['create'], $user)) {
+            //     return $this->sendError('You have no rights to access this action.', [], 401);
             // }
 
             if (isset($user) && !empty($user)) {
@@ -155,6 +155,7 @@ class ActivityDocumentController extends Controller
                     'location' => 'required',
                     'area' => 'required',
                     'type' => 'required',
+                    'discipline' => 'required',
                 ], [
                     'path.max' => 'The file must not be greater than 5mb.',
                 ]);
@@ -169,12 +170,17 @@ class ActivityDocumentController extends Controller
                     return $this->sendError('Invalid type requested.', [], 400);
                 }
 
+                if (!in_array($request->discipline, ProjectActivityDocument::DISCIPLINE)) {
+                    return $this->sendError('Invalid discipline requested.', [], 400);
+                }
+
                 $projectActivityDocument = new ProjectActivityDocument();
                 $projectActivityDocument->project_id = $request->project_id;
                 $projectActivityDocument->name = $request->name;
                 $projectActivityDocument->location = $request->location;
                 $projectActivityDocument->area = $request->area;
                 $projectActivityDocument->type = $request->type;
+                $projectActivityDocument->discipline = $request->discipline;
                 $projectActivityDocument->created_by = $user->id;
                 $projectActivityDocument->created_ip = $request->ip();
                 $projectActivityDocument->updated_ip = $request->ip();
@@ -211,8 +217,8 @@ class ActivityDocumentController extends Controller
         try {
             $user = $request->user();
 
-            // if (!AppHelper::roleHasSubModulePermission('Upload Drawings', RoleHasSubModule::ACTIONS['edit'], $user)) {
-            //     return $this->sendError('You have no rights to access this action.');
+            // if (!AppHelper::roleHasSubModulePermission('Activity Document Management', RoleHasSubModule::ACTIONS['edit'], $user)) {
+            //     return $this->sendError('You have no rights to access this action.', [], 401);
             // }
 
             if (isset($user) && !empty($user)) {
@@ -222,6 +228,7 @@ class ActivityDocumentController extends Controller
                     'location' => 'required',
                     'area' => 'required',
                     'type' => 'required',
+                    'discipline' => 'required'
                 ], [
                     'path.max' => 'The file must not be greater than 5mb.',
                 ]);
@@ -236,6 +243,10 @@ class ActivityDocumentController extends Controller
                     return $this->sendError('Invalid type requested.', [], 400);
                 }
 
+                if (!in_array($request->discipline, ProjectActivityDocument::DISCIPLINE)) {
+                    return $this->sendError('Invalid discipline requested.', [], 400);
+                }
+
                 $projectActivityDocument = ProjectActivityDocument::whereId($request->id)
                     ->first();
 
@@ -247,6 +258,7 @@ class ActivityDocumentController extends Controller
                 if ($request->filled('location')) $projectActivityDocument->location = $request->location;
                 if ($request->filled('area')) $projectActivityDocument->area = $request->area;
                 if ($request->filled('type')) $projectActivityDocument->type = $request->type;
+                if ($request->filled('discipline')) $projectActivityDocument->discipline = $request->discipline;
 
                 if ($request->hasFile('path')) {
                     if (isset($projectActivityDocument->path) && !empty($projectActivityDocument->path)) {
@@ -309,7 +321,7 @@ class ActivityDocumentController extends Controller
 
                 if ($request->status == ProjectActivityDocument::STATUS['Deleted']) {
                     // if (!AppHelper::roleHasSubModulePermission('Upload Drawings', RoleHasSubModule::ACTIONS['delete'], $user)) {
-                    //     return $this->sendError('You have no rights to access this action.');
+                    //     return $this->sendError('You have no rights to access this action.', [], 401);
                     // }
 
                     $projectActivityDocument = ProjectActivityDocument::whereId($request->id)
@@ -342,6 +354,10 @@ class ActivityDocumentController extends Controller
     {
         try {
             $user = $request->user();
+
+            // if (!AppHelper::roleHasSubModulePermission('Activity Document Management', RoleHasSubModule::ACTIONS['assign'], $user)) {
+            //     return $this->sendError('You have no rights to access this action.', [], 401);
+            // }
 
             if (isset($user) && !empty($user)) {
                 $validator = Validator::make($request->all(), [

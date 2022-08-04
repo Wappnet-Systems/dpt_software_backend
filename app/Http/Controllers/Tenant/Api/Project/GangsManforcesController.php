@@ -12,6 +12,7 @@ use App\Models\System\User;
 use App\Models\Tenant\ProjectGang;
 use App\Models\Tenant\ProjectGangManforce;
 use App\Helpers\AppHelper;
+use App\Models\Tenant\RoleHasSubModule;
 use Illuminate\Support\Facades\Log;
 
 class GangsManforcesController extends Controller
@@ -25,6 +26,10 @@ class GangsManforcesController extends Controller
                 if ($user->role_id == User::USER_ROLE['SUPER_ADMIN']) {
                     return $this->sendError('You have no rights to access this module.', [], 401);
                 }
+
+                // if (!AppHelper::roleHasModulePermission('Planning and Scheduling', $user)) {
+                //     return $this->sendError('You have no rights to access this module.', [], 401);
+                // }
 
                 $hostnameId = Organization::whereId($user->organization_id)->value('hostname_id');
 
@@ -46,6 +51,12 @@ class GangsManforcesController extends Controller
 
     public function getGangsManforces(Request $request)
     {
+        $user = $request->user();
+
+        // if (!AppHelper::roleHasSubModulePermission('Manforce Gang Management', RoleHasSubModule::ACTIONS['list'], $user)) {
+        //     return $this->sendError('You have no rights to access this action.', [], 401);
+        // }
+
         $limit = !empty($request->limit) ? $request->limit : config('constants.default_per_page_limit');
         $orderBy = !empty($request->orderby) ? $request->orderby : config('constants.default_orderby');
 
@@ -82,6 +93,12 @@ class GangsManforcesController extends Controller
 
     public function getGangManforceDetails(Request $request)
     {
+        $user = $request->user();
+
+        // if (!AppHelper::roleHasSubModulePermission('Manforce Gang Management', RoleHasSubModule::ACTIONS['view'], $user)) {
+        //     return $this->sendError('You have no rights to access this action.', [], 401);
+        // }
+
         $projectGangManforce = ProjectGangManforce::select('id', 'gang_id', 'manforce_type_id', 'total_manforce')
             ->with('projectGang', 'manforce')
             ->whereId($request->id)
@@ -97,28 +114,38 @@ class GangsManforcesController extends Controller
     public function addGangManforce(Request $request)
     {
         try {
-            $validator = Validator::make($request->all(), [
-                'gang_id' => 'required|exists:projects_gangs,id',
-                'manforce_type_id' => 'required|exists:manforce_types,id',
-                'total_manforce' => 'required'
-            ]);
+            $user = $request->user();
 
-            if ($validator->fails()) {
-                foreach ($validator->errors()->messages() as $key => $value) {
-                    return $this->sendError('Validation Error.', [$key => $value[0]], 400);
+            if (isset($user) && !empty($user)) {
+                // if (!AppHelper::roleHasSubModulePermission('Manforce Gang Management', RoleHasSubModule::ACTIONS['create'], $user)) {
+                //     return $this->sendError('You have no rights to access this action.', [], 401);
+                // }
+
+                $validator = Validator::make($request->all(), [
+                    'gang_id' => 'required|exists:projects_gangs,id',
+                    'manforce_type_id' => 'required|exists:manforce_types,id',
+                    'total_manforce' => 'required'
+                ]);
+
+                if ($validator->fails()) {
+                    foreach ($validator->errors()->messages() as $key => $value) {
+                        return $this->sendError('Validation Error.', [$key => $value[0]], 400);
+                    }
                 }
+
+                $projectGangManforce = new ProjectGangManforce();
+                $projectGangManforce->gang_id = $request->gang_id;
+                $projectGangManforce->manforce_type_id = $request->manforce_type_id;
+                $projectGangManforce->total_manforce = $request->total_manforce;
+
+                if (!$projectGangManforce->save()) {
+                    return $this->sendError('Something went wrong while creating the project gang manforce.');
+                }
+
+                return $this->sendResponse([], 'Project gang manforce created successfully.');
+            } else {
+                return $this->sendError('User not exists.', [], 404);
             }
-
-            $projectGangManforce = new ProjectGangManforce();
-            $projectGangManforce->gang_id = $request->gang_id;
-            $projectGangManforce->manforce_type_id = $request->manforce_type_id;
-            $projectGangManforce->total_manforce = $request->total_manforce;
-
-            if (!$projectGangManforce->save()) {
-                return $this->sendError('Something went wrong while creating the project gang manforce.');
-            }
-
-            return $this->sendResponse([], 'Project gang manforce created successfully.');
         } catch (\Exception $e) {
             Log::error($e->getMessage());
 
@@ -129,33 +156,43 @@ class GangsManforcesController extends Controller
     public function updateGangManforce(Request $request, $id = null)
     {
         try {
-            $validator = Validator::make($request->all(), [
-                'gang_id' => 'required|exists:projects_gangs,id',
-                'manforce_type_id' => 'required|exists:manforce_types,id',
-                'total_manforce' => 'required'
-            ]);
+            $user = $request->user();
 
-            if ($validator->fails()) {
-                foreach ($validator->errors()->messages() as $key => $value) {
-                    return $this->sendError('Validation Error.', [$key => $value[0]], 400);
+            if (isset($user) && !empty($user)) {
+                // if (!AppHelper::roleHasSubModulePermission('Manforce Gang Management', RoleHasSubModule::ACTIONS['edit'], $user)) {
+                //     return $this->sendError('You have no rights to access this action.', [], 401);
+                // }
+
+                $validator = Validator::make($request->all(), [
+                    'gang_id' => 'required|exists:projects_gangs,id',
+                    'manforce_type_id' => 'required|exists:manforce_types,id',
+                    'total_manforce' => 'required'
+                ]);
+
+                if ($validator->fails()) {
+                    foreach ($validator->errors()->messages() as $key => $value) {
+                        return $this->sendError('Validation Error.', [$key => $value[0]], 400);
+                    }
                 }
+
+                $projectGangManforce = ProjectGangManforce::whereId($request->id)->first();
+
+                if (!isset($projectGangManforce) || empty($projectGangManforce)) {
+                    return $this->sendError('Project gang manforce does not exists.');
+                }
+
+                if ($request->filled('gang_id')) $projectGangManforce->gang_id = $request->gang_id;
+                if ($request->filled('manforce_type_id')) $projectGangManforce->manforce_type_id = $request->manforce_type_id;
+                if ($request->filled('total_manforce')) $projectGangManforce->total_manforce = $request->total_manforce;
+
+                if (!$projectGangManforce->save()) {
+                    return $this->sendError('Something went wrong while upadating the project gang manforce.');
+                }
+
+                return $this->sendResponse([], 'Project gang manforce updated successfully.');
+            } else {
+                return $this->sendError('User not exists.', [], 404);
             }
-
-            $projectGangManforce = ProjectGangManforce::whereId($request->id)->first();
-
-            if (!isset($projectGangManforce) || empty($projectGangManforce)) {
-                return $this->sendError('Project gang manforce does not exists.');
-            }
-
-            if ($request->filled('gang_id')) $projectGangManforce->gang_id = $request->gang_id;
-            if ($request->filled('manforce_type_id')) $projectGangManforce->manforce_type_id = $request->manforce_type_id;
-            if ($request->filled('total_manforce')) $projectGangManforce->total_manforce = $request->total_manforce;
-
-            if (!$projectGangManforce->save()) {
-                return $this->sendError('Something went wrong while upadating the project gang manforce.');
-            }
-
-            return $this->sendResponse([], 'Project gang manforce updated successfully.');
         } catch (\Exception $e) {
             Log::error($e->getMessage());
 
@@ -166,6 +203,12 @@ class GangsManforcesController extends Controller
     public function deleteGangManforce(Request $request)
     {
         try {
+            $user = $request->user();
+
+            // if (!AppHelper::roleHasSubModulePermission('Manforce Gang Management', RoleHasSubModule::ACTIONS['delete'], $user)) {
+            //     return $this->sendError('You have no rights to access this action.', [], 401);
+            // }
+
             $projectGangManforce = ProjectGangManforce::whereId($request->id)->first();
 
             if (!isset($projectGangManforce) || empty($projectGangManforce)) {

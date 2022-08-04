@@ -12,6 +12,7 @@ use App\Models\System\User;
 use App\Models\Tenant\ActivityCategory;
 use App\Models\Tenant\ActivitySubCategory;
 use App\Helpers\AppHelper;
+use App\Models\Tenant\RoleHasSubModule;
 use Illuminate\Support\Facades\Log;
 
 class ActivitySubCategoriesController extends Controller
@@ -25,6 +26,10 @@ class ActivitySubCategoriesController extends Controller
                 if ($user->role_id == User::USER_ROLE['SUPER_ADMIN']) {
                     return $this->sendError('You have no rights to access this module.', [], 401);
                 }
+
+                // if (!AppHelper::roleHasModulePermission('Masters', $user)) {
+                //     return $this->sendError('You have no rights to access this module.', [], 401);
+                // }
 
                 $hostnameId = Organization::whereId($user->organization_id)->value('hostname_id');
 
@@ -46,6 +51,12 @@ class ActivitySubCategoriesController extends Controller
 
     public function getActivitySubCategory(Request $request)
     {
+        $user = $request->user();
+
+        // if (!AppHelper::roleHasSubModulePermission('Activity Sub Category Management', RoleHasSubModule::ACTIONS['list'], $user)) {
+        //     return $this->sendError('You have no rights to access this action.', [], 401);
+        // }
+
         $limit = !empty($request->limit) ? $request->limit : config('constants.default_per_page_limit');
         $orderBy = !empty($request->orderby) ? $request->orderby : config('constants.default_orderby');
 
@@ -93,6 +104,12 @@ class ActivitySubCategoriesController extends Controller
 
     public function getDetails(Request $request)
     {
+        $user = $request->user();
+
+        // if (!AppHelper::roleHasSubModulePermission('Activity Sub Category Management', RoleHasSubModule::ACTIONS['view'], $user)) {
+        //     return $this->sendError('You have no rights to access this action.', [], 401);
+        // }
+
         $subActivityCategory = ActivitySubCategory::select('id', 'activity_category_id', 'name', 'unit_type_id', 'status')
             ->whereId($request->id)
             ->first();
@@ -107,30 +124,40 @@ class ActivitySubCategoriesController extends Controller
     public function addActivitySubCategory(Request $request)
     {
         try {
-            $validator = Validator::make($request->all(), [
-                'activity_category_id' => 'required|exists:activity_categories,id',
-                'unit_type_id' => 'required|exists:unit_types,id',
-                'name' => 'required',
-            ]);
+            $user = $request->user();
 
-            if ($validator->fails()) {
-                foreach ($validator->errors()->messages() as $key => $value) {
-                    return $this->sendError('Validation Error.', [$key => $value[0]], 400);
+            if (isset($user) && !empty($user)) {
+                // if (!AppHelper::roleHasSubModulePermission('Activity Sub Category Management', RoleHasSubModule::ACTIONS['create'], $user)) {
+                //     return $this->sendError('You have no rights to access this action.', [], 401);
+                // }
+
+                $validator = Validator::make($request->all(), [
+                    'activity_category_id' => 'required|exists:activity_categories,id',
+                    'unit_type_id' => 'required|exists:unit_types,id',
+                    'name' => 'required',
+                ]);
+
+                if ($validator->fails()) {
+                    foreach ($validator->errors()->messages() as $key => $value) {
+                        return $this->sendError('Validation Error.', [$key => $value[0]], 400);
+                    }
                 }
+
+                $subActivityCategory = new ActivitySubCategory();
+                $subActivityCategory->name = $request->name;
+                $subActivityCategory->activity_category_id = $request->activity_category_id;
+                $subActivityCategory->unit_type_id = $request->unit_type_id;
+                $subActivityCategory->created_ip = $request->ip();
+                $subActivityCategory->updated_ip = $request->ip();
+
+                if (!$subActivityCategory->save()) {
+                    return $this->sendError('Something went wrong while creating the sub activity category.');
+                }
+
+                return $this->sendResponse([], 'Sub activity category created successfully.');
+            } else {
+                return $this->sendError('User not exists.', [], 404);
             }
-
-            $subActivityCategory = new ActivitySubCategory();
-            $subActivityCategory->name = $request->name;
-            $subActivityCategory->activity_category_id = $request->activity_category_id;
-            $subActivityCategory->unit_type_id = $request->unit_type_id;
-            $subActivityCategory->created_ip = $request->ip();
-            $subActivityCategory->updated_ip = $request->ip();
-
-            if (!$subActivityCategory->save()) {
-                return $this->sendError('Something went wrong while creating the sub activity category.');
-            }
-
-            return $this->sendResponse([], 'Sub activity category created successfully.');
         } catch (\Exception $e) {
             Log::error($e->getMessage());
 
@@ -141,33 +168,43 @@ class ActivitySubCategoriesController extends Controller
     public function updateActivitySubCategory(Request $request, $id = null)
     {
         try {
-            $validator = Validator::make($request->all(), [
-                'activity_category_id' => 'required|exists:activity_categories,id',
-                'unit_type_id' => 'required|exists:unit_types,id',
-                'name' => 'required',
-            ]);
+            $user = $request->user();
 
-            if ($validator->fails()) {
-                foreach ($validator->errors()->messages() as $key => $value) {
-                    return $this->sendError('Validation Error.', [$key => $value[0]], 400);
+            if (isset($user) && !empty($user)) {
+                // if (!AppHelper::roleHasSubModulePermission('Activity Sub Category Management', RoleHasSubModule::ACTIONS['edit'], $user)) {
+                //     return $this->sendError('You have no rights to access this action.', [], 401);
+                // }
+
+                $validator = Validator::make($request->all(), [
+                    'activity_category_id' => 'required|exists:activity_categories,id',
+                    'unit_type_id' => 'required|exists:unit_types,id',
+                    'name' => 'required',
+                ]);
+
+                if ($validator->fails()) {
+                    foreach ($validator->errors()->messages() as $key => $value) {
+                        return $this->sendError('Validation Error.', [$key => $value[0]], 400);
+                    }
                 }
+
+                $subActivityCategory = ActivitySubCategory::whereId($request->id)->first();
+
+                if (!isset($subActivityCategory) || empty($subActivityCategory)) {
+                    return $this->sendError('Sub activity category dose not exists.');
+                }
+
+                if ($request->filled('name')) $subActivityCategory->name = $request->name;
+                if ($request->filled('activity_category_id')) $subActivityCategory->activity_category_id = $request->activity_category_id;
+                if ($request->filled('unit_type_id')) $subActivityCategory->unit_type_id = $request->unit_type_id;
+
+                if (!$subActivityCategory->save()) {
+                    return $this->sendError('Something went wrong while updating the sub activity category.');
+                }
+
+                return $this->sendResponse([], 'Sub activity category details updated successfully.');
+            } else {
+                return $this->sendError('User not exists.', [], 404);
             }
-
-            $subActivityCategory = ActivitySubCategory::whereId($request->id)->first();
-
-            if (!isset($subActivityCategory) || empty($subActivityCategory)) {
-                return $this->sendError('Sub activity category dose not exists.');
-            }
-
-            if ($request->filled('name')) $subActivityCategory->name = $request->name;
-            if ($request->filled('activity_category_id')) $subActivityCategory->activity_category_id = $request->activity_category_id;
-            if ($request->filled('unit_type_id')) $subActivityCategory->unit_type_id = $request->unit_type_id;
-
-            if (!$subActivityCategory->save()) {
-                return $this->sendError('Something went wrong while updating the sub activity category.');
-            }
-
-            return $this->sendResponse([], 'Sub activity category details updated successfully.');
         } catch (\Exception $e) {
             Log::error($e->getMessage());
 
@@ -178,6 +215,14 @@ class ActivitySubCategoriesController extends Controller
     public function changeStatus(Request $request, $id = null)
     {
         try {
+            $user = $request->user();
+
+            // if ($request->status == ActivityCategory::STATUS['Deleted']) {
+            //     if (!AppHelper::roleHasSubModulePermission('Activity Sub Category Management', RoleHasSubModule::ACTIONS['delete'], $user)) {
+            //         return $this->sendError('You have no rights to access this action.', [], 401);
+            //     }
+            // }
+            
             $subActivityCategory = ActivitySubCategory::whereId($request->id)->first();
 
             if (!isset($subActivityCategory) || empty($subActivityCategory)) {

@@ -13,6 +13,7 @@ use App\Models\Tenant\NcrSor;
 use App\Models\Tenant\ProjectNcrSorRequest;
 use App\Helpers\AppHelper;
 use App\Helpers\UploadFile;
+use App\Models\Tenant\RoleHasSubModule;
 
 class NcrSorController extends Controller
 {
@@ -29,6 +30,10 @@ class NcrSorController extends Controller
                 if ($user->role_id == User::USER_ROLE['SUPER_ADMIN']) {
                     return $this->sendError('You have no rights to access this module.', [], 401);
                 }
+
+                // if (!AppHelper::roleHasModulePermission('Masters', $user)) {
+                //     return $this->sendError('You have no rights to access this module.', [], 401);
+                // }
 
                 $hostnameId = Organization::whereId($user->organization_id)->value('hostname_id');
 
@@ -53,15 +58,19 @@ class NcrSorController extends Controller
         $orderBy = !empty($request->orderby) ? $request->orderby : config('constants.default_orderby');
 
         try {
+            $user = $request->user();
+
+            // if (!AppHelper::roleHasSubModulePermission('NCR/SOR Management', RoleHasSubModule::ACTIONS['list'], $user)) {
+            //     return $this->sendError('You have no rights to access this action.', [], 401);
+            // }
+
             $query = NcrSor::select('id', 'type', 'path', 'updated_at')
                 ->orderBy('id', $orderBy);
 
             $totalQuery = $query;
             $totalQuery = $totalQuery->count();
 
-
             $ncrsor['data'] = $query->get()->toArray();
-
 
             $results = [];
             if (!empty($ncrsor['data'])) {
@@ -76,6 +85,12 @@ class NcrSorController extends Controller
 
     public function getNcrSorDetails(Request $request, $type = null)
     {
+        $user = $request->user();
+
+        // if (!AppHelper::roleHasSubModulePermission('NCR/SOR Management', RoleHasSubModule::ACTIONS['view'], $user)) {
+        //     return $this->sendError('You have no rights to access this action.', [], 401);
+        // }
+
         $ncrsor = NcrSor::where("type", $request->type)
             ->select('id', 'type', 'path')
             ->first();
@@ -91,7 +106,12 @@ class NcrSorController extends Controller
     {
         try {
             $user = $request->user();
+
             if (isset($user) && !empty($user)) {
+                // if (!AppHelper::roleHasSubModulePermission('NCR/SOR Management', RoleHasSubModule::ACTIONS['create'], $user)) {
+                //     return $this->sendError('You have no rights to access this action.', [], 401);
+                // }
+
                 $validator = Validator::make($request->all(), [
                     'type' => 'required|numeric|min:1|max:2',
                     'path' => 'required|mimes:doc,docx',
@@ -121,7 +141,6 @@ class NcrSorController extends Controller
                         return $this->sendError('Something went wrong while uploading NCR/SOR document.');
                     }
                 } else {
-
                     $oldPath = $NcrSorExist->path;
 
                     if ($request->hasFile('path')) {
@@ -154,6 +173,10 @@ class NcrSorController extends Controller
             $user = $request->user();
 
             if (isset($user) && !empty($user)) {
+                // if (!AppHelper::roleHasSubModulePermission('NCR/SOR Management', RoleHasSubModule::ACTIONS['delete'], $user)) {
+                //     return $this->sendError('You have no rights to access this action.', [], 401);
+                // }
+
                 $NcrSor = NcrSor::where("type", $request->type)
                     ->first();
                 $oldPath = $NcrSor->path;
@@ -178,6 +201,7 @@ class NcrSorController extends Controller
     {
         try {
             $user = $request->user();
+            
             if (isset($user) && !empty($user)) {
                 $type = $request->type;
                 $id = !empty($request->id) ? $request->id : '';

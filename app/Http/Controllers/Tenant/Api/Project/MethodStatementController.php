@@ -12,6 +12,7 @@ use App\Models\System\User;
 use App\Models\Tenant\MethodStatement;
 use App\Helpers\AppHelper;
 use App\Helpers\UploadFile;
+use App\Models\Tenant\RoleHasSubModule;
 use Illuminate\Support\Facades\Log;
 
 class MethodStatementController extends Controller
@@ -29,6 +30,10 @@ class MethodStatementController extends Controller
                 if ($user->role_id == User::USER_ROLE['SUPER_ADMIN']) {
                     return $this->sendError('You have no rights to access this module.', [], 401);
                 }
+
+                // if (!AppHelper::roleHasModulePermission('HSE', $user)) {
+                //     return $this->sendError('You have no rights to access this module.', [], 401);
+                // }
 
                 $hostnameId = Organization::whereId($user->organization_id)->value('hostname_id');
 
@@ -50,6 +55,12 @@ class MethodStatementController extends Controller
 
     public function getMethodStatements(Request $request)
     {
+        $user = $request->user();
+
+        // if (!AppHelper::roleHasSubModulePermission('Method Statement', RoleHasSubModule::ACTIONS['list'], $user)) {
+        //     return $this->sendError('You have no rights to access this action.', [], 401);
+        // }
+
         $limit = !empty($request->limit) ? $request->limit : config('constants.default_per_page_limit');
         $orderBy = !empty($request->orderby) ? $request->orderby : config('constants.default_orderby');
 
@@ -100,6 +111,12 @@ class MethodStatementController extends Controller
 
     public function getMethodStatementDetails(Request $request, $id = null)
     {
+        $user = $request->user();
+
+        // if (!AppHelper::roleHasSubModulePermission('Method Statement', RoleHasSubModule::ACTIONS['view'], $user)) {
+        //     return $this->sendError('You have no rights to access this action.', [], 401);
+        // }
+
         $methodStatement = MethodStatement::with('projectActivity')
             ->whereId($request->id)
             ->select('id', 'project_id', 'project_activity_id', 'name', 'path', 'updated_at')
@@ -116,6 +133,10 @@ class MethodStatementController extends Controller
     {
         try {
             $user = $request->user();
+
+            // if (!AppHelper::roleHasSubModulePermission('Method Statement', RoleHasSubModule::ACTIONS['create'], $user)) {
+            //     return $this->sendError('You have no rights to access this action.', [], 401);
+            // }
 
             if (isset($user) && !empty($user)) {
                 $validator = Validator::make($request->all(), [
@@ -164,6 +185,10 @@ class MethodStatementController extends Controller
     {
         try {
             $user = $request->user();
+
+            // if (!AppHelper::roleHasSubModulePermission('Method Statement', RoleHasSubModule::ACTIONS['edit'], $user)) {
+            //     return $this->sendError('You have no rights to access this action.', [], 401);
+            // }
 
             if (isset($user) && !empty($user)) {
                 $validator = Validator::make($request->all(), [
@@ -218,6 +243,10 @@ class MethodStatementController extends Controller
         try {
             $user = $request->user();
 
+            // if (!AppHelper::roleHasSubModulePermission('Method Statement', RoleHasSubModule::ACTIONS['delete'], $user)) {
+            //     return $this->sendError('You have no rights to access this action.', [], 401);
+            // }
+
             if (isset($user) && !empty($user)) {
                 $methodStatement = MethodStatement::whereId($request->id)
                     ->whereNull('project_activity_id')
@@ -244,6 +273,10 @@ class MethodStatementController extends Controller
     {
         try {
             $user = $request->user();
+
+            // if (!AppHelper::roleHasSubModulePermission('Method Statement', RoleHasSubModule::ACTIONS['assign'], $user)) {
+            //     return $this->sendError('You have no rights to access this action.', [], 401);
+            // }
 
             if (isset($user) && !empty($user)) {
                 $validator = Validator::make($request->all(), [

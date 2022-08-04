@@ -11,6 +11,7 @@ use App\Models\System\Organization;
 use App\Models\System\User;
 use App\Models\Tenant\ProjectGang;
 use App\Helpers\AppHelper;
+use App\Models\Tenant\RoleHasSubModule;
 use Illuminate\Support\Facades\Log;
 
 class GangsController extends Controller
@@ -24,6 +25,10 @@ class GangsController extends Controller
                 if ($user->role_id == User::USER_ROLE['SUPER_ADMIN']) {
                     return $this->sendError('You have no rights to access this module.', [], 401);
                 }
+
+                // if (!AppHelper::roleHasModulePermission('Planning and Scheduling', $user)) {
+                //     return $this->sendError('You have no rights to access this module.', [], 401);
+                // }
 
                 $hostnameId = Organization::whereId($user->organization_id)->value('hostname_id');
 
@@ -45,6 +50,12 @@ class GangsController extends Controller
 
     public function getGangs(Request $request)
     {
+        $user = $request->user();
+
+        // if (!AppHelper::roleHasSubModulePermission('Gangs Management', RoleHasSubModule::ACTIONS['list'], $user)) {
+        //     return $this->sendError('You have no rights to access this action.', [], 401);
+        // }
+
         $limit = !empty($request->limit) ? $request->limit : config('constants.default_per_page_limit');
         $orderBy = !empty($request->orderby) ? $request->orderby : config('constants.default_orderby');
 
@@ -87,6 +98,12 @@ class GangsController extends Controller
 
     public function getGangDetails(Request $request)
     {
+        $user = $request->user();
+
+        // if (!AppHelper::roleHasSubModulePermission('Gangs Management', RoleHasSubModule::ACTIONS['view'], $user)) {
+        //     return $this->sendError('You have no rights to access this action.', [], 401);
+        // }
+
         $projectGangs = ProjectGang::select('id', 'project_id', 'name', 'status')
             ->whereId($request->id)
             ->first();
@@ -104,6 +121,10 @@ class GangsController extends Controller
             $user = $request->user();
 
             if (isset($user) && !empty($user)) {
+                // if (!AppHelper::roleHasSubModulePermission('Gangs Management', RoleHasSubModule::ACTIONS['create'], $user)) {
+                //     return $this->sendError('You have no rights to access this action.', [], 401);
+                // }
+
                 $validator = Validator::make($request->all(), [
                     'project_id' => 'required|exists:projects,id',
                     'name' => 'required',
@@ -138,29 +159,39 @@ class GangsController extends Controller
     public function updateGang(Request $request, $id = null)
     {
         try {
-            $validator = Validator::make($request->all(), [
-                'name' => 'required',
-            ]);
+            $user = $request->user();
 
-            if ($validator->fails()) {
-                foreach ($validator->errors()->messages() as $key => $value) {
-                    return $this->sendError('Validation Error.', [$key => $value[0]], 400);
+            if (isset($user) && !empty($user)) {
+                // if (!AppHelper::roleHasSubModulePermission('Gangs Management', RoleHasSubModule::ACTIONS['edit'], $user)) {
+                //     return $this->sendError('You have no rights to access this action.', [], 401);
+                // }
+
+                $validator = Validator::make($request->all(), [
+                    'name' => 'required',
+                ]);
+
+                if ($validator->fails()) {
+                    foreach ($validator->errors()->messages() as $key => $value) {
+                        return $this->sendError('Validation Error.', [$key => $value[0]], 400);
+                    }
                 }
+
+                $projectGangs = ProjectGang::whereId($request->id)->first();
+
+                if (!isset($projectGangs) || empty($projectGangs)) {
+                    return $this->sendError('Project gang does not exists.');
+                }
+
+                if ($request->filled('name')) $projectGangs->name = $request->name;
+
+                if (!$projectGangs->save()) {
+                    return $this->sendError('Something went wrong while udating the project gang.');
+                }
+
+                return $this->sendResponse([], 'Project gang updated successfully.');
+            } else {
+                return $this->sendError('User not exists.');
             }
-
-            $projectGangs = ProjectGang::whereId($request->id)->first();
-
-            if (!isset($projectGangs) || empty($projectGangs)) {
-                return $this->sendError('Project gang does not exists.');
-            }
-
-            if ($request->filled('name')) $projectGangs->name = $request->name;
-
-            if (!$projectGangs->save()) {
-                return $this->sendError('Something went wrong while udating the project gang.');
-            }
-
-            return $this->sendResponse([], 'Project gang updated successfully.');
         } catch (\Exception $e) {
             Log::error($e->getMessage());
 

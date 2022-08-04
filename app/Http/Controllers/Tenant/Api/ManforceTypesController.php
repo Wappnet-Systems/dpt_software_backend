@@ -11,6 +11,7 @@ use App\Models\System\Organization;
 use App\Models\System\User;
 use App\Models\Tenant\ManforceType;
 use App\Helpers\AppHelper;
+use App\Models\Tenant\RoleHasSubModule;
 use Illuminate\Support\Facades\Log;
 
 class ManforceTypesController extends Controller
@@ -24,6 +25,10 @@ class ManforceTypesController extends Controller
                 if ($user->role_id == User::USER_ROLE['SUPER_ADMIN']) {
                     return $this->sendError('You have no rights to access this module.', [], 401);
                 }
+
+                // if (!AppHelper::roleHasModulePermission('Masters', $user)) {
+                //     return $this->sendError('You have no rights to access this module.', [], 401);
+                // }
 
                 $hostnameId = Organization::whereId($user->organization_id)->value('hostname_id');
 
@@ -45,6 +50,12 @@ class ManforceTypesController extends Controller
 
     public function getManforceTypes(Request $request)
     {
+        $user = $request->user();
+
+        // if (!AppHelper::roleHasSubModulePermission('Manforce Type Management', RoleHasSubModule::ACTIONS['list'], $user)) {
+        //     return $this->sendError('You have no rights to access this action.', [], 401);
+        // }
+
         $limit = !empty($request->limit) ? $request->limit : config('constants.default_per_page_limit');
         $orderBy = !empty($request->orderby) ? $request->orderby : config('constants.default_orderby');
 
@@ -86,6 +97,12 @@ class ManforceTypesController extends Controller
 
     public function getDetails(Request $request)
     {
+        $user = $request->user();
+
+        // if (!AppHelper::roleHasSubModulePermission('Manforce Type Management', RoleHasSubModule::ACTIONS['view'], $user)) {
+        //     return $this->sendError('You have no rights to access this action.', [], 401);
+        // }
+
         $manforceType = ManforceType::whereId($request->id)->first();
 
         if (!isset($manforceType) || empty($manforceType)) {
@@ -98,28 +115,39 @@ class ManforceTypesController extends Controller
     public function addManforceType(Request $request)
     {
         try {
-            $validator = Validator::make($request->all(), [
-                'name' => 'required',
-                'is_productive' => 'required|boolean',
-            ]);
+            $user = $request->user();
 
-            if ($validator->fails()) {
-                foreach ($validator->errors()->messages() as $key => $value) {
-                    return $this->sendError('Validation Error.', [$key => $value[0]], 400);
+            if (isset($user) && !empty($user)) {
+
+                // if (!AppHelper::roleHasSubModulePermission('Manforce Type Management', RoleHasSubModule::ACTIONS['create'], $user)) {
+                //     return $this->sendError('You have no rights to access this action.', [], 401);
+                // }
+
+                $validator = Validator::make($request->all(), [
+                    'name' => 'required',
+                    'is_productive' => 'required|boolean',
+                ]);
+
+                if ($validator->fails()) {
+                    foreach ($validator->errors()->messages() as $key => $value) {
+                        return $this->sendError('Validation Error.', [$key => $value[0]], 400);
+                    }
                 }
+
+                $manforceType = new ManforceType();
+                $manforceType->name = $request->name;
+                $manforceType->is_productive = $request->is_productive;
+                $manforceType->created_ip = $request->ip();
+                $manforceType->updated_ip = $request->ip();
+
+                if (!$manforceType->save()) {
+                    return $this->sendError('Something went wrong while creating the manforce type.');
+                }
+
+                return $this->sendResponse([], 'Manforce type created successfully.');
+            } else {
+                return $this->sendError('User not exists.', [], 404);
             }
-
-            $manforceType = new ManforceType();
-            $manforceType->name = $request->name;
-            $manforceType->is_productive = $request->is_productive;
-            $manforceType->created_ip = $request->ip();
-            $manforceType->updated_ip = $request->ip();
-
-            if (!$manforceType->save()) {
-                return $this->sendError('Something went wrong while creating the manforce type.');
-            }
-
-            return $this->sendResponse([], 'Manforce type created successfully.');
         } catch (\Exception $e) {
             Log::error($e->getMessage());
 
@@ -130,32 +158,42 @@ class ManforceTypesController extends Controller
     public function updateManforceType(Request $request, $id = null)
     {
         try {
-            $validator = Validator::make($request->all(), [
-                'name' => 'required',
-                'is_productive' => 'required|boolean',
-            ]);
+            $user = $request->user();
 
-            if ($validator->fails()) {
-                foreach ($validator->errors()->messages() as $key => $value) {
-                    return $this->sendError('Validation Error.', [$key => $value[0]], 400);
+            if (isset($user) && !empty($user)) {
+                // if (!AppHelper::roleHasSubModulePermission('Manforce Type Management', RoleHasSubModule::ACTIONS['create'], $user)) {
+                //     return $this->sendError('You have no rights to access this action.', [], 401);
+                // }
+
+                $validator = Validator::make($request->all(), [
+                    'name' => 'required',
+                    'is_productive' => 'required|boolean',
+                ]);
+
+                if ($validator->fails()) {
+                    foreach ($validator->errors()->messages() as $key => $value) {
+                        return $this->sendError('Validation Error.', [$key => $value[0]], 400);
+                    }
                 }
+
+                $manforceType = ManforceType::whereId($request->id)->first();
+
+                if (!isset($manforceType) || empty($manforceType)) {
+                    return $this->sendError('Manforce Type does not exists.');
+                }
+
+                if ($request->filled('name')) $manforceType->name = $request->name;
+                if ($request->filled('is_productive')) $manforceType->is_productive = $request->is_productive;
+                $manforceType->updated_ip = $request->ip();
+
+                if (!$manforceType->save()) {
+                    return $this->sendError('Something went wrong while updating the manforce type.');
+                }
+
+                return $this->sendResponse([], 'Manforce type details updated successfully.');
+            } else {
+                # code...
             }
-
-            $manforceType = ManforceType::whereId($request->id)->first();
-
-            if (!isset($manforceType) || empty($manforceType)) {
-                return $this->sendError('Manforce Type does not exists.');
-            }
-
-            if ($request->filled('name')) $manforceType->name = $request->name;
-            if ($request->filled('is_productive')) $manforceType->is_productive = $request->is_productive;
-            $manforceType->updated_ip = $request->ip();
-
-            if (!$manforceType->save()) {
-                return $this->sendError('Something went wrong while updating the manforce type.');
-            }
-
-            return $this->sendResponse([], 'Manforce type details updated successfully.');
         } catch (\Exception $e) {
             Log::error($e->getMessage());
 
@@ -166,6 +204,14 @@ class ManforceTypesController extends Controller
     public function changeStatus(Request $request, $id = null)
     {
         try {
+            // $user = $request->user();
+
+            // if ($request->status == ManforceType::STATUS['Deleted']) {
+            //     if (!AppHelper::roleHasSubModulePermission('Manforce Type Management', RoleHasSubModule::ACTIONS['delete'], $user)) {
+            //         return $this->sendError('You have no rights to access this action.', [], 401);
+            //     }
+            // }
+
             $manforceType = ManforceType::whereId($request->id)->first();
 
             if (!isset($manforceType) || empty($manforceType)) {
