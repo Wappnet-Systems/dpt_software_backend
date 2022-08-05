@@ -41,6 +41,6 @@ class ActivityCategory extends Model
 
     public function activitySubCategories()
     {
-        return $this->hasMany(ActivitySubCategory::class, 'activity_category_id', 'id')->select('id','activity_category_id','name','unit_type_id','status');
+        return $this->hasMany(ActivitySubCategory::class, 'activity_category_id', 'id')->select('id', 'activity_category_id', 'name', 'status');
     }
 }

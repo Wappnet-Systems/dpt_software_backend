@@ -60,8 +60,8 @@ class ProjectActivity extends Model
     public function activitySubCategory()
     {
         return $this->belongsTo(ActivitySubCategory::class, 'activity_sub_category_id', 'id')
-            ->with('activityCategory', 'unitType')
-            ->select('id', 'activity_category_id', 'unit_type_id', 'name', 'status');
+            ->with('activityCategory')
+            ->select('id', 'activity_category_id', 'name', 'status');
     }
 
     public function unitType()

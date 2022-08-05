@@ -19,7 +19,6 @@ class CreateActivitySubCategoriesTable extends Migration
 
             $table->id();
             $table->foreignId('activity_category_id')->constrained('activity_categories')->cascadeOnUpdate()->cascadeOnDelete();
-            $table->foreignId('unit_type_id')->constrained('unit_types')->cascadeOnUpdate()->cascadeOnDelete();
             $table->string('name', 50);
             $table->tinyInteger('status')->default(1)->comment('1 - Active, 2 - In Active, 3 - Deleted');
             $table->ipAddress('created_ip')->nullable();

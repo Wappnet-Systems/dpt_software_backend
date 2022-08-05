@@ -46,12 +46,6 @@ class ActivitySubCategory extends Model
             ->select('id', 'name', 'status');
     }
 
-    public function unitType()
-    {
-        return $this->belongsTo(UnitType::class, 'unit_type_id', 'id')
-            ->select('id', 'name', 'status');
-    }
-    
     public function projectActivities()
     {
         AppHelper::setDefaultDBConnection();
