@@ -323,6 +323,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('project/KPI-reports/lists', [ReportController::class, 'KpiReports']);
     Route::get('project/KPI-reports/available-manpower', [ReportController::class, 'availableManpower']);
     Route::get('project/KPI-reports/comparison-activity', [ReportController::class, 'comparisonActivity']);
+    Route::get('project/KPI-reports/manpower-cost', [ReportController::class, 'manpowerCost']);
 
     /* Project Scaffold Activity Routes */
     Route::get('project/scaffold/activity/lists', [ScaffoldController::class, 'getScaffoldActivity']);

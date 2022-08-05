@@ -133,4 +133,14 @@ class ProjectActivity extends Model
         return $this->hasMany(ProjectActivityTrack::class, 'project_activity_id', 'id')
             ->select('id', 'project_activity_id', 'date', 'completed_area', 'status', 'comment', 'reason', 'responsible_party', 'created_by');
     }
+
+    /**
+     * Qs manpower activity actual cost and planned cost 
+     */
+
+    public function allocateManpower()
+    {
+        return $this->hasMany(ProjectActivityAllocateManforce::class, 'project_activity_id', 'id')
+            ->select('id', 'project_activity_id', 'project_manforce_id', 'date', 'total_assigned', 'total_planned', 'is_overtime', 'total_work', 'total_cost', 'productivity_rate');
+    }
 }
