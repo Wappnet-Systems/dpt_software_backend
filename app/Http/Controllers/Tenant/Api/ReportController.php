@@ -108,17 +108,17 @@ class ReportController extends Controller
                         $getProjectManpower['projects'][$prKey] = $projectValue->toArray();
 
                         $totalManpower = ProjectManforce::with([
-                                'manforce',
-                                'allocatedManpower' => function ($query) use ($request) {
-                                    $query->select('id', 'date', 'project_manforce_id', DB::raw("SUM(total_assigned) as working_manpower"))
-                                        ->groupBy('id', 'date');
+                            'manforce',
+                            'allocatedManpower' => function ($query) use ($request) {
+                                $query->select('id', 'date', 'project_manforce_id', DB::raw("SUM(total_assigned) as working_manpower"))
+                                    ->groupBy('id', 'date');
 
-                                    if (!empty($request->from_date) && !empty($request->to_date)) {
-                                        $query->whereDate('date', '>=', date('Y-m-d', strtotime($request->from_date)))
-                                            ->whereDate('date', '<=', date('Y-m-d', strtotime($request->to_date)));
-                                    }
+                                if (!empty($request->from_date) && !empty($request->to_date)) {
+                                    $query->whereDate('date', '>=', date('Y-m-d', strtotime($request->from_date)))
+                                        ->whereDate('date', '<=', date('Y-m-d', strtotime($request->to_date)));
                                 }
-                            ])
+                            }
+                        ])
                             ->select('id', 'project_id', 'manforce_type_id', 'total_manforce', 'cost', 'cost_type')
                             ->whereProjectId($getProjectManpower['projects'][$prKey]['id'] ?? '')
                             ->get();
@@ -175,10 +175,10 @@ class ReportController extends Controller
                         $comparisonActivity[$PKey] = $projectValue->toArray();
 
                         $proActivity = ProjectActivity::with([
-                                'activityTrack' => function ($tQuery) {
-                                    $tQuery->select('id', 'project_activity_id', 'date', 'responsible_party', 'status', 'reason')->whereStatus(ProjectActivityTrack::STATUS['Hold']);
-                                }
-                            ])
+                            'activityTrack' => function ($tQuery) {
+                                $tQuery->select('id', 'project_activity_id', 'date', 'responsible_party', 'status', 'reason')->whereStatus(ProjectActivityTrack::STATUS['Hold']);
+                            }
+                        ])
                             ->whereProjectId($comparisonActivity[$PKey]['id'])
                             ->select('id', 'project_id', 'project_main_activity_id', 'activity_sub_category_id', 'manforce_type_id', 'name', 'start_date', 'end_date', 'actual_start_date', 'actual_end_date', 'status', 'sort_by');
 
@@ -186,7 +186,7 @@ class ReportController extends Controller
                             $proActivity = $proActivity->whereDate('end_date', '!=', date('Y-m-d', strtotime($request->end_date)))
                                 ->whereDate('actual_end_date', '!=', date('Y-m-d', strtotime($request->end_date)));
                         }
-                        
+
                         $proActivity = $proActivity->get();
 
                         foreach ($proActivity as $key => $value) {
@@ -198,6 +198,56 @@ class ReportController extends Controller
                 } else {
                     return $this->sendError('Project does not exists.', [], 400);
                 }
+            } else {
+                return $this->sendError('User does not exists.', [], 400);
+            }
+        } catch (\Exception $e) {
+            Log::error($e->getMessage());
+
+            return $this->sendError('Something went wrong!', [], 500);
+        }
+    }
+
+    public function manpowerCost(Request $request)
+    {
+        try {
+            $user = $request->user();
+
+            if (isset($user) && !empty($user)) {
+                $manpowerCost = [];
+
+                $query = ProjectActivity::select('id', 'project_id', 'project_main_activity_id', 'activity_sub_category_id', 'manforce_type_id', 'name', 'start_date', 'end_date', 'actual_start_date', 'actual_end_date', 'location', 'level', 'actual_area', 'completed_area', 'unit_type_id', 'cost', 'scaffold_requirement', 'helper', 'status', 'productivity_rate', 'created_by', 'sort_by')
+                    ->with(['allocateManpower'])
+                    ->whereId($request->project_activity_id ?? '');
+
+                if (isset($request->project_activity_id) && !empty($request->project_activity_id)) {
+                    $query = $query->WhereHas('allocateManpower', function ($mQuery) use ($request) {
+                        $mQuery->whereProjectActivityId($request->project_activity_id ?? '');
+                    });
+                }
+                $projectActivity = $query->get()->toArray();
+
+                foreach ($projectActivity as $activityKey => $activityValue) {
+                    $costExists = [];
+                    $actualCost = 0;
+                    $plannedCost = 0;
+                    $manpowerCost[$activityKey]['manpower_cost']['activity_id'] = $activityValue['id'];
+                    $manpowerCost[$activityKey]['manpower_cost']['activity_name'] = $activityValue['name'];
+                    $manpowerCost[$activityKey]['manpower_cost']['actual_cost'] = $actualCost;
+                    $manpowerCost[$activityKey]['manpower_cost']['planned_cost'] = $plannedCost;
+                    foreach ($activityValue['allocate_manpower'] as $key => $value) {
+                        $costExists['manpower_cost'][$key] = [
+                            'actual_cost' => $value['total_assigned'] * $value['total_cost'] ?? null,
+                            'planned_cost' => $value['total_planned'] * $value['total_cost'] ??  null,
+                        ];
+                        $actualCost += array_sum([$costExists['manpower_cost'][$key]['actual_cost']]);
+                        $plannedCost += array_sum([$costExists['manpower_cost'][$key]['planned_cost']]);
+                    }
+                    $manpowerCost[$activityKey]['manpower_cost']['actual_cost'] = round($actualCost, 2);
+                    $manpowerCost[$activityKey]['manpower_cost']['planned_cost'] = round($plannedCost, 2);
+                }
+
+                return $this->sendResponse($manpowerCost, 'Project manpower cost.');
             } else {
                 return $this->sendError('User does not exists.', [], 400);
             }
