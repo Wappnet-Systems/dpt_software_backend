@@ -67,7 +67,6 @@ class ActivitySubActivityCategorySeeder extends Seeder
 
                     $subCategory->activity_category_id = $activityCategory->id;
                     $subCategory->name = $subCategoryValue;
-                    $subCategory->unit_type_id = !empty($unitTypeCheck) ? $unitTypeCheck->id : $unitTypes->id;
                     $subCategory->save();
                 }
             }

@@ -60,7 +60,7 @@ class ActivitySubCategoriesController extends Controller
         $limit = !empty($request->limit) ? $request->limit : config('constants.default_per_page_limit');
         $orderBy = !empty($request->orderby) ? $request->orderby : config('constants.default_orderby');
 
-        $query = ActivitySubCategory::with('activityCategory', 'unitType')
+        $query = ActivitySubCategory::with('activityCategory')
             ->whereStatus(ActivitySubCategory::STATUS['Active'])
             ->orderBy('id', $orderBy);
 
@@ -110,7 +110,7 @@ class ActivitySubCategoriesController extends Controller
         //     return $this->sendError('You have no rights to access this action.', [], 401);
         // }
 
-        $subActivityCategory = ActivitySubCategory::select('id', 'activity_category_id', 'name', 'unit_type_id', 'status')
+        $subActivityCategory = ActivitySubCategory::select('id', 'activity_category_id', 'name', 'status')
             ->whereId($request->id)
             ->first();
 
@@ -133,7 +133,6 @@ class ActivitySubCategoriesController extends Controller
 
                 $validator = Validator::make($request->all(), [
                     'activity_category_id' => 'required|exists:activity_categories,id',
-                    'unit_type_id' => 'required|exists:unit_types,id',
                     'name' => 'required',
                 ]);
 
@@ -146,7 +145,6 @@ class ActivitySubCategoriesController extends Controller
                 $subActivityCategory = new ActivitySubCategory();
                 $subActivityCategory->name = $request->name;
                 $subActivityCategory->activity_category_id = $request->activity_category_id;
-                $subActivityCategory->unit_type_id = $request->unit_type_id;
                 $subActivityCategory->created_ip = $request->ip();
                 $subActivityCategory->updated_ip = $request->ip();
 
@@ -177,7 +175,6 @@ class ActivitySubCategoriesController extends Controller
 
                 $validator = Validator::make($request->all(), [
                     'activity_category_id' => 'required|exists:activity_categories,id',
-                    'unit_type_id' => 'required|exists:unit_types,id',
                     'name' => 'required',
                 ]);
 
@@ -195,7 +192,6 @@ class ActivitySubCategoriesController extends Controller
 
                 if ($request->filled('name')) $subActivityCategory->name = $request->name;
                 if ($request->filled('activity_category_id')) $subActivityCategory->activity_category_id = $request->activity_category_id;
-                if ($request->filled('unit_type_id')) $subActivityCategory->unit_type_id = $request->unit_type_id;
 
                 if (!$subActivityCategory->save()) {
                     return $this->sendError('Something went wrong while updating the sub activity category.');
@@ -222,7 +218,7 @@ class ActivitySubCategoriesController extends Controller
             //         return $this->sendError('You have no rights to access this action.', [], 401);
             //     }
             // }
-            
+
             $subActivityCategory = ActivitySubCategory::whereId($request->id)->first();
 
             if (!isset($subActivityCategory) || empty($subActivityCategory)) {
