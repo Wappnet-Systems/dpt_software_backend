@@ -137,7 +137,11 @@ class ManforcesController extends Controller
                 }
 
                 if (!in_array($request->cost_type, ProjectManforce::COST_TYPE)) {
-                    return $this->sendError('Invalid cost type request.');
+                    return $this->sendError('Invalid cost type request.', [], 404);
+                }
+
+                if (ProjectManforce::whereManforceTypeId($request->manforce_type_id)->whereProjectId($request->project_id)->exists()) {
+                    return $this->sendError('Manforce already exists in project.', [], 400);
                 }
 
                 $projectManforce = new ProjectManforce();
@@ -150,7 +154,7 @@ class ManforcesController extends Controller
                 $projectManforce->updated_ip = $request->ip();
 
                 if (!$projectManforce->save()) {
-                    return $this->sendError('Something went wrong while creating the project manforce.');
+                    return $this->sendError('Something went wrong while creating the project manforce.', [], 500);
                 }
 
                 return $this->sendResponse([], 'Project manforce created successfully.');
