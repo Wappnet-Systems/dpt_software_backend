@@ -70,7 +70,7 @@ class ModuleSubModuleSeeder extends Seeder
                 'name' => 'Qa/Qc',
                 'sub_module' => [
                     ['name' => 'Inspection'],
-                    // ['name' => 'Material Approval Log'],
+                    ['name' => 'Material Approval Log'],
                     ['name' => 'NCR/SOR Request'],
                     // ['name' => 'Method Statement Log'],
                     // ['name' => 'MSRA'],
