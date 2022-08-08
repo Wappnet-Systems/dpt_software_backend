@@ -63,6 +63,7 @@ class ReportController extends Controller
                     $getStatistics['projects']['completed'] = Project::whereIn('id', $assignedProjectIds)->whereStatus(Project::STATUS['Completed'])->count();
 
                     foreach ($assignedProjectIds as $key => $projectId) {
+                        $getStatistics['projects_activities'][$key]['project_id'] = Project::where('id', $projectId)->value('id');
                         $getStatistics['projects_activities'][$key]['project_name'] = Project::where('id', $projectId)->value('name');
                         $getStatistics['projects_activities'][$key]['Pending'] = ProjectActivity::where('project_id', $projectId)->whereStatus(ProjectActivity::STATUS['Pending'])->count();
                         $getStatistics['projects_activities'][$key]['Start'] = ProjectActivity::where('project_id', $projectId)->whereStatus(ProjectActivity::STATUS['Start'])->count();
