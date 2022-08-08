@@ -191,14 +191,32 @@ class MaterialApprovalLogController extends Controller
                 }
 
                 $materialApprovalLog = MaterialApprovalLog::whereId($request->id)
-                    // ->whereApprovalStatus(MaterialApprovalLog::APPROVAL_STATUS['Pending'])
                     ->first();
 
                 if (!isset($materialApprovalLog) || empty($materialApprovalLog)) {
                     return $this->sendError('Project material approval log does not exist.');
                 }
 
-                $materialApprovalLog->approval_status = $request->approval_status;
+                if ($request->approval_status == MaterialApprovalLog::APPROVAL_STATUS['Rejected']) {
+                    $validator = Validator::make($request->all(), [
+                        'reason' => 'required'
+                    ]);
+
+                    if ($validator->fails()) {
+                        foreach ($validator->errors()->messages() as $key => $value) {
+                            return $this->sendError('Validation Error.', [$key => $value[0]], 400);
+                        }
+                    }
+                }
+
+                if ($request->approval_status == MaterialApprovalLog::APPROVAL_STATUS['Approved']) {
+                    $materialApprovalLog->approval_status = MaterialApprovalLog::APPROVAL_STATUS['Approved'];
+                    $materialApprovalLog->reason = null;
+                } elseif ($request->approval_status == MaterialApprovalLog::APPROVAL_STATUS['Rejected']) {
+                    $materialApprovalLog->approval_status = MaterialApprovalLog::APPROVAL_STATUS['Rejected'];
+                    $materialApprovalLog->reason = $request->reason;
+                }
+
                 $materialApprovalLog->updated_ip = $request->ip();
                 $materialApprovalLog->save();
 

@@ -20,6 +20,7 @@ class CreateMaterialApprovalLogsTable extends Migration
             $table->id();
             $table->string('name', 100);
             $table->string('reference_number', 100)->unique()->nullable();
+            $table->longText('reason')->nullable();
             $table->tinyInteger('approval_status')->default(1)->comment('1 - Pending,2 - Approved, 3 - Rejected');
             $table->tinyInteger('status')->default(1)->comment('1 - Active,2 - In Active, 3 - Deleted');
             $table->ipAddress('created_ip')->nullable();
