@@ -330,7 +330,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('project/scaffold/activity/add', [ScaffoldController::class, 'addScaffoldActivity']);
 
     /* Project Raising instruction Request Routes */
-    Route::get('project/raising/instruction/request/get/list', [RaisingInstructionRequestController::class, 'getRaisingInstructionRequest']);
+    Route::get('project/raising/instruction/request/get/lists', [RaisingInstructionRequestController::class, 'getRaisingInstructionRequest']);
     Route::get('project/raising/instruction/request/get/{id}', [RaisingInstructionRequestController::class, 'getRaisingInstructionRequestDetails']);
     Route::post('project/raising/instruction/request/add', [RaisingInstructionRequestController::class, 'addRaisingInstructionRequest']);
     Route::put('project/raising/instruction/request/update/{id}', [RaisingInstructionRequestController::class, 'updateRaisingInstructionRequest']);
@@ -338,11 +338,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::patch('project/raising/instruction/request/status/change/{id}', [RaisingInstructionRequestController::class, 'changeRaisingInstructionRequestStatus']);
 
     /* Daily Activity Track Routes */
-    Route::get('project/activity/daily/progress/get/list', [ActivitiesDailyProgressController::class, 'getActivitiesDailyProgress']);
+    Route::get('project/activity/daily/progress/get/lists', [ActivitiesDailyProgressController::class, 'getActivitiesDailyProgress']);
     Route::post('project/activity/daily/progress/update', [ActivitiesDailyProgressController::class, 'updateActivitiesDailyProgress']);
 
     /** Project Material Approval Log Route */
-    Route::get('project/material/approval-log/get/list', [MaterialApprovalLogController::class, 'getMaterialApprovalLog']);
+    Route::get('project/material/approval-log/get/lists', [MaterialApprovalLogController::class, 'getMaterialApprovalLog']);
     Route::get('project/material/approval-log/get/{id}', [MaterialApprovalLogController::class,'getMaterialApprovalLogDetails']);
     Route::post('project/material/approval-log/add', [MaterialApprovalLogController::class, 'addMaterialApprovalLog']);
     Route::put('project/material/approval-log/update/{id}', [MaterialApprovalLogController::class, 'updateMaterialApprovalLog']);

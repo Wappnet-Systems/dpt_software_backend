@@ -29,7 +29,7 @@ class RoleHasSubModule extends Model
         'edit' => ['Stock Management', 'Overtime', 'Activity Progress'],
         'comment' => ['Gantt Chart', 'Inspection'],
         'assign' => ['Method Statement', 'Activity Document Management', 'NCR/SOR Request', 'Machinery Allocation', 'Material Allocation', 'Manforce Allocation', 'Overtime'],
-        'approve_reject' => ['Raising Material Requisition', 'Raising Site Instruction', 'NCR/SOR Request', 'Material Transfer Request', 'Inspection']
+        'approve_reject' => ['Raising Material Requisition', 'Raising Site Instruction', 'NCR/SOR Request', 'Material Transfer Request', 'Inspection', 'Material Approval Log']
     ];
 
     public function subModule()
