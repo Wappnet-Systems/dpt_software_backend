@@ -222,7 +222,7 @@ class InspectionController extends Controller
                 // }
 
                 $validator = Validator::make($request->all(), [
-                    'inspection_no' => 'required|unique:projects_inspections,inspection_no',
+                    'inspection_no' => 'required|unique:projects_inspections,inspection_no,' . $id,
                     'inspection_date' => 'required|date_format:Y-m-d',
                     'location' => 'required',
                     'document' => 'mimes:pdf|max:10240',
@@ -475,7 +475,7 @@ class InspectionController extends Controller
                 if (!isset($projectInspection) || empty($projectInspection)) {
                     return $this->sendError('Project inspection does not exists.', [], 404);
                 }
-                
+
                 $projectInspection->comments = $request->comments;
                 $projectInspection->updated_by = $user->id;
                 $projectInspection->updated_ip = $request->ip();
