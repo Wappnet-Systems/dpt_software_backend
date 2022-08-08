@@ -48,7 +48,14 @@ class MaterialApprovalLogController extends Controller
         $limit = !empty($request->limit) ? $request->limit : config('constants.default_per_page_limit');
         $orderBy = !empty($request->orderby) ? $request->orderby : config('constants.default_orderby');
 
-        $query = MaterialApprovalLog::orderby('id', $orderBy);
+        $query = MaterialApprovalLog::whereProjectId($request->project_id ?? null)
+            ->orderby('id', $orderBy);
+
+        if (isset($request->search) && !empty($request->search)) {
+            $search = trim(strtolower($request->search));
+
+            $query = $query->whereRaw('LOWER(CONCAT(`name`)) LIKE ?', ['%' . $search . '%']);
+        }
 
         $totalQuery = $query;
         $totalQuery = $totalQuery->count();
@@ -96,6 +103,7 @@ class MaterialApprovalLogController extends Controller
 
             if (isset($user) && !empty($user)) {
                 $validator = Validator::make($request->all(), [
+                    'project_id' => 'required|exists:projects,id',
                     'name' => 'required',
                     'reference_number' => 'required|unique:material_approval_logs,reference_number',
                 ]);
@@ -107,6 +115,7 @@ class MaterialApprovalLogController extends Controller
                 }
 
                 $materialApprovalLog = new MaterialApprovalLog();
+                $materialApprovalLog->project_id = $request->project_id;
                 $materialApprovalLog->name = $request->name;
                 $materialApprovalLog->reference_number = $request->reference_number;
                 $materialApprovalLog->created_ip = $request->ip();
