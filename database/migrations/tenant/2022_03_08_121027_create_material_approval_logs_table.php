@@ -18,6 +18,7 @@ class CreateMaterialApprovalLogsTable extends Migration
             $table->collation = 'utf8_general_ci';
 
             $table->id();
+            $table->foreignId('project_id')->constrained('projects')->cascadeOnUpdate()->cascadeOnDelete();
             $table->string('name', 100);
             $table->string('reference_number', 100)->unique()->nullable();
             $table->longText('reason')->nullable();
@@ -25,6 +26,7 @@ class CreateMaterialApprovalLogsTable extends Migration
             $table->tinyInteger('status')->default(1)->comment('1 - Active,2 - In Active, 3 - Deleted');
             $table->ipAddress('created_ip')->nullable();
             $table->ipAddress('updated_ip')->nullable();
+            $table->softDeletes();
             $table->timestamps();
         });
     }
