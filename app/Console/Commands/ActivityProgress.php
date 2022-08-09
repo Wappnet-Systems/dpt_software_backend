@@ -111,12 +111,14 @@ class ActivityProgress extends Command
                             if (count($methodStatementAssign)) {
                                 /** Send Push Notification */
                                 $title = 'Method Statement Not Assigned Reminder';
+
                                 $message = 'Today you have work on ' . $activityVal->name . ', but still method statement not assigned to activity';
 
                                 $data = [
                                     'type' => 'Method Statement Not Assigned Reminder',
                                     'data' => $user
                                 ];
+
                                 dispatch(new SendPushJob($user, $title, $message, $data, 'User'));
                                 /** End of Send Push Notification */
                             }
@@ -124,11 +126,14 @@ class ActivityProgress extends Command
 
                         /** Send Push Notification */
                         $title = 'Activity Reminder';
+
                         $message = 'Today you have work on ' . $activityVal->name;
+
                         $data = [
                             'type' => 'Activity Reminder',
                             'data' => $user
                         ];
+
                         dispatch(new SendPushJob($user, $title, $message, $data, 'User'));
                         /** End of Send Push Notification */
                     }
@@ -150,11 +155,14 @@ class ActivityProgress extends Command
                     foreach ($assiFormanEng as $user) {
                         /** Send Push Notification */
                         $title = 'Activity Manfoce Allocation Reminder';
+
                         $message = 'Today you have work on ' . $activityVal->name . ', but still manfoce allocation not allocated to activity';
+
                         $data = [
                             'type' => 'Activity Manfoce Allocation Reminder',
                             'data' => $user
                         ];
+                        
                         dispatch(new SendPushJob($user, $title, $message, $data, 'User'));
                         /** End of Send Push Notification */
                     }

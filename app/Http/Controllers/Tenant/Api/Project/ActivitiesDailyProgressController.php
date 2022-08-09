@@ -120,7 +120,8 @@ class ActivitiesDailyProgressController extends Controller
                                 $duration = $workingStartTime->diffInHours($workingEndTime);
 
                                 // Activity Productivity = (Total output the manforce) / (Total # of hours worked by the workforce)
-                                $proActivity->allocatedManforce->productivity_rate = round($actTrack->completed_area / $duration, 2);
+                                // $proActivity->allocatedManforce->productivity_rate = round($actTrack->completed_area / $duration, 2);
+                                $proActivity->allocatedManforce->productivity_rate = round($actTrack->completed_area / $proActivity->allocatedManforce->total_assigned, 2);
 
                                 // Total work done by manforce for the activity
                                 $proActivity->allocatedManforce->total_work = ProjectActivityTrack::whereProjectActivityId($proActivity->id)->sum('completed_area');
