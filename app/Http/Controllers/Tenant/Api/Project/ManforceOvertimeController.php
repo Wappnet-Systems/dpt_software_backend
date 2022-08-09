@@ -166,7 +166,8 @@ class ManforceOvertimeController extends Controller
                     );
 
                     // Activity Productivity = (Total output the manforce) / (Total # of hours worked by the workforce)
-                    $overtime->productivity_rate = round($overtime->total_work / $duration, 2);
+                    // $overtime->productivity_rate = round($overtime->total_work / $duration, 2);
+                    $overtime->productivity_rate = round($overtime->total_work / $activity['project_manforce']['allocated_manforce']['total_assigned'], 2);
 
                     $overtime->assign_by = $user->id;
                     $overtime->created_ip = $request->ip();

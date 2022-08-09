@@ -67,11 +67,13 @@ class ActivityProductivity extends Command
 
         if (isset($activities) && !empty($activities)) {
             foreach ($activities as $activityKey => $activityVal) {
-                $allocatedManforce = ProjectActivityAllocateManforce::whereProjectActivityId($activityVal->id);
+                $allocatedManforce = ProjectActivityAllocateManforce::whereProjectActivityId($activityVal->id)
+                    ->where('is_overtime', false);
 
                 $activityVal->productivity_rate = 0;
 
                 if ($allocatedManforce->count()) {
+                    $activityVal->cost = ProjectActivityAllocateManforce::whereProjectActivityId($activityVal->id)->sum('total_cost');
                     $activityVal->productivity_rate = round($allocatedManforce->sum('productivity_rate') / $allocatedManforce->count(), 2);
                     $activityVal->save();
                 }
