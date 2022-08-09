@@ -238,8 +238,8 @@ class ReportController extends Controller
                     $manpowerCost[$activityKey]['manpower_cost']['planned_cost'] = $plannedCost;
                     foreach ($activityValue['allocate_manpower'] as $key => $value) {
                         $costExists['manpower_cost'][$key] = [
-                            'actual_cost' => $value['total_assigned'] * $value['total_cost'] ?? null,
-                            'planned_cost' => $value['total_planned'] * $value['total_cost'] ??  null,
+                            'actual_cost' => $value['total_cost'] ?? null,
+                            'planned_cost' => (($value['total_cost'] / $value['total_assigned']) * $value['total_planned']) ?? null,
                         ];
                         $actualCost += array_sum([$costExists['manpower_cost'][$key]['actual_cost']]);
                         $plannedCost += array_sum([$costExists['manpower_cost'][$key]['planned_cost']]);
