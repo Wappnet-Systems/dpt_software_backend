@@ -13,8 +13,11 @@ use App\Helpers\AppHelper;
 use App\Models\Tenant\ActivitySubCategory;
 use App\Models\Tenant\Project;
 use App\Models\Tenant\ProjectActivity;
+use App\Models\Tenant\ProjectActivityAllocateManforce;
 use App\Models\Tenant\ProjectActivityAssignedUser;
 use App\Models\Tenant\ProjectMainActivity;
+use App\Models\Tenant\ProjectManforce;
+use App\Models\Tenant\ProjectManforceProductivity;
 use App\Models\Tenant\RoleHasSubModule;
 use Illuminate\Support\Facades\Log;
 
@@ -182,6 +185,26 @@ class ActivitiesController extends Controller
                 $proActivity->created_ip = $request->ip();
                 $proActivity->updated_ip = $request->ip();
 
+                if ((!empty($request->start_date) || !empty($request->end_date)) && !empty($request->actual_area)) {
+                    $projectManforceId = ProjectManforce::where('manforce_type_id', $request->manforce_type_id)->value('id');
+
+                    $totalAssignedManforce = ProjectActivityAllocateManforce::where('project_manforce_id', $projectManforceId)
+                        ->where('is_overtime', false)
+                        ->latest()
+                        ->value('total_planned');
+
+                    $manforceProdRate = ProjectManforceProductivity::where('activity_sub_category_id', $request->activity_sub_category_id)
+                        ->where('manforce_type_id', $request->manforce_type_id)
+                        ->where('unit_type_id', $request->unit_type_id)
+                        ->value('productivity_rate');
+
+                    if (!empty($request->start_date) && empty($request->end_date) && !empty($totalAssignedManforce) && !empty($manforceProdRate)) {
+                        $proActivity->end_date = AppHelper::fixedActivityDate($request->start_date, $totalAssignedManforce, $proActivity->actual_area, $manforceProdRate, 'fix_end_date');
+                    } else if (!empty($request->end_date) && empty($request->start_date) && !empty($totalAssignedManforce) && !empty($manforceProdRate)) {
+                        $proActivity->start_date = AppHelper::fixedActivityDate($request->end_date, $totalAssignedManforce, $proActivity->actual_area, $manforceProdRate, 'fix_start_date');
+                    }
+                }
+
                 if (!$proActivity->save()) {
                     return $this->sendError('Something went wrong while creating the activity.', [], 500);
                 }
@@ -287,6 +310,28 @@ class ActivitiesController extends Controller
                     if (!$proActivity->save()) {
                         return $this->sendError('Something went wrong while updating the activity.', [], 500);
                     }
+                }
+
+                if ((!empty($proActivity->start_date) || !empty($proActivity->end_date)) && !empty($proActivity->actual_area)) {
+                    $projectManforceId = ProjectManforce::where('manforce_type_id', $proActivity->manforce_type_id)->value('id');
+
+                    $totalAssignedManforce = ProjectActivityAllocateManforce::where('project_manforce_id', $projectManforceId)
+                        ->where('is_overtime', false)
+                        ->latest()
+                        ->value('total_planned');
+
+                    $manforceProdRate = ProjectManforceProductivity::where('activity_sub_category_id', $proActivity->activity_sub_category_id)
+                        ->where('manforce_type_id', $proActivity->manforce_type_id)
+                        ->where('unit_type_id', $proActivity->unit_type_id)
+                        ->value('productivity_rate');
+
+                    if (!empty($proActivity->start_date) && empty($proActivity->end_date) && !empty($totalAssignedManforce) && !empty($manforceProdRate)) {
+                        $proActivity->end_date = AppHelper::fixedActivityDate($proActivity->start_date, $totalAssignedManforce, $proActivity->actual_area, $manforceProdRate, 'fix_end_date');
+                    } else if (!empty($proActivity->end_date) && empty($proActivity->start_date) && !empty($totalAssignedManforce) && !empty($manforceProdRate)) {
+                        $proActivity->start_date = AppHelper::fixedActivityDate($proActivity->end_date, $totalAssignedManforce, $proActivity->actual_area, $manforceProdRate, 'fix_start_date');
+                    }
+
+                    $proActivity->save();
                 }
 
                 if (isset($request->order_activity_by) && !empty($request->order_activity_by)) {
@@ -427,8 +472,29 @@ class ActivitiesController extends Controller
                     $proActivity->scaffold_requirement = boolval($activity['scaffold_requirement']);
                     $proActivity->helper = boolval($activity['helper']);
                     $proActivity->updated_ip = $request->ip();
-                    $proActivity->save();
 
+                    if ((!empty($proActivity->start_date) || !empty($proActivity->end_date)) && !empty($proActivity->actual_area)) {
+                        $projectManforceId = ProjectManforce::where('manforce_type_id', $proActivity->manforce_type_id)->value('id');
+    
+                        $totalAssignedManforce = ProjectActivityAllocateManforce::where('project_manforce_id', $projectManforceId)
+                            ->where('is_overtime', false)
+                            ->latest()
+                            ->value('total_planned');
+    
+                        $manforceProdRate = ProjectManforceProductivity::where('activity_sub_category_id', $proActivity->activity_sub_category_id)
+                            ->where('manforce_type_id', $proActivity->manforce_type_id)
+                            ->where('unit_type_id', $proActivity->unit_type_id)
+                            ->value('productivity_rate');
+    
+                        if (!empty($proActivity->start_date) && empty($proActivity->end_date) && !empty($totalAssignedManforce) && !empty($manforceProdRate)) {
+                            $proActivity->end_date = AppHelper::fixedActivityDate($proActivity->start_date, $totalAssignedManforce, $proActivity->actual_area, $manforceProdRate, 'fix_end_date');
+                        } else if (!empty($proActivity->end_date) && empty($proActivity->start_date) && !empty($totalAssignedManforce) && !empty($manforceProdRate)) {
+                            $proActivity->start_date = AppHelper::fixedActivityDate($proActivity->end_date, $totalAssignedManforce, $proActivity->actual_area, $manforceProdRate, 'fix_start_date');
+                        }
+                    }
+
+                    $proActivity->save();
+                    
                     if (isset($activity['assigned_users_ids']) && !empty($activity['assigned_users_ids'])) {
                         $projAssignUser = ProjectActivityAssignedUser::whereProjectActivityId($activity['id'])
                             ->where('user_id', '!=', $user->id)
