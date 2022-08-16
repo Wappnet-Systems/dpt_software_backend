@@ -14,6 +14,7 @@ use App\Models\System\Module;
 use App\Models\System\SubModule;
 use App\Models\Tenant\ProjectManforce;
 use App\Models\Tenant\RoleHasSubModule;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 
 /**
@@ -115,5 +116,26 @@ class AppHelper
         }
         
         return round($totalCost, 2);
+    }
+
+    public static function fixedActivityDate($date = null, $totalManforce = 0, $totalArea = 0, $perManProdRate = 0, $type = 'fix_start_date')
+    {
+        if (!isset($date) || !isset($totalManforce) || !isset($totalArea)) {
+            return $date;
+        }
+
+        $date = new Carbon($date);
+
+        $totalDaysToWork = ceil($totalArea / ($perManProdRate * $totalManforce)) - 1;
+
+        $updatedDate = $date;
+
+        if ($type == 'fix_start_date') {
+            $updatedDate = $date->subDays($totalDaysToWork);
+        } else if ($type == 'fix_end_date') {
+            $updatedDate = $date->addDays($totalDaysToWork);
+        }
+
+        return $updatedDate;
     }
 }
