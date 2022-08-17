@@ -142,7 +142,7 @@ class OrganizationController extends Controller
                 $organization->country = $request->country;
                 $organization->zip_code = $request->zip_code;
                 $organization->org_domain = Organization::generateUuid($request->org_domain);
-                $organization->is_details_visible = $request->is_details_visible;
+                // $organization->is_details_visible = $request->is_details_visible;
                 $organization->created_ip = $request->ip();
                 $organization->updated_ip = $request->ip();
 
@@ -239,7 +239,7 @@ class OrganizationController extends Controller
                 if ($request->filled('state')) $organization->state = $request->state;
                 if ($request->filled('country')) $organization->country = $request->country;
                 if ($request->filled('zip_code')) $organization->zip_code = $request->zip_code;
-                if ($request->filled('is_details_visible')) $organization->is_details_visible = $request->is_details_visible;
+                // if ($request->filled('is_details_visible')) $organization->is_details_visible = $request->is_details_visible;
                 $organization->updated_ip = $request->ip();
 
                 if (!$organization->save()) {
