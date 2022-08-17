@@ -138,4 +138,23 @@ class AppHelper
 
         return $updatedDate;
     }
+    
+    public static function findPerDayManforceRequirement($startDate = null, $endDate = null, $totalArea = 0, $perManProdRate = 0)
+    {
+        if (!isset($startDate) || !isset($endDate) || !isset($totalArea) || !isset($perManProdRate)) {
+            return 0;
+        }
+
+        $startDate = Carbon::parse($startDate);
+        $endDate = Carbon::parse($endDate);
+        $durInDays = $startDate->diffInDays($endDate) + 1;
+
+        $perDayAreaWork = floatval($totalArea) / $durInDays;
+
+        $reqManforce = $perDayAreaWork / floatval($perManProdRate);
+
+        Log::info('reqManforce :- ' . $reqManforce);
+
+        return $reqManforce;
+    }
 }
