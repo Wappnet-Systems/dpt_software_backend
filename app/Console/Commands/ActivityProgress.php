@@ -104,7 +104,6 @@ class ActivityProgress extends Command
                     }
 
                     foreach ($assiFormanEng as $assiFormanEngKey => $user) {
-
                         if ($user['role_id'] == USER::USER_ROLE['ENGINEER']) {
                             $methodStatementAssign = MethodStatement::whereNull('project_activity_id')->get();
 

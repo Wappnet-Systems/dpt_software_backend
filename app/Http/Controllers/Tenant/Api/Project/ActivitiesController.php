@@ -19,6 +19,8 @@ use App\Models\Tenant\ProjectMainActivity;
 use App\Models\Tenant\ProjectManforce;
 use App\Models\Tenant\ProjectManforceProductivity;
 use App\Models\Tenant\RoleHasSubModule;
+use Carbon\Carbon;
+use Carbon\CarbonPeriod;
 use Illuminate\Support\Facades\Log;
 
 class ActivitiesController extends Controller
@@ -202,6 +204,37 @@ class ActivitiesController extends Controller
                         $proActivity->end_date = AppHelper::fixedActivityDate($request->start_date, $totalAssignedManforce, $proActivity->actual_area, $manforceProdRate, 'fix_end_date');
                     } else if (!empty($request->end_date) && empty($request->start_date) && !empty($totalAssignedManforce) && !empty($manforceProdRate)) {
                         $proActivity->start_date = AppHelper::fixedActivityDate($request->end_date, $totalAssignedManforce, $proActivity->actual_area, $manforceProdRate, 'fix_start_date');
+                    } else if (!empty($request->start_date) && !empty($request->end_date) && !empty(floatval($manforceProdRate))) {
+                        $reqManforce = AppHelper::findPerDayManforceRequirement($request->start_date, $request->end_date, $proActivity->actual_area, $manforceProdRate);
+
+                        if (!empty($reqManforce)) {
+                            $proActivity->save();
+
+                            $period = CarbonPeriod::create($request->start_date, $request->end_date);
+
+                            if (!empty($period)) {
+                                foreach ($period as $date) {
+                                    $allocatedManforce = ProjectActivityAllocateManforce::whereProjectActivityId($proActivity->id)
+                                        ->where('date', $date->format('Y-m-d'))
+                                        ->where('is_overtime', false)
+                                        ->first();
+                                
+                                    if (!isset($allocatedManforce) || empty($allocatedManforce)) {
+                                        $allocatedManforce = new ProjectActivityAllocateManforce();
+                                        $allocatedManforce->created_ip = $request->ip();  
+                                    }
+                                    
+                                    $allocatedManforce->project_activity_id = $proActivity->id;
+                                    $allocatedManforce->project_manforce_id = $projectManforceId;
+                                    $allocatedManforce->date = $date->format('Y-m-d');
+                                    $allocatedManforce->is_overtime = false;
+                                    $allocatedManforce->total_planned = $reqManforce;
+                                    $allocatedManforce->assign_by = $user->id;
+                                    $allocatedManforce->updated_ip = $request->ip();
+                                    $allocatedManforce->save();
+                                }
+                            }
+                        }
                     }
                 }
 
@@ -329,6 +362,35 @@ class ActivitiesController extends Controller
                         $proActivity->end_date = AppHelper::fixedActivityDate($proActivity->start_date, $totalAssignedManforce, $proActivity->actual_area, $manforceProdRate, 'fix_end_date');
                     } else if (!empty($proActivity->end_date) && empty($proActivity->start_date) && !empty($totalAssignedManforce) && !empty($manforceProdRate)) {
                         $proActivity->start_date = AppHelper::fixedActivityDate($proActivity->end_date, $totalAssignedManforce, $proActivity->actual_area, $manforceProdRate, 'fix_start_date');
+                    } else if (!empty($proActivity->start_date) && !empty($proActivity->end_date) && !empty(floatval($manforceProdRate))) {
+                        $reqManforce = AppHelper::findPerDayManforceRequirement($proActivity->start_date, $proActivity->end_date, $proActivity->actual_area, $manforceProdRate);
+
+                        if (!empty($reqManforce)) {
+                            $period = CarbonPeriod::create($proActivity->start_date, $proActivity->end_date);
+
+                            if (!empty($period)) {
+                                foreach ($period as $date) {
+                                    $allocatedManforce = ProjectActivityAllocateManforce::whereProjectActivityId($proActivity->id)
+                                        ->where('date', $date->format('Y-m-d'))
+                                        ->where('is_overtime', false)
+                                        ->first();
+                                    
+                                    if (!isset($allocatedManforce) || empty($allocatedManforce)) {
+                                        $allocatedManforce = new ProjectActivityAllocateManforce();
+                                        $allocatedManforce->created_ip = $request->ip();  
+                                    }
+                                    
+                                    $allocatedManforce->project_activity_id = $proActivity->id;
+                                    $allocatedManforce->project_manforce_id = $projectManforceId;
+                                    $allocatedManforce->date = $date->format('Y-m-d');
+                                    $allocatedManforce->is_overtime = false;
+                                    $allocatedManforce->total_planned = $reqManforce;
+                                    $allocatedManforce->assign_by = $user->id;
+                                    $allocatedManforce->updated_ip = $request->ip();
+                                    $allocatedManforce->save();
+                                }
+                            }
+                        }
                     }
 
                     $proActivity->save();
@@ -490,6 +552,35 @@ class ActivitiesController extends Controller
                             $proActivity->end_date = AppHelper::fixedActivityDate($proActivity->start_date, $totalAssignedManforce, $proActivity->actual_area, $manforceProdRate, 'fix_end_date');
                         } else if (!empty($proActivity->end_date) && empty($proActivity->start_date) && !empty($totalAssignedManforce) && !empty($manforceProdRate)) {
                             $proActivity->start_date = AppHelper::fixedActivityDate($proActivity->end_date, $totalAssignedManforce, $proActivity->actual_area, $manforceProdRate, 'fix_start_date');
+                        } else if (!empty($proActivity->start_date) && !empty($proActivity->end_date) && !empty(floatval($manforceProdRate))) {
+                            $reqManforce = AppHelper::findPerDayManforceRequirement($proActivity->start_date, $proActivity->end_date, $proActivity->actual_area, $manforceProdRate);
+    
+                            if (!empty($reqManforce)) {
+                                $period = CarbonPeriod::create($proActivity->start_date, $proActivity->end_date);
+    
+                                if (!empty($period)) {
+                                    foreach ($period as $date) {
+                                        $allocatedManforce = ProjectActivityAllocateManforce::whereProjectActivityId($proActivity->id)
+                                            ->where('date', $date->format('Y-m-d'))
+                                            ->where('is_overtime', false)
+                                            ->first();
+                                    
+                                        if (!isset($allocatedManforce) || empty($allocatedManforce)) {
+                                            $allocatedManforce = new ProjectActivityAllocateManforce();
+                                            $allocatedManforce->created_ip = $request->ip();  
+                                        }
+                                        
+                                        $allocatedManforce->project_activity_id = $proActivity->id;
+                                        $allocatedManforce->project_manforce_id = $projectManforceId;
+                                        $allocatedManforce->date = $date->format('Y-m-d');
+                                        $allocatedManforce->is_overtime = false;
+                                        $allocatedManforce->total_planned = $reqManforce;
+                                        $allocatedManforce->assign_by = $user->id;
+                                        $allocatedManforce->updated_ip = $request->ip();
+                                        $allocatedManforce->save();
+                                    }
+                                }
+                            }
                         }
                     }
 
