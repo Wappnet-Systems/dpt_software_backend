@@ -253,7 +253,7 @@ class MethodStatementController extends Controller
                     ->first();
 
                 if (!isset($methodStatement) || empty($methodStatement)) {
-                    return $this->sendError('Method statement does not exists.', [], 404);
+                    return $this->sendError('You can not delete assigned method statement or not exists.', [], 401);
                 }
 
                 $methodStatement->delete();
