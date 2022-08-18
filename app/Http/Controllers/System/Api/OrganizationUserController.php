@@ -127,18 +127,6 @@ class OrganizationUserController extends Controller
                 } else if (!in_array($request->role_id, USER::USER_ROLE_GROUP[$user->role_id])) {
                     return $this->sendError('You have no rights to add User.', [], 401);
                 } else {
-
-                    /* if (!in_array($user->role_id, [User::USER_ROLE['SUPER_ADMIN'], User::USER_ROLE['COMPANY_ADMIN'], User::USER_ROLE['CONSTRUCATION_SITE_ADMIN'], User::USER_ROLE['MANAGER']])) {
-                    return $this->sendError('You have no rights to add User.');
-                } else if ($user->role_id == User::USER_ROLE['SUPER_ADMIN'] && !in_array($request->role_id, [User::USER_ROLE['COMPANY_ADMIN']])) {
-                    return $this->sendError('You have no rights to add User.');
-                } else if ($user->role_id == User::USER_ROLE['COMPANY_ADMIN'] && !in_array($request->role_id, [User::USER_ROLE['CONSTRUCATION_SITE_ADMIN']])) {
-                    return $this->sendError('You have no rights to add User.');
-                } else if ($user->role_id == User::USER_ROLE['CONSTRUCATION_SITE_ADMIN'] && !in_array($request->role_id, [User::USER_ROLE['MANAGER']])) {
-                    return $this->sendError('You have no rights to add User.');
-                } else if ($user->role_id == User::USER_ROLE['MANAGER'] && in_array($request->role_id, [User::USER_ROLE['SUPER_ADMIN'], User::USER_ROLE['COMPANY_ADMIN'], User::USER_ROLE['CONSTRUCATION_SITE_ADMIN']])) {
-                    return $this->sendError('You have no rights to add User.');
-                } else { */
                     $validator = Validator::make($request->all(), [
                         'name' => 'required',
                         'email' => 'required|email|regex:/^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,4}$/|unique:users,email',
@@ -238,22 +226,6 @@ class OrganizationUserController extends Controller
                 } else if ($user->role_id != User::USER_ROLE['SUPER_ADMIN'] && $user->organization_id != $orgUser->organization_id) {
                     return $this->sendError('You have no rights to update User.', [], 401);
                 } else {
-
-                    /* if (!isset($orgUser) || empty($orgUser)) {
-                    return $this->sendError('User dose not exists.');
-                } else if (!in_array($user->role_id, [User::USER_ROLE['SUPER_ADMIN'], User::USER_ROLE['COMPANY_ADMIN'], User::USER_ROLE['CONSTRUCATION_SITE_ADMIN'], User::USER_ROLE['MANAGER']])) {
-                    return $this->sendError('You have no rights to update User.');
-                } else if ($user->role_id == User::USER_ROLE['SUPER_ADMIN'] && !in_array($orgUser->role_id, [User::USER_ROLE['COMPANY_ADMIN']])) {
-                    return $this->sendError('You have no rights to update User.');
-                } else if ($user->role_id == User::USER_ROLE['COMPANY_ADMIN'] && !in_array($orgUser->role_id, [User::USER_ROLE['CONSTRUCATION_SITE_ADMIN']])) {
-                    return $this->sendError('You have no rights to update User.');
-                } else if ($user->role_id == User::USER_ROLE['CONSTRUCATION_SITE_ADMIN'] && !in_array($orgUser->role_id, [User::USER_ROLE['MANAGER']])) {
-                    return $this->sendError('You have no rights to update User.');
-                } else if ($user->role_id == User::USER_ROLE['MANAGER'] && in_array($orgUser->role_id, [User::USER_ROLE['SUPER_ADMIN'], User::USER_ROLE['COMPANY_ADMIN'], User::USER_ROLE['CONSTRUCATION_SITE_ADMIN']])) {
-                    return $this->sendError('You have no rights to update User.');
-                } else if ($user->role_id != User::USER_ROLE['SUPER_ADMIN'] && $user->organization_id != $orgUser->organization_id) {
-                    return $this->sendError('You have no rights to update User.');
-                } else { */
                     $validator = Validator::make($request->all(), [
                         'name' => 'required',
                         'email' => 'required|email|regex:/^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,4}$/|unique:users,email,' . $orgUser->id,
