@@ -109,13 +109,13 @@ class InventoryStocksController extends Controller
         $projectInventory = ProjectInventory::whereId($request->projectInventoryId)->first();
 
         if (!isset($projectInventory) && empty($projectInventory)) {
-            return $this->sendError('Project inventory does not exist.');
+            return $this->sendError('Project inventory does not exist.', [], 404);
         }
 
         if ($request->filled('minimum_quantity')) $projectInventory->minimum_quantity = $request->minimum_quantity;
 
         if (!$projectInventory->save()) {
-            return $this->sendError('Something went wrong while updating the project inventory');
+            return $this->sendError('Something went wrong while updating the project inventory', [], 500);
         }
 
         return $this->sendResponse([], 'Project inventory updated successfully.');
@@ -129,6 +129,7 @@ class InventoryStocksController extends Controller
         $query = ProjectInventory::with('materialType', 'unitType')
             ->whereStatus(ProjectInventory::STATUS['Active'])
             ->whereProjectId($request->project_id ?? '')
+            ->whereColumn('minimum_quantity', '>=', 'remaining_quantity')
             ->where('minimum_quantity', '>', 0)
             ->orderby('id', $orderBy);
 
@@ -168,9 +169,7 @@ class InventoryStocksController extends Controller
         }
 
         if (isset($user) && !empty($user)) {
-
-            $assignedProjectIds = ProjectAssignedUser::whereUserId($user->id)
-                ->pluck('project_id');
+            $assignedProjectIds = ProjectAssignedUser::whereUserId($user->id)->pluck('project_id');
 
             $projects = Project::whereIn('id', $assignedProjectIds)->select('id', 'uuid', 'name')->get();
 
@@ -180,7 +179,9 @@ class InventoryStocksController extends Controller
                 foreach ($projects as $key => $value) {
                     $minimumQuantity = ProjectInventory::whereStatus(ProjectInventory::STATUS['Active'])
                         ->where('project_id', $value->id)
-                        ->where('minimum_quantity', '>', 0)->count();
+                        ->whereColumn('minimum_quantity', '>=', 'remaining_quantity')
+                        ->where('minimum_quantity', '>', 0)
+                        ->count();
 
                     if (isset($minimumQuantity) && !empty($minimumQuantity)) {
                         $minimumQuantityArr[$key] = [
@@ -194,7 +195,7 @@ class InventoryStocksController extends Controller
                 if (isset($minimumQuantityArr) && !empty($minimumQuantityArr)) {
                     return $this->sendResponse($minimumQuantityArr, 'Get Minimum stock alert.');
                 } else {
-                    return $this->sendError('Minimum stock not found.', [], 200);
+                    return $this->sendError('Minimum stock not found.', [], 400);
                 }
             } else {
                 return $this->sendError('Project does not exist.', [], 400);

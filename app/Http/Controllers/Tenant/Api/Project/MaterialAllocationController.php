@@ -109,7 +109,7 @@ class MaterialAllocationController extends Controller
             ->first();
 
         if (!isset($allocatedMaterial) || empty($allocatedMaterial)) {
-            return $this->sendError('Material not allocated to the activity.');
+            return $this->sendError('Material not allocated to the activity.', [], 404);
         }
 
         return $this->sendResponse($allocatedMaterial, 'Activity allocated material details.');
@@ -140,12 +140,12 @@ class MaterialAllocationController extends Controller
                 $projectInventory = ProjectInventory::whereId($request->project_inventory_id)->first();
 
                 if (!isset($projectInventory) || empty($projectInventory)) {
-                    return $this->sendError('Requested material is not available in inventory.');
+                    return $this->sendError('Requested material is not available in inventory.', [], 404);
                 }
 
                 // Check requested quantity not more than inventory remaining quantity
                 if ($request->quantity > $projectInventory->remaining_quantity) {
-                    return $this->sendError('Requested quantity not more than inventory remaining quantity.');
+                    return $this->sendError('Requested quantity not more than inventory remaining quantity.', [], 400);
                 }
 
                 // Check already allocated material in activity
@@ -172,7 +172,7 @@ class MaterialAllocationController extends Controller
                 $allocatedMaterial->updated_ip = $request->ip();
 
                 if (!$allocatedMaterial->save()) {
-                    return $this->sendError('Something went wrong while creating the allocating material to activity.');
+                    return $this->sendError('Something went wrong while creating the allocating material to activity.', [], 500);
                 }
 
                 /** Change remainig quantity after allocate material to activity */
@@ -181,7 +181,7 @@ class MaterialAllocationController extends Controller
 
                 return $this->sendResponse([], 'Material allocating into activity successfully.');
             } else {
-                return $this->sendError('User not exists.');
+                return $this->sendError('User not exists.', [], 404);
             }
         } catch (\Exception $e) {
             Log::error($e->getMessage());
@@ -221,7 +221,7 @@ class MaterialAllocationController extends Controller
                 $projectInventory = ProjectInventory::whereId($allocatedMaterial->project_inventory_id)->first();
 
                 if (!isset($projectInventory) || empty($projectInventory)) {
-                    return $this->sendError('Requested material is not available in inventory.');
+                    return $this->sendError('Requested material is not available in inventory.', [], 404);
                 }
 
                 if ($request->is_increase) {
@@ -229,7 +229,7 @@ class MaterialAllocationController extends Controller
                     $requestQty = $request->quantity - $allocatedMaterial->remaining_quantity;
 
                     if ($requestQty > $projectInventory->remaining_quantity) {
-                        return $this->sendError('Requested quantity not more than inventory remaining quantity.');
+                        return $this->sendError('Requested quantity not more than inventory remaining quantity.', [], 400);
                     }
 
                     // Update exist allocated material in activity
@@ -246,7 +246,7 @@ class MaterialAllocationController extends Controller
                     $requestQty = $allocatedMaterial->remaining_quantity - $request->quantity;
 
                     if ($requestQty > $allocatedMaterial->remaining_quantity) {
-                        return $this->sendError('Requested quantity not more than allocated remaining quantity.');
+                        return $this->sendError('Requested quantity not more than allocated remaining quantity.', [], 400);
                     }
 
                     // Update exist allocated material in activity
@@ -264,7 +264,7 @@ class MaterialAllocationController extends Controller
 
                 return $this->sendResponse([], 'Material allocating into activity successfully.');
             } else {
-                return $this->sendError('User not exists.');
+                return $this->sendError('User not exists.', [], 404);
             }
         } catch (\Exception $e) {
             Log::error($e->getMessage());
@@ -286,7 +286,7 @@ class MaterialAllocationController extends Controller
                 $allocatedMaterial = ProjectActivityAllocateMaterial::whereId($request->id)->first();
 
                 if (!isset($allocatedMaterial) || empty($allocatedMaterial)) {
-                    return $this->sendError('Material not allocated to the activity.');
+                    return $this->sendError('Material not allocated to the activity.', [], 404);
                 }
 
                 // Check material is already used in activity
@@ -295,14 +295,14 @@ class MaterialAllocationController extends Controller
                     ->exists();
 
                 if ($isUsedMaterial) {
-                    return $this->sendError('You can not remove allocated material from activity.');
+                    return $this->sendError('You can not remove allocated material from activity.', [], 400);
                 }
 
                 // Check material is found or not in inventory
                 $projectInventory = ProjectInventory::whereId($allocatedMaterial->project_inventory_id)->first();
 
                 if (!isset($projectInventory) || empty($projectInventory)) {
-                    return $this->sendError('Requested material is not available in inventory.');
+                    return $this->sendError('Requested material is not available in inventory.', [], 404);
                 }
 
                 // Update inventory quantity of material
@@ -315,7 +315,7 @@ class MaterialAllocationController extends Controller
 
                 return $this->sendResponse([], 'Allocated material removed from activity successfully.');
             } else {
-                return $this->sendError('User not exists.');
+                return $this->sendError('User not exists.', [], 404);
             }
         } catch (\Exception $e) {
             Log::error($e->getMessage());
