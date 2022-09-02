@@ -16,7 +16,7 @@ class ProjectMainActivity extends Model
 
     protected $guarded = [];
 
-    protected $appends = ['status_name'];
+    protected $appends = ['status_name', 'project_activities_count'];
 
     const STATUS = [
         'Active' => 1,
@@ -39,6 +39,16 @@ class ProjectMainActivity extends Model
 
         return null;
     }
+
+    /**
+     * Get the status name.
+     *
+     * @return string
+     */
+    public function getProjectActivitiesCountAttribute()
+    {
+        return ProjectActivity::whereProjectMainActivityId($this->id)->count();
+    }
     
     public function project()
     {
@@ -46,7 +56,7 @@ class ProjectMainActivity extends Model
             ->select('id', 'name', 'logo', 'address', 'lat', 'long', 'city', 'state', 'country', 'zip_code', 'start_date', 'end_date', 'cost', 'status');
     }
 
-    public function projectActivities()
+    public function proActivities()
     {
         return $this->hasMany(ProjectActivity::class, 'project_main_activity_id', 'id')
             ->with('projectInspections', 'assignedUsers', 'activitySubCategory', 'unitType', 'manforceType')
@@ -54,12 +64,31 @@ class ProjectMainActivity extends Model
             ->orderBy('sort_by', 'ASC');
     }
 
+    public function projectActivities()
+    {
+        $query = $this->hasMany(ProjectActivity::class, 'project_main_activity_id', 'id')
+            ->with('projectInspections', 'assignedUsers', 'activitySubCategory', 'unitType', 'manforceType')
+            ->select('id', 'project_id', 'project_main_activity_id', 'activity_sub_category_id', 'manforce_type_id', 'name', 'start_date', 'end_date', 'actual_start_date', 'actual_end_date', 'location', 'level', 'actual_area', 'completed_area', 'unit_type_id', 'cost', 'scaffold_requirement', 'helper', 'status', 'productivity_rate', 'created_by', 'sort_by')
+            ->orderBy('sort_by', 'ASC');
+
+        if (auth()->user()->role_id != User::USER_ROLE['MANAGER']) {
+            $assignProActivityIds = ProjectActivityAssignedUser::whereUserId(auth()->user()->id)
+                ->pluck('project_activity_id')
+                ->toArray();
+
+            $query->whereIn('id', $assignProActivityIds)
+                ->orderBy('sort_by', 'ASC');
+        }
+
+        return $query;
+    }
+
     public function parents()
     {
         return $this->hasMany(ProjectMainActivity::class, 'parent_id', 'id')
             ->with([
                 'parents',
-                'projectActivities' => function ($query) {
+                'projectActivities'/*  => function ($query) {
                     if (auth()->user()->role_id != User::USER_ROLE['MANAGER']) {
                         $assignProActivityIds = ProjectActivityAssignedUser::whereUserId(auth()->user()->id)
                             ->pluck('project_activity_id')
@@ -68,7 +97,7 @@ class ProjectMainActivity extends Model
                         $query->whereIn('id', $assignProActivityIds)
                             ->orderBy('sort_by', 'ASC');
                     }
-                }
+                } */
             ])
             ->select('id', 'project_id', 'parent_id', 'name', 'status', 'created_by', 'sort_by')
             ->orderBy('sort_by', 'ASC');
