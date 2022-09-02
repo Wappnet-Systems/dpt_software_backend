@@ -75,16 +75,16 @@ class ActivitiesController extends Controller
             ->select('id', 'project_id', 'parent_id', 'name', 'status', 'created_by', 'sort_by')
             ->orderBy('sort_by', 'ASC');
 
-        if ($user->role_id != User::USER_ROLE['MANAGER']) {
+        /* if ($user->role_id != User::USER_ROLE['MANAGER']) {
             $assignProActivityIds = ProjectActivityAssignedUser::whereUserId($user->id)
                 ->pluck('project_activity_id')
                 ->toArray();
-
+            
             $proActivitiesQuery->whereHas('parents.projectActivities', function ($query) use ($assignProActivityIds) {
-                $query->orWhereIn('id', $assignProActivityIds)
+                $query->orwhereIn('projects_activities.id', $assignProActivityIds)
                     ->orderBy('sort_by', 'ASC');
             });
-        }
+        } */
 
         $proActivities = $proActivitiesQuery->get();
 
@@ -122,7 +122,7 @@ class ActivitiesController extends Controller
             return $this->sendError('You have no rights to access this action.');
         } */
 
-        $proActivities = ProjectMainActivity::with('project', 'projectActivities')
+        $proActivities = ProjectMainActivity::with('project', 'proActivities')
             ->whereId($request->id)
             ->first();
 
