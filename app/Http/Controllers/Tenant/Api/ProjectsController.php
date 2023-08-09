@@ -13,6 +13,7 @@ use App\Models\Tenant\Project;
 use App\Models\Tenant\ProjectAssignedUser;
 use App\Helpers\AppHelper;
 use App\Helpers\UploadFile;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 
 class ProjectsController extends Controller
@@ -124,6 +125,42 @@ class ProjectsController extends Controller
         }
 
         return $this->sendResponse($project, 'Project details.');
+    }
+
+    /**
+     * Get the list of projects assigned to the logged-in user.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * 
+     * @return \Illuminate\Http\Response
+     */
+    public function getUserAssignedProjects(Request $request)
+    {
+        $user = Auth::user();
+
+        // Check if the user is logged in
+        if (isset($user) && !empty($user)) {
+            // Retrieve projects assigned to the user
+            $assigned_projects = Project::with('assignedUsers')
+                ->whereHas('assignedUsers', function ($query) use ($user) {
+                    $query->where('user_id', $user->id);
+                })
+                ->select('id', 'uuid', 'name', 'logo', 'address', 'lat', 'long', 'status')
+                ->get();
+
+            // Make certain attributes hidden for each project
+            $assigned_projects->each(function ($project) {
+                $project->makeHidden(['status_name', 'logo_path', 'assignedUsers']);
+            });
+
+            $data = [
+                'assigned_projects' => $assigned_projects,
+            ];
+
+            return $this->sendResponse($data, 'User assigned projects.');
+        } else {
+            return $this->sendError('You are not logged in.');
+        }
     }
 
     public function addProject(Request $request)

@@ -158,6 +158,7 @@ Route::middleware('auth:sanctum')->group(function () {
     /* Projects Routes */
     Route::get('project/get/lists', [ProjectsController::class, 'getProjects']);
     Route::get('project/get/{id}', [ProjectsController::class, 'getProjectDetails']);
+    Route::get('project/get/user/assigned-projects', [ProjectsController::class, 'getUserAssignedProjects']);
     Route::post('project/add', [ProjectsController::class, 'addProject']);
     Route::put('project/update/{Uuid}', [ProjectsController::class, 'updateProject']);
     Route::delete('project/delete/{Uuid}', [ProjectsController::class, 'deleteProject']);
