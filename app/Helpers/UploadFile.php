@@ -18,22 +18,24 @@ use Image;
  */
 class UploadFile
 {
-    protected $_projectName = 'dpt';
+    protected $_projectName = 'public/dpt';
 
-    public function __construct() {
+    public function __construct()
+    {
     }
 
     public function uploadImage($file = null, $path = null, $height = null, $width = null)
     {
-        if ((!isset($file) || empty($file)) && (!isset($path) || empty($path))) return null;
-        
+        if ((!isset($file) || empty($file)) && (!isset($path) || empty($path)))
+            return null;
+
         $file = $file->store($path);
 
         // Resize image here
         if (!empty($height) && !empty($width)) {
-            $thumbnailpath = public_path('storage/'.str_replace('public','',$file));
+            $thumbnailpath = public_path('storage/' . str_replace('public', '', $file));
 
-            $img = Image::make($thumbnailpath)->resize($height, $width, function($constraint) {
+            $img = Image::make($thumbnailpath)->resize($height, $width, function ($constraint) {
                 $constraint->aspectRatio();
             });
 
@@ -45,14 +47,16 @@ class UploadFile
 
     public function getFilePath($path = null, $type = null)
     {
-        if (!isset($path) || empty($path)) return null;
+        if (!isset($path) || empty($path))
+            return null;
 
         return str_replace('public/', '', $path);
     }
 
     public function deleteFileFolder($path = null)
     {
-        if (!isset($path) || empty($path)) return false;
+        if (!isset($path) || empty($path))
+            return false;
 
         return Storage::delete($path);
     }
@@ -60,8 +64,9 @@ class UploadFile
     // S3 Bucket uplaod
     public function uploadFileInS3($request = null, $path = null, $fileName = null, $height = null, $width = null, $isUpdateFileName = true)
     {
-        if (!$request->hasFile($fileName)) return null;
-        
+        if (!$request->hasFile($fileName))
+            return null;
+
         $projectPath = sprintf('%s/%s', $this->_projectName, $path);
 
         $file = $request->file($fileName);
@@ -77,9 +82,10 @@ class UploadFile
         if (!empty($height) && !empty($width)) {
             $resize = Image::make($file)->resize($height, $width)->encode($extension);
 
-            $response = Storage::disk('s3')->put(sprintf('%s/%s', $projectPath, $newFileName), (string)$resize, 'public');
+            $response = Storage::disk(config('filesystems.default'))->put(sprintf('%s/%s', $projectPath, $newFileName), (string) $resize, 'public');
         } else {
-            $response = Storage::disk('s3')->put(sprintf('%s/%s', $projectPath, $newFileName), file_get_contents($file), 'public');
+
+            $response = Storage::disk(config('filesystems.default'))->put(sprintf('%s/%s', $projectPath, $newFileName), file_get_contents($file), 'public');
         }
 
         return sprintf('%s/%s', $path, $newFileName);
@@ -87,7 +93,8 @@ class UploadFile
 
     public function uploadMultipleFilesInS3($file = null, $path = null, $height = null, $width = null)
     {
-        if (!isset($file) || empty($file)) return null;
+        if (!isset($file) || empty($file))
+            return null;
 
         $projectPath = sprintf('%s/%s', $this->_projectName, $path);
 
@@ -97,10 +104,9 @@ class UploadFile
 
         if (!empty($height) && !empty($width)) {
             $resize = Image::make($file)->resize($height, $width)->encode($extension);
-
-            $response = Storage::disk('s3')->put(sprintf('%s/%s', $projectPath, $newFileName), (string)$resize, 'public');
+            $response = Storage::disk(config('filesystems.default'))->put(sprintf('%s/%s', $projectPath, $newFileName), (string) $resize, 'public');
         } else {
-            $response = Storage::disk('s3')->put(sprintf('%s/%s', $projectPath, $newFileName), file_get_contents($file->getPathName()), 'public');
+            $response = Storage::disk(config('filesystems.default'))->put(sprintf('%s/%s', $projectPath, $newFileName), file_get_contents($file->getPathName()), 'public');
         }
 
         return sprintf('%s/%s', $path, $newFileName);
@@ -108,21 +114,26 @@ class UploadFile
 
     public function getS3FilePath($fileType = null, $path = null)
     {
-        if (!isset($path) || empty($path)) return null;
+        if (!isset($path) || empty($path))
+            return null;
 
-        $s3_link = config('filesystems.disks.s3.url');
+        // $s3_link = config('filesystems.disks.s3.url');
+
+        $link = config("filesystems.disks." . config('filesystems.default') . ".url");
 
         $projectPath = sprintf('%s/%s', $this->_projectName, $path);
-        return sprintf('%s/%s', $s3_link, $projectPath);
+
+        return sprintf('%s/%s', $link, $projectPath);
     }
 
     public function deleteFileFromS3($path)
     {
-        if (!isset($path) || empty($path)) return null;
+        if (!isset($path) || empty($path))
+            return null;
 
         $projectPath = sprintf('%s/%s', $this->_projectName, $path);
 
-        $res = Storage::disk('s3')->delete($projectPath);
+        $res = Storage::disk(config('filesystems.default'))->delete($projectPath);
 
         return $res;
     }
